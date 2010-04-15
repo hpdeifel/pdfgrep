@@ -283,6 +283,8 @@ int main(int argc, char** argv)
 	}
 
 	globalParams = new GlobalParams();
+	globalParams->setTextPageBreaks(gFalse);
+	globalParams->setErrQuiet(gTrue);
 
 	int error = regcomp(&regex, argv[optind++], REG_EXTENDED | ignore_case);
 	if (error) {
