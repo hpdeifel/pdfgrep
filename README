@@ -1,0 +1,18 @@
+* Overview
+
+Pdfgrep is a tool for searching text in PDF files. It works
+similar to `grep'.
+
+* Features
+
+ - search for regular expressions
+ - support for some important grep options including:
+    + filename output
+    + page number output
+    + ignoring case
+    + count occurrences.
+ - and the most important feature: color output
+
+* Dependencies
+
+ - poppler (http://poppler.freedesktop.org/)
