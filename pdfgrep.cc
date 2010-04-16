@@ -148,7 +148,7 @@ void print_context(char *string, int pos, int matchend, int buflen)
 		if (chars_left_b) chars_left_b--;
 	}
 
-	fwrite(string+a, pos - a, 1, stdout);
+	fwrite(string+a+1, pos - a - 1, 1, stdout);
 	with_color(highlight_color,
 		fwrite(string+pos, matchend-pos, 1, stdout););
 	fwrite(string+matchend, b-matchend, 1, stdout);
@@ -190,7 +190,8 @@ void search_in_document(PDFDoc *doc, regex_t *needle)
 				if (print_filename || print_pagenum)
 					printf(" ");
 
-				print_context(stream->buf, match[0].rm_so, match[0].rm_eo, stream->charpos);
+				print_context(stream->buf, index + match[0].rm_so,
+						index + match[0].rm_eo, stream->charpos);
 
 				printf("\n");
 			}
