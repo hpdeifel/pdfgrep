@@ -1,0 +1,70 @@
+.TH pdfgrep 1 "April 16, 2010" "version 0.1" "USER COMMANDS"
+.SH NAME
+pdfgrep \- search pdf files for a regular expression
+.SH SYNOPSIS
+.B pdfgrep
+.RI [ OPTION .\|.\|.]
+.I PATTERN
+.IR FILE .\|.\|.
+.SH DESCRIPTION
+Search for \fIPATTERN\fP in each \fIFILE\fP. \fIPATTERN\fP is an
+extended regular expression.
+.PP
+.B pdfgrep
+works much like grep, with one distinction: It operates on pages and
+not on lines.
+.SH OPTIONS
+.TP
+.BR \-i ", " \-\^\-ignore-case
+Ignore case distinctions in both the \fIPATTERN\fP and the input
+files.
+.TP
+.BR \-H ", " \-\^\-with-filename
+Print the file name for each match. This is the default when there is
+more than one file to search.
+.TP
+.BR \-h ", " \-\^\-no-filename
+Suppress the prefixing of file name on output. This is the default
+when there is only one file to search.
+.TP
+.BR \-n ", " \-\^\-page-number
+Prefix each match with the number of the page where it was found.
+.TP
+.BR \-c ", " \-\^\-count
+Suppress normal output. Instead print a count of matches for each
+input file. Note that unlike grep, multiple matches on a single page
+will be counted individually.
+.TP
+.BR \-C ", " \-\^\-context " " \fINUM\fP
+Print ca. \fINUM\fP characters of context around each match. The exact
+number will vary, because pdfgrep tries to respect word
+boundaries. (The default is 50)
+.TP
+.BR \-\^\-color " " \fIWHEN\fP
+Surround file names, page numbers and matched text with escape
+sequences to display them in color on the terminal. (The default is
+\fBauto\fP).
+.RS
+.PP
+.I WHEN
+can be:
+.TP
+.B always
+Always use colors, even when stdout is not a terminal.
+.TP
+.B never
+Do not use colors.
+.TP
+.B auto
+Use colors only when stdout is a terminal.
+.RE
+.TP
+.BR \-\^\-help
+Print a short summary of the options.
+.TP
+.BR \-V ", " \-\^\-version
+Show version information
+.SH AUTHOR
+Hans-Peter Deifel <hpdeifel at gmx.de>
+.SH SEE ALSO
+grep(1), regex(7)
