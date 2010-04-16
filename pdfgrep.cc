@@ -228,15 +228,15 @@ void print_help(char *self)
 
 "Options:\n"
 " -i, --ignore-case\t\tIgnore case distinctions\n"
-" -H, --with-filename\t\tPrint the filename for each match\n"
-" -h, --no-filename\t\tSuppress the prefixing filename on output\n"
+" -H, --with-filename\t\tPrint the file name for each match\n"
+" -h, --no-filename\t\tSuppress the prefixing of file name on output\n"
 " -n, --page-number\t\tPrint page number with output lines\n"
 " -c, --count\t\t\tPrint only a count of matches per file\n"
 " -C, --context NUM\t\tPrint NUM chars of context\n"
-"     --color \t\t\tUse colors for highlighting;\n"
+"     --color WHEN\t\tUse colors for highlighting;\n"
 "\t\t\t\tWHEN can be `always', `never' or `auto'\n"
 "     --help\t\t\tPrint this help\n"
-"     --version\t\t\tShow version information\n"
+" -V, --version\t\t\tShow version information\n"
 , self);
 }
 
@@ -250,7 +250,7 @@ int main(int argc, char** argv)
 	regex_t regex;
 
 	while (1) {
-		int c = getopt_long(argc, argv, "ic:C:nhH", long_options, NULL);
+		int c = getopt_long(argc, argv, "ic:C:nhHV", long_options, NULL);
 
 		if (c == -1)
 			break;
