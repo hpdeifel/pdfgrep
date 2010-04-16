@@ -32,6 +32,8 @@
 #include <TextOutputDev.h>
 #include <GlobalParams.h>
 
+#include "config.h"
+
 #define BUFFER_SIZE 1024
 
 static const char *filename_color = "35";
@@ -59,7 +61,8 @@ struct option long_options[] =
 	{"count", 0, 0, 'c'},
 	{"color", 1, 0, COLOR_OPTION},
 	{"context", 1, 0, 'C'},
-	{"help", 0, 0, HELP_OPTION}
+	{"help", 0, 0, HELP_OPTION},
+	{"version", 0, 0, 'V'},
 };
 
 struct stream {
@@ -212,11 +215,18 @@ clean:
 	delete text_out;
 }
 
+void print_usage(char *self)
+{
+	printf("Usage: %s [OPTION]... PATTERN FILE...\n", self);
+}
+
 void print_help(char *self)
 {
-	printf("Usage: %s [files]\n\n"
+	print_usage(self);
+	printf("\nSearch for PATTERN in each FILE.\n"
+"PATTERN is an extended regular expression.\n\n"
+
 "Options:\n"
-"     --help\t\t\tPrint this help\n"
 " -i, --ignore-case\t\tIgnore case distinctions\n"
 " -H, --with-filename\t\tPrint the filename for each match\n"
 " -h, --no-filename\t\tSuppress the prefixing filename on output\n"
@@ -225,7 +235,14 @@ void print_help(char *self)
 " -C, --context NUM\t\tPrint NUM chars of context\n"
 "     --color \t\t\tUse colors for highlighting;\n"
 "\t\t\t\tWHEN can be `always', `never' or `auto'\n"
+"     --help\t\t\tPrint this help\n"
+"     --version\t\t\tShow version information\n"
 , self);
+}
+
+void print_version()
+{
+	printf("This is %s version %s\n", PACKAGE, VERSION);
 }
 
 int main(int argc, char** argv)
@@ -241,6 +258,9 @@ int main(int argc, char** argv)
 		switch (c) {
 			case HELP_OPTION:
 				print_help(argv[0]);
+				exit(0);
+			case 'V':
+				print_version();
 				exit(0);
 			case 'n':
 				print_pagenum = 1;
@@ -278,7 +298,7 @@ int main(int argc, char** argv)
 	}
 
 	if (argc - optind < 2) {
-		fprintf(stderr, "Usage: %s needle [files]\n", argv[0]);
+		print_usage(argv[0]);
 		return 1;
 	}
 
