@@ -63,6 +63,7 @@ struct option long_options[] =
 	{"context", 1, 0, 'C'},
 	{"help", 0, 0, HELP_OPTION},
 	{"version", 0, 0, 'V'},
+	{0, 0, 0, 0}
 };
 
 struct stream {
