@@ -44,7 +44,7 @@ static const char *highlight_color = "01;31";
 
 int ignore_case = 0;
 int color = 1;
-int context = 50;
+int context = -1;
 int print_filename = -1;
 int print_pagenum = 0;
 int count = 0;
@@ -130,29 +130,114 @@ void end_color()
 		end_color(); \
 	} while (0);
 
+void putsn(char *string, int from, int to)
+{
+	for (; from < to; from++)
+		putchar(string[from]);
+}
+
+int next_word_left(char *string, int index)
+{
+	int i = 0;
+	int in_whitespace;
+
+	if (index < 0 || string[index] == '\n')
+		return -1;
+
+	in_whitespace = isspace(string[index]);
+	while (index >= 0 && string[index] != '\n') {
+		if (in_whitespace) {
+			if (!isspace(string[index]))
+				in_whitespace = 0;
+		} else {
+			if (isspace(string[index]))
+				break;
+		}
+		i++;
+		index--;
+	}
+
+	return i;
+}
+
+int next_word_right(char *string, int index, int buflen)
+{
+	int i = 0;
+	int in_whitespace;
+
+	if (index > buflen || string[index] == '\n')
+		return -1;
+
+	in_whitespace = isspace(string[index]);
+	while (index < buflen && string[index] != '\n') {
+		if (in_whitespace) {
+			if (!isspace(string[index]))
+				in_whitespace = 0;
+		} else {
+			if (isspace(string[index]))
+				break;
+		}
+		i++;
+		index++;
+	}
+
+	return i;
+}
+
 void print_context(char *string, int pos, int matchend, int buflen)
 {
-	int a = pos, b = pos;
-	int chars_left_a = context/2;
-	int chars_left_b = context/2;
+	int a = pos;
+	int b = matchend;
+	int chars_left = context;
 
-	a = pos;
-	b = matchend;
+	int left = next_word_left(string, a-1);
+	int right = next_word_right(string, b, buflen);
 
-	while (a >= 0 && (chars_left_a || !isspace(string[a]))) {
-		a--;
-		if (chars_left_a) chars_left_a--;
+	while (true) {
+		if ((left < 0 || left > chars_left)
+			&& (right < 0 || right > chars_left))
+			break;
+
+		if (right < 0 || (left > 0 && (pos - a) + left < (b - matchend) + right)) {
+			a -= left;
+			chars_left -= left;
+			left = next_word_left(string,a-1);
+		} else {
+			b += right;
+			chars_left -= right;
+			right = next_word_right(string, b, buflen);
+		}
 	}
 
-	while (b < buflen && (chars_left_b || !isspace(string[b]))) {
-		b++;
-		if (chars_left_b) chars_left_b--;
-	}
+	putsn(string, a, pos);
 
-	fwrite(string+a+1, pos - a - 1, 1, stdout);
 	with_color(highlight_color,
-		fwrite(string+pos, matchend-pos, 1, stdout););
-	fwrite(string+matchend, b-matchend, 1, stdout);
+		putsn(string, pos, matchend);
+	);
+
+	putsn(string, matchend, b);
+}
+
+void print_context_line(char *string, int pos, int matchend, int buflen)
+{
+	int a = pos;
+	int b = matchend;
+
+	while (a >= 0 && string[a] != '\n')
+		a--;
+	a++;
+	
+	while (b < buflen && string[b] != '\n')
+		b++;
+
+
+	putsn(string, a, pos);
+
+	with_color(highlight_color,
+		putsn(string, pos, matchend);
+	);
+
+	putsn(string, matchend, b);
 }
 
 void search_in_document(PDFDoc *doc, regex_t *needle)
@@ -191,8 +276,12 @@ void search_in_document(PDFDoc *doc, regex_t *needle)
 				if (print_filename || print_pagenum)
 					printf(" ");
 
-				print_context(stream->buf, index + match[0].rm_so,
-						index + match[0].rm_eo, stream->charpos);
+				if (context < 0)
+					print_context_line(stream->buf, index + match[0].rm_so,
+							index + match[0].rm_eo, stream->charpos);
+				else
+					print_context(stream->buf, index + match[0].rm_so,
+							index + match[0].rm_eo, stream->charpos);
 
 				printf("\n");
 			}
@@ -234,7 +323,7 @@ void print_help(char *self)
 " -h, --no-filename\t\tSuppress the prefixing of file name on output\n"
 " -n, --page-number\t\tPrint page number with output lines\n"
 " -c, --count\t\t\tPrint only a count of matches per file\n"
-" -C, --context NUM\t\tPrint NUM chars of context\n"
+" -C, --context NUM\t\tPrint at most NUM chars of context\n"
 "     --color WHEN\t\tUse colors for highlighting;\n"
 "\t\t\t\tWHEN can be `always', `never' or `auto'\n"
 "     --help\t\t\tPrint this help\n"

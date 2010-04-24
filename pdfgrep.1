@@ -31,14 +31,15 @@ when there is only one file to search.
 Prefix each match with the number of the page where it was found.
 .TP
 .BR \-c ", " \-\^\-count
-Suppress normal output. Instead print a count of matches for each
-input file. Note that unlike grep, multiple matches on a single page
+Suppress normal output. Instead print the number of matches for each
+input file. Note that unlike grep, multiple matches on the same page
 will be counted individually.
 .TP
 .BR \-C ", " \-\^\-context " " \fINUM\fP
-Print ca. \fINUM\fP characters of context around each match. The exact
-number will vary, because pdfgrep tries to respect word
-boundaries. (The default setting is 50)
+Print at most \fINUM\fP characters of context around each match. The
+exact number will vary, because pdfgrep tries to respect word
+boundaries. If this option is not set, pdfgrep prints the whole line
+of the match.
 .TP
 .BR \-\^\-color " " \fIWHEN\fP
 Surround file names, page numbers and matched text with escape
