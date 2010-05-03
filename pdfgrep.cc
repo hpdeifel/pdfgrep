@@ -49,6 +49,7 @@ int context = -1;
 int print_filename = -1;
 int print_pagenum = 0;
 int count = 0;
+int quiet = 0;
 
 #define HELP_OPTION 1
 #define COLOR_OPTION 2
@@ -64,6 +65,7 @@ struct option long_options[] =
 	{"context", 1, 0, 'C'},
 	{"help", 0, 0, HELP_OPTION},
 	{"version", 0, 0, 'V'},
+	{"quiet", 0, 0, 'q'},
 	{0, 0, 0, 0}
 };
 
@@ -241,7 +243,7 @@ void print_context_line(char *string, int pos, int matchend, int buflen)
 	putsn(string, matchend, b);
 }
 
-void search_in_document(PDFDoc *doc, regex_t *needle)
+int search_in_document(PDFDoc *doc, regex_t *needle)
 {
 	GooString *filename = doc->getFileName();
 	struct stream *stream = make_stream();
@@ -251,7 +253,9 @@ void search_in_document(PDFDoc *doc, regex_t *needle)
 			gFalse, gFalse);
 
 	if (!text_out->isOk()) {
-		fprintf(stderr, "Could not search %s\n", filename->getCString());
+		if (!quiet) {
+			fprintf(stderr, "pdfgrep: Could not search %s\n", filename->getCString());
+		}
 		goto clean;
 	}
 
@@ -265,9 +269,10 @@ void search_in_document(PDFDoc *doc, regex_t *needle)
 		int index = 0;
 		
 		while (!regexec(needle, stream->buf+index, 1, match, 0)) {
-			if (count) {
-				count_matches++;
-			} else {
+			count_matches++;
+			if (quiet) {
+				goto clean;
+			} else if (!count) {
 				if (print_filename)
 					with_color(filename_color,
 						printf("%s:", filename->getCString()););
@@ -296,7 +301,7 @@ void search_in_document(PDFDoc *doc, regex_t *needle)
 		reset_stream(stream);
 	}
 
-	if (count) {
+	if (count && !quiet) {
 		if (print_filename)
 			with_color(filename_color,
 				printf("%s: ", filename->getCString()););
@@ -307,6 +312,8 @@ clean:
 	free(stream->buf);
 	free(stream);
 	delete text_out;
+
+	return count_matches;
 }
 
 void print_usage(char *self)
@@ -328,6 +335,7 @@ void print_help(char *self)
 " -c, --count\t\t\tPrint only a count of matches per file\n"
 " -C, --context NUM\t\tPrint at most NUM chars of context\n"
 "     --color WHEN\t\tUse colors for highlighting;\n"
+" -q, --quiet\t\t\tSuppress normal output\n"
 "\t\t\t\tWHEN can be `always', `never' or `auto'\n"
 "     --help\t\t\tPrint this help\n"
 " -V, --version\t\t\tShow version information\n"
@@ -344,7 +352,8 @@ int main(int argc, char** argv)
 	regex_t regex;
 
 	while (1) {
-		int c = getopt_long(argc, argv, "ic:C:nhHV", long_options, NULL);
+		int c = getopt_long(argc, argv, "ic:C:nhHVq",
+				long_options, NULL);
 
 		if (c == -1)
 			break;
@@ -386,6 +395,12 @@ int main(int argc, char** argv)
 				if (optarg)
 					context = atoi(optarg);
 				break;
+			case 'q':
+				quiet = 1;
+				break;
+			case '?':
+				/* TODO: do something here */
+				break;
 			default:
 				break;
 		}
@@ -404,7 +419,7 @@ int main(int argc, char** argv)
 	if (error) {
 		char err_msg[256];
 		regerror(error, &regex, err_msg, 256);
-		fprintf(stderr, "%s\n", err_msg);
+		fprintf(stderr, "pdfgrep: %s\n", err_msg);
 		exit(2);
 	}
 
@@ -416,22 +431,26 @@ int main(int argc, char** argv)
 	else
 		print_filename = 1;
 
-
 	for (int i = optind; i < argc; i++) {
 		GooString *s = new GooString(argv[i]);
 		PDFDoc *doc = new PDFDoc(s);
-
+		
 		if (!doc->isOk()) {
 			fprintf(stderr, "Could not open %s\n", argv[i]);
+			exit(2);
 			continue;
 		}
 
-		search_in_document(doc, &regex);
+		if (search_in_document(doc, &regex) && quiet) {
+			exit(0);
+		}
 	}
 
-	if (found_something)
+
+	if (found_something) {
 		exit(0);
-	else
+	} else {
 		exit(1);
+	}
 }
 
