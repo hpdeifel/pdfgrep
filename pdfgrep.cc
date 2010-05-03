@@ -294,7 +294,7 @@ int search_in_document(PDFDoc *doc, regex_t *needle)
 
 			found_something = 1;
 
-			index += match[0].rm_eo;
+			index += match[0].rm_so + 1;
 		}
 
 
