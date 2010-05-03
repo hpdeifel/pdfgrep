@@ -38,6 +38,9 @@ static const char *filename_color = "35";
 static const char *pagenum_color = "32";
 static const char *highlight_color = "01;31";
 
+/* set this to 1 if any match was found. Used for the exit status */
+int found_something = 0;
+
 /* default options */
 
 int ignore_case = 0;
@@ -284,6 +287,8 @@ void search_in_document(PDFDoc *doc, regex_t *needle)
 				printf("\n");
 			}
 
+			found_something = 1;
+
 			index += match[0].rm_eo;
 		}
 
@@ -388,7 +393,7 @@ int main(int argc, char** argv)
 
 	if (argc - optind < 2) {
 		print_usage(argv[0]);
-		return 1;
+		exit(2);
 	}
 
 	globalParams = new GlobalParams();
@@ -400,7 +405,7 @@ int main(int argc, char** argv)
 		char err_msg[256];
 		regerror(error, &regex, err_msg, 256);
 		fprintf(stderr, "%s\n", err_msg);
-		exit(1);
+		exit(2);
 	}
 
 	if (color == 1 && !isatty(STDOUT_FILENO))
@@ -423,5 +428,10 @@ int main(int argc, char** argv)
 
 		search_in_document(doc, &regex);
 	}
+
+	if (found_something)
+		exit(0);
+	else
+		exit(1);
 }
 
