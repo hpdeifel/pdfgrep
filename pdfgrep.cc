@@ -352,7 +352,7 @@ int main(int argc, char** argv)
 	regex_t regex;
 
 	while (1) {
-		int c = getopt_long(argc, argv, "ic:C:nhHVq",
+		int c = getopt_long(argc, argv, "icC:nhHVq",
 				long_options, NULL);
 
 		if (c == -1)
