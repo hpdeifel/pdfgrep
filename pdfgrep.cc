@@ -438,7 +438,7 @@ int main(int argc, char** argv)
 		PDFDoc *doc = new PDFDoc(s);
 		
 		if (!doc->isOk()) {
-			fprintf(stderr, "Could not open %s\n", argv[i]);
+			fprintf(stderr, "pdfgrep: Could not open %s\n", argv[i]);
 			exit(2);
 			continue;
 		}
