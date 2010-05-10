@@ -318,6 +318,65 @@ clean:
 	return count_matches;
 }
 
+/* parses a color pair like "foo=bar" to "foo" and "bar" */
+void parse_env_color_pair(char* pair, char** name, char** value)
+{
+	*name = pair;
+	int i = 0;
+	while (pair[i] != '\0' && pair[i] != '=') {
+		i++;
+	}
+	if (pair[i] == '=') {
+		/* value starts one char after '=' */
+		*value = pair+i+1;
+		/* and replace '=' by '\0' */
+		pair[i] = '\0';
+	} else { /* if pair[i] == '\0' */
+		/* let value point to the '\0' */
+		*value = pair+i;
+	}
+}
+
+
+/* set colors of output according to content of environment-varaible env_var.
+    the content of env_var has to be like the GREP_COLORS variable for grep
+    see man 1 grep for further details of GREP_COLORS */
+void read_colors_from_env(char* env_var)
+{
+	/* create a copy of var to edit it with strtok */
+	char* colors_list = strdup(getenv(env_var));
+	if (!colors_list) {
+		/* if var is not set */
+		return;
+	}
+	/* save original length _before_ editing it with strtok */
+	int colors_list_len = strlen(colors_list);
+	int i = 0;
+	char* cur_color_pair;
+	char *cur_name, *cur_value;
+	/* read all color=value pairs */
+	while (i < colors_list_len && (cur_color_pair = strtok(colors_list+i, ":"))) {
+		/* set index i to next color pair */
+		i += strlen(cur_color_pair); /* skip token content */
+		i += 1; /* skip delemiter */
+		/* get name and value of color pair */
+		parse_env_color_pair(cur_color_pair, &cur_name, &cur_value);
+#define PARSE_COLOR(GREP_NAME, GLOBAL_VAR) \
+	if (!strcmp(cur_name, GREP_NAME)) \
+		GLOBAL_VAR = cur_value;
+		/* now check for known settings and set global colors */
+		PARSE_COLOR("mt", highlight_color)
+		else PARSE_COLOR("ms", highlight_color)
+		else PARSE_COLOR("mc", highlight_color)
+		else PARSE_COLOR("fn", filename_color)
+		else PARSE_COLOR("ln", pagenum_color)
+#undef PARSE_COLOR
+		/** TODO TODO TODO **/
+		/** TODO free it!!! TODO **/
+		/** TODO TODO TODO **/
+	}
+}
+
 void print_usage(char *self)
 {
 	printf("Usage: %s [OPTION]... PATTERN FILE...\n", self);
@@ -427,7 +486,8 @@ int main(int argc, char** argv)
 
 	if (color == 1 && !isatty(STDOUT_FILENO))
 		color = 0;
-
+	if (color == 1)
+		read_colors_from_env("GREP_COLORS");
 	if (argc - optind == 1 && print_filename < 0)
 		print_filename = 0;
 	else
