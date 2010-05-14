@@ -99,10 +99,10 @@ struct stream* make_stream()
 
 void set_default_colors()
 {
-    filename_color = strdup("35");
-    pagenum_color = strdup("32");
-    highlight_color = strdup("01;31");
-    seperator_color = strdup("34");
+	filename_color = strdup("35");
+	pagenum_color = strdup("32");
+	highlight_color = strdup("01;31");
+	seperator_color = strdup("34");
 }
 
 void maybe_update_buffer(struct stream *s, int len)
@@ -288,12 +288,12 @@ int search_in_document(PDFDoc *doc, regex_t *needle)
 					with_color(filename_color,
 						printf("%s", filename->getCString()););
 					with_color(seperator_color, printf(":"););
-                }
+				}
 				if (print_pagenum) {
 					with_color(pagenum_color,
 						printf("%d", i););
 					with_color(seperator_color, printf(":"););
-                }
+				}
 				if (print_filename || print_pagenum)
 					printf(" ");
 
@@ -320,8 +320,8 @@ int search_in_document(PDFDoc *doc, regex_t *needle)
 		if (print_filename) {
 			with_color(filename_color,
 				printf("%s", filename->getCString()););
-            with_color(seperator_color, printf(":"););
-        }
+			with_color(seperator_color, printf(":"););
+		}
 		printf("%d\n", count_matches);
 	}
 	
@@ -359,9 +359,9 @@ void parse_env_color_pair(char* pair, char** name, char** value)
 void read_colors_from_env(char* env_var)
 {
 	/* create a copy of var to edit it with strtok */
-    if (!getenv(env_var)) {
-            return;
-    }
+	if (!getenv(env_var)) {
+			return;
+	}
 	char* colors_list = strdup(getenv(env_var));
 	if (!colors_list) {
 		/* if var is not set */
@@ -393,8 +393,8 @@ void read_colors_from_env(char* env_var)
 		else PARSE_COLOR("se", seperator_color)
 #undef PARSE_COLOR
 	}
-    /* free our copy of the environment var */
-    free(colors_list);
+	/* free our copy of the environment var */
+	free(colors_list);
 }
 
 void print_usage(char *self)
@@ -430,22 +430,22 @@ void print_version()
 
 void free_colors()
 {
-    free(filename_color);
-    free(pagenum_color);
-    free(highlight_color);
+	free(filename_color);
+	free(pagenum_color);
+	free(highlight_color);
 }
 
 void init_colors()
 {
-    set_default_colors();
-    /* free colors, when programm exits */
-    atexit(free_colors);
+	set_default_colors();
+	/* free colors, when programm exits */
+	atexit(free_colors);
 }
 
 int main(int argc, char** argv)
 {
 	regex_t regex;
-    init_colors();
+	init_colors();
 
 	while (1) {
 		int c = getopt_long(argc, argv, "icC:nhHVq",
