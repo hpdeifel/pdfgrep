@@ -36,9 +36,9 @@
 
 #define BUFFER_SIZE 1024
 
-static const char *filename_color = "35";
-static const char *pagenum_color = "32";
-static const char *highlight_color = "01;31";
+static char *filename_color;
+static char *pagenum_color;
+static char *highlight_color;
 
 /* set this to 1 if any match was found. Used for the exit status */
 int found_something = 0;
@@ -94,6 +94,13 @@ struct stream* make_stream()
 	s->buf = NULL;
 
 	return reset_stream(s);
+}
+
+void set_default_colors()
+{
+    filename_color = strdup("35");
+    pagenum_color = strdup("32");
+    highlight_color = strdup("01;31");
 }
 
 void maybe_update_buffer(struct stream *s, int len)
@@ -344,6 +351,9 @@ void parse_env_color_pair(char* pair, char** name, char** value)
 void read_colors_from_env(char* env_var)
 {
 	/* create a copy of var to edit it with strtok */
+    if (!getenv(env_var)) {
+            return;
+    }
 	char* colors_list = strdup(getenv(env_var));
 	if (!colors_list) {
 		/* if var is not set */
@@ -362,8 +372,10 @@ void read_colors_from_env(char* env_var)
 		/* get name and value of color pair */
 		parse_env_color_pair(cur_color_pair, &cur_name, &cur_value);
 #define PARSE_COLOR(GREP_NAME, GLOBAL_VAR) \
-	if (!strcmp(cur_name, GREP_NAME)) \
-		GLOBAL_VAR = cur_value;
+	if (!strcmp(cur_name, GREP_NAME)) { \
+        free(GLOBAL_VAR); /* free old value */ \
+		GLOBAL_VAR = strdup(cur_value); /* set to new color */ \
+    }
 		/* now check for known settings and set global colors */
 		PARSE_COLOR("mt", highlight_color)
 		else PARSE_COLOR("ms", highlight_color)
@@ -371,10 +383,9 @@ void read_colors_from_env(char* env_var)
 		else PARSE_COLOR("fn", filename_color)
 		else PARSE_COLOR("ln", pagenum_color)
 #undef PARSE_COLOR
-		/** TODO TODO TODO **/
-		/** TODO free it!!! TODO **/
-		/** TODO TODO TODO **/
 	}
+    /* free our copy of the environment var */
+    free(colors_list);
 }
 
 void print_usage(char *self)
@@ -408,9 +419,24 @@ void print_version()
 	printf("This is %s version %s\n", PACKAGE, VERSION);
 }
 
+void free_colors()
+{
+    free(filename_color);
+    free(pagenum_color);
+    free(highlight_color);
+}
+
+void init_colors()
+{
+    set_default_colors();
+    /* free colors, when programm exits */
+    atexit(free_colors);
+}
+
 int main(int argc, char** argv)
 {
 	regex_t regex;
+    init_colors();
 
 	while (1) {
 		int c = getopt_long(argc, argv, "icC:nhHVq",
