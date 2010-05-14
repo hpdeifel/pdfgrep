@@ -39,6 +39,7 @@
 static char *filename_color;
 static char *pagenum_color;
 static char *highlight_color;
+static char *seperator_color;
 
 /* set this to 1 if any match was found. Used for the exit status */
 int found_something = 0;
@@ -101,6 +102,7 @@ void set_default_colors()
     filename_color = strdup("35");
     pagenum_color = strdup("32");
     highlight_color = strdup("01;31");
+    seperator_color = strdup("34");
 }
 
 void maybe_update_buffer(struct stream *s, int len)
@@ -282,12 +284,16 @@ int search_in_document(PDFDoc *doc, regex_t *needle)
 			if (quiet) {
 				goto clean;
 			} else if (!count) {
-				if (print_filename)
+				if (print_filename) {
 					with_color(filename_color,
-						printf("%s:", filename->getCString()););
-				if (print_pagenum)
+						printf("%s", filename->getCString()););
+					with_color(seperator_color, printf(":"););
+                }
+				if (print_pagenum) {
 					with_color(pagenum_color,
-						printf("%d:", i););
+						printf("%d", i););
+					with_color(seperator_color, printf(":"););
+                }
 				if (print_filename || print_pagenum)
 					printf(" ");
 
@@ -311,9 +317,11 @@ int search_in_document(PDFDoc *doc, regex_t *needle)
 	}
 
 	if (count && !quiet) {
-		if (print_filename)
+		if (print_filename) {
 			with_color(filename_color,
-				printf("%s: ", filename->getCString()););
+				printf("%s", filename->getCString()););
+            with_color(seperator_color, printf(":"););
+        }
 		printf("%d\n", count_matches);
 	}
 	
@@ -382,6 +390,7 @@ void read_colors_from_env(char* env_var)
 		else PARSE_COLOR("mc", highlight_color)
 		else PARSE_COLOR("fn", filename_color)
 		else PARSE_COLOR("ln", pagenum_color)
+		else PARSE_COLOR("se", seperator_color)
 #undef PARSE_COLOR
 	}
     /* free our copy of the environment var */
