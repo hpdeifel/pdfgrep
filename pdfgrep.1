@@ -68,6 +68,30 @@ Print a short summary of the options.
 .TP
 .BR \-V ", " \-\^\-version
 Show version information
+.
+.SH "ENVIRONMENT VARIABLES"
+The behavior of
+.B pdfgrep
+is affected by the following environment variable.
+.TP
+.B GREP_COLORS
+Specifies the colors and other attributes
+used to highlight various parts of the output.
+The syntax and values are like
+.B GREP_COLORS
+of \fBgrep\fP.  See
+\fBgrep\fP(1) for more details.
+Currently only the capabilities
+\fBmt\fP,
+\fBms\fP,
+\fBmc\fP,
+\fBfn\fP,
+\fBln\fP and
+\fBse\fP are used by \fBpdfgrep\fP, where
+\fBmt\fP,
+\fBms\fP and
+\fBmc\fP have the same effect on \fBpdfgrep\fP.
+.
 .SH EXIT STATUS
 The exit status is 0 if at least one match is found, 1 if no match is found and 2 if an error occurred.
 .SH AUTHOR
