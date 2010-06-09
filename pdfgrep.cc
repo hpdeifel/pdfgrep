@@ -97,14 +97,6 @@ struct stream* make_stream()
 	return reset_stream(s);
 }
 
-void set_default_colors()
-{
-	filename_color = strdup("35");
-	pagenum_color = strdup("32");
-	highlight_color = strdup("01;31");
-	seperator_color = strdup("34");
-}
-
 void maybe_update_buffer(struct stream *s, int len)
 {
 	if (s->charpos + len >= s->bufsize) {
@@ -360,11 +352,11 @@ void parse_env_color_pair(char* pair, char** name, char** value)
 /* set colors of output according to content of environment-varaible env_var.
     the content of env_var has to be like the GREP_COLORS variable for grep
     see man 1 grep for further details of GREP_COLORS */
-void read_colors_from_env(char* env_var)
+void read_colors_from_env(const char* env_var)
 {
 	/* create a copy of var to edit it with strtok */
 	if (!getenv(env_var)) {
-			return;
+		return;
 	}
 	char* colors_list = strdup(getenv(env_var));
 	if (!colors_list) {
@@ -401,6 +393,28 @@ void read_colors_from_env(char* env_var)
 	free(colors_list);
 }
 
+void set_default_colors()
+{
+	filename_color = strdup("35");
+	pagenum_color = strdup("32");
+	highlight_color = strdup("01;31");
+	seperator_color = strdup("34");
+}
+
+void free_colors()
+{
+	free(filename_color);
+	free(pagenum_color);
+	free(highlight_color);
+}
+
+void init_colors()
+{
+	set_default_colors();
+	/* free colors, when programm exits */
+	atexit(free_colors);
+}
+
 void print_usage(char *self)
 {
 	printf("Usage: %s [OPTION]... PATTERN FILE...\n", self);
@@ -430,20 +444,6 @@ void print_help(char *self)
 void print_version()
 {
 	printf("This is %s version %s\n", PACKAGE, VERSION);
-}
-
-void free_colors()
-{
-	free(filename_color);
-	free(pagenum_color);
-	free(highlight_color);
-}
-
-void init_colors()
-{
-	set_default_colors();
-	/* free colors, when programm exits */
-	atexit(free_colors);
 }
 
 int main(int argc, char** argv)
@@ -525,7 +525,7 @@ int main(int argc, char** argv)
 
 	if (color == 1 && !isatty(STDOUT_FILENO))
 		color = 0;
-	if (color == 1)
+	if (color)
 		read_colors_from_env("GREP_COLORS");
 	if (argc - optind == 1 && print_filename < 0)
 		print_filename = 0;
