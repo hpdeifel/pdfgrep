@@ -107,8 +107,12 @@ void set_default_colors()
 
 void maybe_update_buffer(struct stream *s, int len)
 {
-	if (s->charpos + len > s->bufsize) {
-		s->bufsize = s->bufsize * 2;
+	if (s->charpos + len >= s->bufsize) {
+		/* resize buffer */
+		do
+			s->bufsize = s->bufsize * 2;
+		while (s->charpos + len >= s->bufsize);
+
 		s->buf = (char*) realloc(s->buf, s->bufsize);
 	}
 }
