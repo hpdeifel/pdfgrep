@@ -93,7 +93,8 @@ Currently only the capabilities
 \fBmc\fP have the same effect on \fBpdfgrep\fP.
 .
 .SH EXIT STATUS
-The exit status is 0 if at least one match is found, 1 if no match is found and 2 if an error occurred.
+Normally, the exit status is 0 if at least one match is found, 1 if no match is found and 2 if an error occurred.
+But if the \fB--quiet\fP or \fB-q\fP option is used and a match was found, \fBpdfgrep\fP will return 0 regardless of errors.
 .SH AUTHOR
 Hans-Peter Deifel <hpdeifel at gmx.de>
 .SH SEE ALSO

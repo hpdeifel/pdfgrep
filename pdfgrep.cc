@@ -532,13 +532,15 @@ int main(int argc, char** argv)
 	else
 		print_filename = 1;
 
+	error = 0;
+
 	for (int i = optind; i < argc; i++) {
 		GooString *s = new GooString(argv[i]);
 		PDFDoc *doc = new PDFDoc(s);
 		
 		if (!doc->isOk()) {
 			fprintf(stderr, "pdfgrep: Could not open %s\n", argv[i]);
-			exit(2);
+			error = 1;
 			continue;
 		}
 
@@ -547,8 +549,9 @@ int main(int argc, char** argv)
 		}
 	}
 
-
-	if (found_something) {
+	if (error) {
+		exit(2);
+	} else if (found_something) {
 		exit(0);
 	} else {
 		exit(1);
