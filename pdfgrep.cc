@@ -214,7 +214,9 @@ void print_context(char *string, int pos, int matchend, int buflen)
 			&& (right < 0 || right > chars_left))
 			break;
 
-		if (right < 0 || (left > 0 && (pos - a) + left < (b - matchend) + right)) {
+		if (right < 0 || right > chars_left ||
+				(left > 0 && left <= chars_left
+				 && (pos - a) + left < (b - matchend) + right)) {
 			a -= left;
 			chars_left -= left;
 			left = next_word_left(string,a-1);
