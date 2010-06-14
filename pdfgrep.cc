@@ -26,6 +26,8 @@
 #include <regex.h>
 #include <getopt.h>
 #include <unistd.h>
+#include <math.h>
+#include <sys/ioctl.h>
 
 #include <PDFDoc.h>
 #include <goo/GooString.h>
@@ -49,8 +51,10 @@ int found_something = 0;
 int ignore_case = 0;
 int color = 1;
 /* characters of context to put around each match.
- * -1 means: print whole line */
-int context = 100;
+ * -1 means: print whole line
+ * -2 means: try to fit context into terminal */
+int context = -2;
+int line_width = 80;
 int print_filename = -1;
 int print_pagenum = 0;
 int count = 0;
@@ -258,6 +262,7 @@ int search_in_document(PDFDoc *doc, regex_t *needle)
 	struct stream *stream = make_stream();
 	regmatch_t match[] = {{0, 0}};
 	int count_matches = 0;
+	int length = 0, oldcontext;
 	TextOutputDev *text_out = new TextOutputDev(write_to_stream, stream,
 			gFalse, gFalse);
 
@@ -295,12 +300,40 @@ int search_in_document(PDFDoc *doc, regex_t *needle)
 				if (print_filename || print_pagenum)
 					printf(" ");
 
-				if (context < 0)
+				switch (context) {
+				/* print whole line */
+				case -1:
 					print_context_line(stream->buf, index + match[0].rm_so,
 							index + match[0].rm_eo, stream->charpos);
-				else
+					break;
+				/* try to guess the terminal width */
+				case -2:
+					/* Calculate the length of the line prefix:
+					 * filename:linenumber: */
+					length = 0;
+
+					if (print_filename)
+						length += 1 + filename->getLength();
+					if (print_pagenum)
+						length += 1 + (int)log10(i);
+					if (print_pagenum || print_filename)
+						length += 1;
+					length += match[0].rm_eo - match[0].rm_so;
+
+					oldcontext = context;
+					context = line_width - length;
+
 					print_context(stream->buf, index + match[0].rm_so,
 							index + match[0].rm_eo, stream->charpos);
+
+					context = oldcontext;
+					break;
+				/* print a fixed context */
+				default:
+					print_context(stream->buf, index + match[0].rm_so,
+							index + match[0].rm_eo, stream->charpos);
+					break;
+				}
 
 				printf("\n");
 			}
@@ -415,6 +448,28 @@ void init_colors()
 	set_default_colors();
 	/* free colors, when programm exits */
 	atexit(free_colors);
+}
+
+/* return the terminal line width or line_width
+ * if the former is not available */
+int get_line_width()
+{
+	const char *v = getenv("COLUMNS");
+	int width = line_width;
+
+	if (v && *v)
+		width = atoi(v);
+
+	struct winsize ws;
+
+	if (ioctl (STDOUT_FILENO, TIOCGWINSZ, &ws) != -1 && 0 < ws.ws_col)
+		width = ws.ws_col;
+
+	if (width > 0)
+		return width;
+
+
+	return line_width;
 }
 
 void print_usage(char *self)
@@ -538,6 +593,9 @@ int main(int argc, char** argv)
 		print_filename = 0;
 	else
 		print_filename = 1;
+
+	if (isatty(STDOUT_FILENO))
+		line_width = get_line_width();
 
 	error = 0;
 
