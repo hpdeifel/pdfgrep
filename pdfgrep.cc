@@ -48,7 +48,9 @@ int found_something = 0;
 
 int ignore_case = 0;
 int color = 1;
-int context = -1;
+/* characters of context to put around each match.
+ * -1 means: print whole line */
+int context = 100;
 int print_filename = -1;
 int print_pagenum = 0;
 int count = 0;
@@ -492,8 +494,13 @@ int main(int argc, char** argv)
 				}
 				break;
 			case 'C':
-				if (optarg)
-					context = atoi(optarg);
+				if (optarg) {
+					if (!strcmp(optarg, "line")) {
+						context = -1;
+					} else {
+						context = atoi(optarg);
+					}
+				}
 				break;
 			case 'q':
 				quiet = 1;
