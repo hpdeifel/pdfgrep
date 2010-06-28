@@ -38,8 +38,9 @@ will be counted individually.
 .BR \-C ", " \-\^\-context " " \fINUM\fP
 Print at most \fINUM\fP characters of context around each match. The
 exact number will vary, because pdfgrep tries to respect word
-boundaries. If this option is not set, pdfgrep prints the whole line
-of the match.
+boundaries. If \fINUM\fP is "\fBline\fP", the whole line will be printed. If this
+option is not set, pdfgrep tries to print lines that are not longer than the
+terminal width.
 .TP
 .BR \-\^\-color " " \fIWHEN\fP
 Surround file names, page numbers and matched text with escape
