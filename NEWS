@@ -1,3 +1,10 @@
+Release 1.1
+
+	- Respect the GREP_COLORS environment variable
+	- Fix buffer overflow bug
+	- Don't exit on the first error
+	- Use terminal width to calculate the context length
+
 Release 1.0
 
 	- First release
