@@ -29,10 +29,10 @@
 #include <math.h>
 #include <sys/ioctl.h>
 
-#include <PDFDoc.h>
-#include <goo/GooString.h>
-#include <TextOutputDev.h>
-#include <GlobalParams.h>
+#include <cpp/poppler-document.h>
+#include <cpp/poppler-page.h>
+
+#include <memory>
 
 #include "config.h"
 
@@ -258,40 +258,36 @@ void print_context_line(char *string, int pos, int matchend, int buflen)
 	putsn(string, matchend, b);
 }
 
-int search_in_document(PDFDoc *doc, regex_t *needle)
+int search_in_document(poppler::document *doc, const std::string &filename, regex_t *needle)
 {
-	GooString *filename = doc->getFileName();
-	struct stream *stream = make_stream();
 	regmatch_t match[] = {{0, 0}};
 	int count_matches = 0;
 	int length = 0, oldcontext;
-	TextOutputDev *text_out = new TextOutputDev(write_to_stream, stream,
-			gFalse, gFalse);
 
-	if (!text_out->isOk()) {
-		if (!quiet) {
-			fprintf(stderr, "pdfgrep: Could not search %s\n", filename->getCString());
+
+
+	for (int i = 1; i <= doc->pages(); i++) {
+		std::auto_ptr<poppler::page> doc_page(doc->create_page(i - 1));
+		if (!doc_page.get()) {
+			if (!quiet) {
+				fprintf(stderr, "pdfgrep: Could not search in page %d of %s\n", i, filename.c_str());
+			}
+			continue;
 		}
-		goto clean;
-	}
 
-
-	for (int i = 1; i <= doc->getNumPages(); i++) {
-		doc->displayPage(text_out, i,
-				72.0, 72.0, 0,
-				gTrue, gFalse, gFalse);
-
-		stream->buf[stream->charpos] = '\0';
+		poppler::byte_array str = doc_page->text().to_utf8();
+		str.resize(str.size() + 1, '\0');
+		char *str_start = &str[0];
 		int index = 0;
 		
-		while (!regexec(needle, stream->buf+index, 1, match, 0)) {
+		while (!regexec(needle, str_start+index, 1, match, 0)) {
 			count_matches++;
 			if (quiet) {
 				goto clean;
 			} else if (!count) {
 				if (print_filename) {
 					with_color(filename_color,
-						printf("%s", filename->getCString()););
+						printf("%s", filename.c_str()););
 					with_color(seperator_color, printf(":"););
 				}
 				if (print_pagenum) {
@@ -305,8 +301,8 @@ int search_in_document(PDFDoc *doc, regex_t *needle)
 				switch (context) {
 				/* print whole line */
 				case -1:
-					print_context_line(stream->buf, index + match[0].rm_so,
-							index + match[0].rm_eo, stream->charpos);
+					print_context_line(str_start, index + match[0].rm_so,
+							index + match[0].rm_eo, str.size());
 					break;
 				/* try to guess the terminal width */
 				case -2:
@@ -315,7 +311,7 @@ int search_in_document(PDFDoc *doc, regex_t *needle)
 					length = 0;
 
 					if (print_filename)
-						length += 1 + filename->getLength();
+						length += 1 + filename.size();
 					if (print_pagenum)
 						length += 1 + (int)log10(i);
 					if (print_pagenum || print_filename)
@@ -325,15 +321,15 @@ int search_in_document(PDFDoc *doc, regex_t *needle)
 					oldcontext = context;
 					context = line_width - length;
 
-					print_context(stream->buf, index + match[0].rm_so,
-							index + match[0].rm_eo, stream->charpos);
+					print_context(str_start, index + match[0].rm_so,
+							index + match[0].rm_eo, str.size());
 
 					context = oldcontext;
 					break;
 				/* print a fixed context */
 				default:
-					print_context(stream->buf, index + match[0].rm_so,
-							index + match[0].rm_eo, stream->charpos);
+					print_context(str_start, index + match[0].rm_so,
+							index + match[0].rm_eo, str.size());
 					break;
 				}
 
@@ -346,22 +342,18 @@ int search_in_document(PDFDoc *doc, regex_t *needle)
 		}
 
 
-		reset_stream(stream);
 	}
 
 	if (count && !quiet) {
 		if (print_filename) {
 			with_color(filename_color,
-				printf("%s", filename->getCString()););
+				printf("%s", filename.c_str()););
 			with_color(seperator_color, printf(":"););
 		}
 		printf("%d\n", count_matches);
 	}
 	
 clean:
-	free(stream->buf);
-	free(stream);
-	delete text_out;
 
 	return count_matches;
 }
@@ -575,10 +567,6 @@ int main(int argc, char** argv)
 		exit(2);
 	}
 
-	globalParams = new GlobalParams();
-	globalParams->setTextPageBreaks(gFalse);
-	globalParams->setErrQuiet(gTrue);
-
 	int error = regcomp(&regex, argv[optind++], REG_EXTENDED | ignore_case);
 	if (error) {
 		char err_msg[256];
@@ -602,16 +590,16 @@ int main(int argc, char** argv)
 	error = 0;
 
 	for (int i = optind; i < argc; i++) {
-		GooString *s = new GooString(argv[i]);
-		PDFDoc *doc = new PDFDoc(s);
+		const std::string filename(argv[i]);
+		std::auto_ptr<poppler::document> doc(poppler::document::load_from_file(filename));
 		
-		if (!doc->isOk()) {
+		if (!doc.get() || doc->is_locked()) {
 			fprintf(stderr, "pdfgrep: Could not open %s\n", argv[i]);
 			error = 1;
 			continue;
 		}
 
-		if (search_in_document(doc, &regex) && quiet) {
+		if (search_in_document(doc.get(), filename, &regex) && quiet) {
 			exit(0);
 		}
 	}

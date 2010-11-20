@@ -13,7 +13,7 @@ AC_CHECK_FUNCS([regcomp])
 AC_CHECK_FUNCS([getopt_long])
 
 
-PKG_CHECK_MODULES(poppler, poppler)
+PKG_CHECK_MODULES(poppler, poppler-cpp)
 AC_SUBST(poppler_CFLAGS)
 AC_SUBST(poppler_LIBS)
 
