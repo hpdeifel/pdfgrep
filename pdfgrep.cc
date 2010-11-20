@@ -78,53 +78,6 @@ struct option long_options[] =
 	{0, 0, 0, 0}
 };
 
-struct stream {
-	int bufsize;
-	char *buf;
-	int charpos;
-};
-
-struct stream* reset_stream(struct stream *s)
-{
-	s->bufsize = BUFFER_SIZE;
-	free(s->buf);
-	s->buf = (char*) malloc(BUFFER_SIZE);
-	s->charpos = 0;
-
-	return s;
-}
-
-struct stream* make_stream()
-{
-	struct stream *s = (struct stream*) malloc(sizeof(struct stream));
-
-	s->buf = NULL;
-
-	return reset_stream(s);
-}
-
-void maybe_update_buffer(struct stream *s, int len)
-{
-	if (s->charpos + len >= s->bufsize) {
-		/* resize buffer */
-		do
-			s->bufsize = s->bufsize * 2;
-		while (s->charpos + len >= s->bufsize);
-
-		s->buf = (char*) realloc(s->buf, s->bufsize);
-	}
-}
-
-void write_to_stream(void *s, char *text, int length)
-{
-	struct stream *stream = (struct stream*) s;
-
-	maybe_update_buffer(stream, length);
-	strncpy(stream->buf+stream->charpos,
-			text, length);
-	stream->charpos += length;
-}
-
 void start_color(const char *colorcode)
 {
 	if (color)
