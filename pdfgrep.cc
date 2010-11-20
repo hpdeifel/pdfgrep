@@ -591,10 +591,9 @@ int main(int argc, char** argv)
 		color = 0;
 	if (color)
 		read_colors_from_env("GREP_COLORS");
-	if (argc - optind == 1 && print_filename < 0)
-		print_filename = 0;
-	else
-		print_filename = 1;
+
+	if (print_filename < 0)
+		print_filename = (argc - optind) == 1 ? 0 : 1;
 
 	if (isatty(STDOUT_FILENO))
 		line_width = get_line_width();
