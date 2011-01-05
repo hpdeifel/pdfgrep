@@ -613,6 +613,8 @@ int main(int argc, char** argv)
 		if (search_in_document(doc, &regex) && quiet) {
 			exit(0);
 		}
+
+		delete doc;
 	}
 
 	if (error) {
