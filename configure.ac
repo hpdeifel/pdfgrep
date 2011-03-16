@@ -1,4 +1,4 @@
-AC_INIT([pdfgrep], [1.1], [hpdeifel@gmx.de])
+AC_INIT([pdfgrep], [1.2], [hpdeifel@gmx.de])
 AM_INIT_AUTOMAKE([foreign])
 AC_CONFIG_HEADER([config.h])
 
