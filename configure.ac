@@ -13,9 +13,9 @@ AC_CHECK_FUNCS([regcomp])
 AC_CHECK_FUNCS([getopt_long])
 
 
-PKG_CHECK_MODULES(poppler, poppler)
-AC_SUBST(poppler_CFLAGS)
-AC_SUBST(poppler_LIBS)
+PKG_CHECK_MODULES(poppler_cpp, poppler-cpp)
+AC_SUBST(poppler_cpp_CFLAGS)
+AC_SUBST(poppler_cpp_LIBS)
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
