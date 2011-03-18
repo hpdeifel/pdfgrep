@@ -15,4 +15,4 @@ similar to `grep'.
 
 * Dependencies
 
- - poppler (http://poppler.freedesktop.org/)
+ - poppler-cpp (poppler >= 0.14) [http://poppler.freedesktop.org/]
