@@ -554,8 +554,6 @@ int main(int argc, char** argv)
 		if (search_in_document(doc.get(), filename, &regex) && quiet) {
 			exit(0);
 		}
-
-		delete doc;
 	}
 
 	if (error) {
