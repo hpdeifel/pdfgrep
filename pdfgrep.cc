@@ -78,9 +78,13 @@ struct option long_options[] =
 	{0, 0, 0, 0}
 };
 
+bool is_valid_color(const char* colorcode) {
+	return colorcode && strcmp(colorcode, "");
+}
+
 void start_color(const char *colorcode)
 {
-	if (color)
+	if (color && is_valid_color(colorcode))
 		printf("\33[%sm\33[K", colorcode);
 }
 
@@ -96,7 +100,8 @@ void end_color()
 		{ \
 			code; \
 		} \
-		end_color(); \
+		if (is_valid_color(color)) \
+			end_color(); \
 	} while (0);
 
 void putsn(char *string, int from, int to)
