@@ -49,6 +49,11 @@ int found_something = 0;
 /* default options */
 
 int ignore_case = 0;
+/* controls output of color escape sequences
+ *  0: no color
+ *  1: color if stdout is a tty
+ *  2: color (regardless of stdout)
+ */
 int color = 1;
 /* characters of context to put around each match.
  * -1 means: print whole line
@@ -533,10 +538,13 @@ int main(int argc, char** argv)
 		exit(2);
 	}
 
-	if (color == 1 && !isatty(STDOUT_FILENO))
+	bool color_tty = isatty(STDOUT_FILENO) && getenv("TERM") &&
+		strcmp(getenv("TERM"), "dumb");
+	if (color == 1 && !color_tty) {
 		color = 0;
-	if (color)
-		read_colors_from_env("GREP_COLORS");
+	}
+
+	if (color) read_colors_from_env("GREP_COLORS");
 
 	if (print_filename < 0)
 		print_filename = (argc - optind) == 1 ? 0 : 1;
