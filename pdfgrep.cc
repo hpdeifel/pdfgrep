@@ -37,8 +37,6 @@
 #include "config.h"
 #include "output.h"
 
-#define BUFFER_SIZE 1024 /* FIXME is this still needed? */
-
 /* set this to 1 if any match was found. Used for the exit status */
 int found_something = 0;
 
@@ -131,8 +129,7 @@ int search_in_document(poppler::document *doc, const std::string &filename, rege
 						length += 1 + filename.size();
 					if (outconf.pagenum)
 						length += 1 + (int)log10(i);
-					if (outconf.pagenum || outconf.filename)
-						length += 1; /* FIXME why is this there */
+
 					length += match[0].rm_eo - match[0].rm_so;
 
 					cntxt.before = line_width - length;
@@ -243,7 +240,7 @@ void free_colors()
 	free(outconf.colors.filename);
 	free(outconf.colors.pagenum);
 	free(outconf.colors.highlight);
-	/* TODO: also free separator color */
+	free(outconf.colors.separator);
 }
 
 void init_colors()
@@ -297,8 +294,7 @@ void print_help(char *self)
 " -q, --quiet\t\t\tSuppress normal output\n"
 "\t\t\t\tWHEN can be `always', `never' or `auto'\n"
 "     --help\t\t\tPrint this help\n"
-" -V, --version\t\t\tShow version information\n"
-, self);			/* FIXME why is this 'self' here? */
+" -V, --version\t\t\tShow version information\n");
 }
 
 void print_version()
