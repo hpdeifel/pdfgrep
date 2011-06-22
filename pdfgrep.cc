@@ -41,7 +41,7 @@
 static char *filename_color;
 static char *pagenum_color;
 static char *highlight_color;
-static char *seperator_color;
+static char *separator_color;
 
 /* set this to 1 if any match was found. Used for the exit status */
 int found_something = 0;
@@ -251,12 +251,12 @@ int search_in_document(poppler::document *doc, const std::string &filename, rege
 				if (print_filename) {
 					with_color(filename_color,
 						printf("%s", filename.c_str()););
-					with_color(seperator_color, printf(":"););
+					with_color(separator_color, printf(":"););
 				}
 				if (print_pagenum) {
 					with_color(pagenum_color,
 						printf("%d", i););
-					with_color(seperator_color, printf(":"););
+					with_color(separator_color, printf(":"););
 				}
 				if (print_filename || print_pagenum)
 					printf(" ");
@@ -311,7 +311,7 @@ int search_in_document(poppler::document *doc, const std::string &filename, rege
 		if (print_filename) {
 			with_color(filename_color,
 				printf("%s", filename.c_str()););
-			with_color(seperator_color, printf(":"););
+			with_color(separator_color, printf(":"););
 		}
 		printf("%d\n", count_matches);
 	}
@@ -378,7 +378,7 @@ void read_colors_from_env(const char* env_var)
 		else PARSE_COLOR("mc", highlight_color)
 		else PARSE_COLOR("fn", filename_color)
 		else PARSE_COLOR("ln", pagenum_color)
-		else PARSE_COLOR("se", seperator_color)
+		else PARSE_COLOR("se", separator_color)
 #undef PARSE_COLOR
 	}
 	/* free our copy of the environment var */
@@ -390,7 +390,7 @@ void set_default_colors()
 	filename_color = strdup("35");
 	pagenum_color = strdup("32");
 	highlight_color = strdup("01;31");
-	seperator_color = strdup("36");
+	separator_color = strdup("36");
 }
 
 void free_colors()
