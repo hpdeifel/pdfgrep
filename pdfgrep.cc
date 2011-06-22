@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2010 by Hans-Peter Deifel                               *
+ *   Copyright (C) 2011 by Hans-Peter Deifel                               *
  *   hpdeifel@gmx.de                                                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -207,7 +207,7 @@ void print_context_line(char *string, int pos, int matchend, int buflen)
 	while (a >= 0 && string[a] != '\n')
 		a--;
 	a++;
-	
+
 	while (b < buflen && string[b] != '\n')
 		b++;
 
@@ -242,7 +242,7 @@ int search_in_document(poppler::document *doc, const std::string &filename, rege
 		str.resize(str.size() + 1, '\0');
 		char *str_start = &str[0];
 		int index = 0;
-		
+
 		while (!regexec(needle, str_start+index, 1, match, 0)) {
 			count_matches++;
 			if (quiet) {
@@ -315,7 +315,7 @@ int search_in_document(poppler::document *doc, const std::string &filename, rege
 		}
 		printf("%d\n", count_matches);
 	}
-	
+
 clean:
 
 	return count_matches;
@@ -557,7 +557,7 @@ int main(int argc, char** argv)
 	for (int i = optind; i < argc; i++) {
 		const std::string filename(argv[i]);
 		std::auto_ptr<poppler::document> doc(poppler::document::load_from_file(filename));
-		
+
 		if (!doc.get() || doc->is_locked()) {
 			fprintf(stderr, "pdfgrep: Could not open %s\n", argv[i]);
 			error = 1;
