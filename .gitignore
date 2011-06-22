@@ -8,8 +8,10 @@ config.status
 configure
 install-sh
 missing
-pdfgrep.o
+*.o
 pdfgrep
 stamp-h1
 depcomp
 Makefile
+TAGS
+tags
