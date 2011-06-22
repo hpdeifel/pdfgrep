@@ -35,13 +35,9 @@
 #include <memory>
 
 #include "config.h"
+#include "output.h"
 
-#define BUFFER_SIZE 1024
-
-static char *filename_color;
-static char *pagenum_color;
-static char *highlight_color;
-static char *separator_color;
+#define BUFFER_SIZE 1024 /* FIXME is this still needed? */
 
 /* set this to 1 if any match was found. Used for the exit status */
 int found_something = 0;
@@ -49,21 +45,19 @@ int found_something = 0;
 /* default options */
 
 int ignore_case = 0;
-/* controls output of color escape sequences
- *  0: no color
- *  1: color if stdout is a tty
- *  2: color (regardless of stdout)
- */
-int color = 1;
 /* characters of context to put around each match.
  * -1 means: print whole line
  * -2 means: try to fit context into terminal */
 int context = -2;
 int line_width = 80;
-int print_filename = -1;
-int print_pagenum = 0;
 int count = 0;
 int quiet = 0;
+
+struct outconf outconf = {
+	-1,			/* filename */
+	0,			/* pagenum */
+	1,			/* color */
+};
 
 #define HELP_OPTION 1
 #define COLOR_OPTION 2
@@ -83,149 +77,18 @@ struct option long_options[] =
 	{0, 0, 0, 0}
 };
 
-bool is_valid_color(const char* colorcode) {
-	return colorcode && strcmp(colorcode, "");
-}
-
-void start_color(const char *colorcode)
+void regmatch_to_match(const regmatch_t match, int index, struct match *mt)
 {
-	if (color && is_valid_color(colorcode))
-		printf("\33[%sm\33[K", colorcode);
-}
-
-void end_color()
-{
-	if (color)
-		printf("\33[m\33[K");
-}
-
-#define with_color(color, code) \
-	do { \
-		start_color(color); \
-		{ \
-			code; \
-		} \
-		if (is_valid_color(color)) \
-			end_color(); \
-	} while (0);
-
-void putsn(char *string, int from, int to)
-{
-	for (; from < to; from++)
-		putchar(string[from]);
-}
-
-int next_word_left(char *string, int index)
-{
-	int i = 0;
-	int in_whitespace;
-
-	if (index < 0 || string[index] == '\n')
-		return -1;
-
-	in_whitespace = isspace(string[index]);
-	while (index >= 0 && string[index] != '\n') {
-		if (in_whitespace) {
-			if (!isspace(string[index]))
-				in_whitespace = 0;
-		} else {
-			if (isspace(string[index]))
-				break;
-		}
-		i++;
-		index--;
-	}
-
-	return i;
-}
-
-int next_word_right(char *string, int index, int buflen)
-{
-	int i = 0;
-	int in_whitespace;
-
-	if (index > buflen || string[index] == '\n')
-		return -1;
-
-	in_whitespace = isspace(string[index]);
-	while (index < buflen && string[index] != '\n') {
-		if (in_whitespace) {
-			if (!isspace(string[index]))
-				in_whitespace = 0;
-		} else {
-			if (isspace(string[index]))
-				break;
-		}
-		i++;
-		index++;
-	}
-
-	return i;
-}
-
-void print_context(char *string, int pos, int matchend, int buflen)
-{
-	int a = pos;
-	int b = matchend;
-	int chars_left = context;
-
-	int left = next_word_left(string, a-1);
-	int right = next_word_right(string, b, buflen);
-
-	while (true) {
-		if ((left < 0 || left > chars_left)
-			&& (right < 0 || right > chars_left))
-			break;
-
-		if (right < 0 || right > chars_left ||
-				(left > 0 && left <= chars_left
-				 && (pos - a) + left < (b - matchend) + right)) {
-			a -= left;
-			chars_left -= left;
-			left = next_word_left(string,a-1);
-		} else {
-			b += right;
-			chars_left -= right;
-			right = next_word_right(string, b, buflen);
-		}
-	}
-
-	putsn(string, a, pos);
-
-	with_color(highlight_color,
-		putsn(string, pos, matchend);
-	);
-
-	putsn(string, matchend, b);
-}
-
-void print_context_line(char *string, int pos, int matchend, int buflen)
-{
-	int a = pos;
-	int b = matchend;
-
-	while (a >= 0 && string[a] != '\n')
-		a--;
-	a++;
-
-	while (b < buflen && string[b] != '\n')
-		b++;
-
-
-	putsn(string, a, pos);
-
-	with_color(highlight_color,
-		putsn(string, pos, matchend);
-	);
-
-	putsn(string, matchend, b);
+	mt->start = match.rm_so + index;
+	mt->end   = match.rm_eo + index;
 }
 
 int search_in_document(poppler::document *doc, const std::string &filename, regex_t *needle)
 {
 	regmatch_t match[] = {{0, 0}};
 	int count_matches = 0;
-	int length = 0, oldcontext;
+	int length = 0;
+	struct context cntxt = {context, 0, (char*)filename.c_str(), 0, &outconf};
 
 
 
@@ -238,34 +101,25 @@ int search_in_document(poppler::document *doc, const std::string &filename, rege
 			continue;
 		}
 
+		cntxt.pagenum = i;
+
 		poppler::byte_array str = doc_page->text().to_utf8();
 		str.resize(str.size() + 1, '\0');
 		char *str_start = &str[0];
 		int index = 0;
+		struct match mt = {str_start, str.size()};
 
 		while (!regexec(needle, str_start+index, 1, match, 0)) {
+			regmatch_to_match(match[0], index, &mt);
+
 			count_matches++;
 			if (quiet) {
 				goto clean;
 			} else if (!count) {
-				if (print_filename) {
-					with_color(filename_color,
-						printf("%s", filename.c_str()););
-					with_color(separator_color, printf(":"););
-				}
-				if (print_pagenum) {
-					with_color(pagenum_color,
-						printf("%d", i););
-					with_color(separator_color, printf(":"););
-				}
-				if (print_filename || print_pagenum)
-					printf(" ");
-
 				switch (context) {
 				/* print whole line */
 				case -1:
-					print_context_line(str_start, index + match[0].rm_so,
-							index + match[0].rm_eo, str.size());
+					print_context_line(&cntxt, &mt);
 					break;
 				/* try to guess the terminal width */
 				case -2:
@@ -273,26 +127,21 @@ int search_in_document(poppler::document *doc, const std::string &filename, rege
 					 * filename:linenumber: */
 					length = 0;
 
-					if (print_filename)
+					if (outconf.filename)
 						length += 1 + filename.size();
-					if (print_pagenum)
+					if (outconf.pagenum)
 						length += 1 + (int)log10(i);
-					if (print_pagenum || print_filename)
-						length += 1;
+					if (outconf.pagenum || outconf.filename)
+						length += 1; /* FIXME why is this there */
 					length += match[0].rm_eo - match[0].rm_so;
 
-					oldcontext = context;
-					context = line_width - length;
+					cntxt.before = line_width - length;
 
-					print_context(str_start, index + match[0].rm_so,
-							index + match[0].rm_eo, str.size());
-
-					context = oldcontext;
+					print_context_chars(&cntxt, &mt);
 					break;
 				/* print a fixed context */
 				default:
-					print_context(str_start, index + match[0].rm_so,
-							index + match[0].rm_eo, str.size());
+					print_context_chars(&cntxt, &mt);
 					break;
 				}
 
@@ -308,11 +157,7 @@ int search_in_document(poppler::document *doc, const std::string &filename, rege
 	}
 
 	if (count && !quiet) {
-		if (print_filename) {
-			with_color(filename_color,
-				printf("%s", filename.c_str()););
-			with_color(separator_color, printf(":"););
-		}
+		print_line_prefix(&outconf, filename.c_str(), -1);
 		printf("%d\n", count_matches);
 	}
 
@@ -373,12 +218,12 @@ void read_colors_from_env(const char* env_var)
 		GLOBAL_VAR = strdup(cur_value); /* set to new color */ \
     }
 		/* now check for known settings and set global colors */
-		PARSE_COLOR("mt", highlight_color)
-		else PARSE_COLOR("ms", highlight_color)
-		else PARSE_COLOR("mc", highlight_color)
-		else PARSE_COLOR("fn", filename_color)
-		else PARSE_COLOR("ln", pagenum_color)
-		else PARSE_COLOR("se", separator_color)
+		PARSE_COLOR("mt", outconf.colors.highlight)
+		else PARSE_COLOR("ms", outconf.colors.highlight)
+		else PARSE_COLOR("mc", outconf.colors.highlight)
+		else PARSE_COLOR("fn", outconf.colors.filename)
+		else PARSE_COLOR("ln", outconf.colors.pagenum)
+		else PARSE_COLOR("se", outconf.colors.separator)
 #undef PARSE_COLOR
 	}
 	/* free our copy of the environment var */
@@ -387,17 +232,18 @@ void read_colors_from_env(const char* env_var)
 
 void set_default_colors()
 {
-	filename_color = strdup("35");
-	pagenum_color = strdup("32");
-	highlight_color = strdup("01;31");
-	separator_color = strdup("36");
+	outconf.colors.filename = strdup("35");
+	outconf.colors.pagenum = strdup("32");
+	outconf.colors.highlight = strdup("01;31");
+	outconf.colors.separator = strdup("36");
 }
 
 void free_colors()
 {
-	free(filename_color);
-	free(pagenum_color);
-	free(highlight_color);
+	free(outconf.colors.filename);
+	free(outconf.colors.pagenum);
+	free(outconf.colors.highlight);
+	/* TODO: also free separator color */
 }
 
 void init_colors()
@@ -452,7 +298,7 @@ void print_help(char *self)
 "\t\t\t\tWHEN can be `always', `never' or `auto'\n"
 "     --help\t\t\tPrint this help\n"
 " -V, --version\t\t\tShow version information\n"
-, self);
+, self);			/* FIXME why is this 'self' here? */
 }
 
 void print_version()
@@ -480,13 +326,13 @@ int main(int argc, char** argv)
 				print_version();
 				exit(0);
 			case 'n':
-				print_pagenum = 1;
+				outconf.pagenum = 1;
 				break;
 			case 'h':
-				print_filename = 0;
+				outconf.filename = 0;
 				break;
 			case 'H':
-				print_filename = 1;
+				outconf.filename = 1;
 				break;
 			case 'i':
 				ignore_case = REG_ICASE;
@@ -498,11 +344,11 @@ int main(int argc, char** argv)
 				if (!optarg)
 					break;
 				if (!strcmp("always", optarg)) {
-					color = 2;
+					outconf.color = 2;
 				} else if (!strcmp("never", optarg)) {
-					color = 0;
+					outconf.color = 0;
 				} else {
-					color = 1;
+					outconf.color = 1;
 				}
 				break;
 			case 'C':
@@ -540,14 +386,14 @@ int main(int argc, char** argv)
 
 	bool color_tty = isatty(STDOUT_FILENO) && getenv("TERM") &&
 		strcmp(getenv("TERM"), "dumb");
-	if (color == 1 && !color_tty) {
-		color = 0;
+	if (outconf.color == 1 && !color_tty) {
+		outconf.color = 0;
 	}
 
-	if (color) read_colors_from_env("GREP_COLORS");
+	if (outconf.color) read_colors_from_env("GREP_COLORS");
 
-	if (print_filename < 0)
-		print_filename = (argc - optind) == 1 ? 0 : 1;
+	if (outconf.filename < 0)
+		outconf.filename = (argc - optind) == 1 ? 0 : 1;
 
 	if (isatty(STDOUT_FILENO))
 		line_width = get_line_width();
