@@ -390,7 +390,7 @@ void set_default_colors()
 	filename_color = strdup("35");
 	pagenum_color = strdup("32");
 	highlight_color = strdup("01;31");
-	seperator_color = strdup("34");
+	seperator_color = strdup("36");
 }
 
 void free_colors()
