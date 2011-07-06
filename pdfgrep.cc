@@ -33,6 +33,8 @@
 #include <goo/GooString.h>
 #include <TextOutputDev.h>
 #include <GlobalParams.h>
+#include <errno.h>
+#include <dirent.h>
 
 #include "config.h"
 
@@ -50,6 +52,7 @@ int found_something = 0;
 
 int ignore_case = 0;
 int color = 1;
+int f_recursive_search = 0;
 /* characters of context to put around each match.
  * -1 means: print whole line
  * -2 means: try to fit context into terminal */
@@ -72,6 +75,7 @@ struct option long_options[] =
 	{"count", 0, 0, 'c'},
 	{"color", 1, 0, COLOR_OPTION},
 	{"context", 1, 0, 'C'},
+	{"recursive", 0, 0, 'r'},
 	{"help", 0, 0, HELP_OPTION},
 	{"version", 0, 0, 'V'},
 	{"quiet", 0, 0, 'q'},
@@ -494,6 +498,7 @@ void print_help(char *self)
 " -C, --context NUM\t\tPrint at most NUM chars of context\n"
 "     --color WHEN\t\tUse colors for highlighting;\n"
 " -q, --quiet\t\t\tSuppress normal output\n"
+" -r, --recursive\t\tSearch directory recursively\n"
 "\t\t\t\tWHEN can be `always', `never' or `auto'\n"
 "     --help\t\t\tPrint this help\n"
 " -V, --version\t\t\tShow version information\n"
@@ -505,13 +510,90 @@ void print_version()
 	printf("This is %s version %s\n", PACKAGE, VERSION);
 }
 
+int is_dir(const char *name)
+{
+    struct stat st;
+
+    if (stat(name, &st) == 0 && S_ISDIR(st.st_mode))
+        return 1;
+    else
+        return 0;
+}
+
+int do_search_in_document(const char *pcFileName, regex_t *ptrRegex)
+{
+    GooString *s = new GooString(pcFileName);;
+    PDFDoc *doc = new PDFDoc(s);
+
+    if (!doc->isOk()) {
+            fprintf(stderr, "pdfgrep: Could not open %s\n", pcFileName);
+            return 0;
+    }
+
+    if (search_in_document(doc, ptrRegex) && quiet) {
+            exit(0);
+    }
+
+    delete doc;
+}
+
+int do_search_in_directory(const char *pcFileName, regex_t *ptrRegex)
+{
+    DIR *ptrDir = NULL;
+    struct dirent *ptrDirent = NULL;
+    int isCurrent = 0;
+    char acPath[FILENAME_MAX] = {'\0'};
+
+    isCurrent = strcmp(pcFileName, ".") == 0;
+
+    ptrDir = opendir(pcFileName);
+    if (!ptrDir)
+    {
+        perror("Couldnt open directory:");
+        return 0;
+    }
+
+    while(1)
+    {
+        char *ptrTemp = NULL;
+        errno = 0;
+        ptrDirent = readdir(ptrDir);    //not sorted, in order as `ls -f`
+        if (!ptrDirent)
+            break;
+
+        if (!strcmp(ptrDirent->d_name, ".") || !strcmp(ptrDirent->d_name, ".."))
+            continue;
+
+        snprintf(acPath, FILENAME_MAX, "%s/%s", pcFileName, ptrDirent->d_name);
+        with_color(seperator_color, printf("Dirent File Name: %s\n", acPath););
+
+        if (is_dir(acPath))
+        {
+            //printf("%s/%s is Directory!\n", acPath, ptrDirent->d_name);
+            with_color(filename_color, printf("%s is Directory!\n", acPath););
+            do_search_in_directory(acPath, ptrRegex);
+        }
+        else {
+            ptrTemp = ptrDirent->d_name + strlen(ptrDirent->d_name) - 4;
+            if (!strncmp(".pdf", ptrTemp, 4))
+            {
+                with_color(filename_color, printf("%s is pdf file!\n", acPath););
+                do_search_in_document(acPath, ptrRegex);
+
+            }
+        }
+    }
+
+    closedir(ptrDir);
+}
+
 int main(int argc, char** argv)
 {
 	regex_t regex;
 	init_colors();
 
 	while (1) {
-		int c = getopt_long(argc, argv, "icC:nhHVq",
+		int c = getopt_long(argc, argv, "icC:nrhHVq",
 				long_options, NULL);
 
 		if (c == -1)
@@ -527,6 +609,9 @@ int main(int argc, char** argv)
 			case 'n':
 				print_pagenum = 1;
 				break;
+                        case 'r':
+                                f_recursive_search = 1;
+                                break;
 			case 'h':
 				print_filename = 0;
 				break;
@@ -601,20 +686,15 @@ int main(int argc, char** argv)
 	error = 0;
 
 	for (int i = optind; i < argc; i++) {
-		GooString *s = new GooString(argv[i]);
-		PDFDoc *doc = new PDFDoc(s);
-		
-		if (!doc->isOk()) {
-			fprintf(stderr, "pdfgrep: Could not open %s\n", argv[i]);
-			error = 1;
-			continue;
-		}
-
-		if (search_in_document(doc, &regex) && quiet) {
-			exit(0);
-		}
-
-		delete doc;
+		if (!is_dir(argv[i])) {
+                    do_search_in_document(argv[i], &regex);
+                    error = 1;
+                }
+                else if (f_recursive_search) {
+                    do_search_in_directory(argv[i], &regex);
+                }
+                else
+                    error = 1;
 	}
 
 	if (error) {
