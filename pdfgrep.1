@@ -62,7 +62,16 @@ Use colors only when stdout is a terminal.
 .RE
 .TP
 .BR \-r ", " \-\^\-recursive
-Recursively search all .pdf files under each directory.
+Recursively search all files (restricted by \fB\-\^\-include\fP and
+\fB\-\^\-exclude\fP) under each directory.
+.TP
+.BR \-\^\-exclude=\fIGLOB\fP
+Skip files whose base name matches \fIGLOB\fP. See \fBglob\fP(7) for wildcards
+you can use in \fIGLOB\fP. This takes precedence over \fB\-\^\-include\fP.
+.TP
+.BR \-\^\-include=\fIGLOB\fP
+Only search files whole base name matches \fIGLOB\fP. See \fB\-\^\-exclude\fP for
+details. The default is \fI*.pdf\fP.
 .TP
 .BR \-q ", " \-\^\-quiet
 Suppress all normal output to stdout. Errors will be printed and the exit codes will be returned (see below).
