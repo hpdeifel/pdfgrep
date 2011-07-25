@@ -1,4 +1,4 @@
-.TH pdfgrep 1 "March 15, 2011" "version 1.2" "USER COMMANDS"
+.TH pdfgrep 1 "July 25, 2011" "version 1.2" "USER COMMANDS"
 .SH NAME
 pdfgrep \- search pdf files for a regular expression
 .SH SYNOPSIS
@@ -60,6 +60,9 @@ Do not use colors.
 .B auto
 Use colors only when stdout is a terminal.
 .RE
+.TP
+.BR \-r ", " \-\^\-recursive
+Recursively search all .pdf files under each directory.
 .TP
 .BR \-q ", " \-\^\-quiet
 Suppress all normal output to stdout. Errors will be printed and the exit codes will be returned (see below).
