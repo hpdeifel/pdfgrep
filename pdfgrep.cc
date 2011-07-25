@@ -512,79 +512,73 @@ void print_version()
 
 int is_dir(const char *name)
 {
-    struct stat st;
+	struct stat st;
 
-    if (stat(name, &st) == 0 && S_ISDIR(st.st_mode))
-        return 1;
-    else
-        return 0;
+	if (stat(name, &st) == 0 && S_ISDIR(st.st_mode))
+		return 1;
+	else
+		return 0;
 }
 
 int do_search_in_document(const char *pcFileName, regex_t *ptrRegex)
 {
-    GooString *s = new GooString(pcFileName);;
-    PDFDoc *doc = new PDFDoc(s);
+	GooString *s = new GooString(pcFileName);;
+	PDFDoc *doc = new PDFDoc(s);
 
-    if (!doc->isOk()) {
-            fprintf(stderr, "pdfgrep: Could not open %s\n", pcFileName);
-            return 0;
-    }
+	if (!doc->isOk()) {
+		fprintf(stderr, "pdfgrep: Could not open %s\n", pcFileName);
+		return 0;
+	}
 
-    if (search_in_document(doc, ptrRegex) && quiet) {
-            exit(0);
-    }
+	if (search_in_document(doc, ptrRegex) && quiet) {
+		exit(0);
+	}
 
-    delete doc;
+	delete doc;
 }
 
 int do_search_in_directory(const char *pcFileName, regex_t *ptrRegex)
 {
-    DIR *ptrDir = NULL;
-    struct dirent *ptrDirent = NULL;
-    int isCurrent = 0;
-    char acPath[FILENAME_MAX] = {'\0'};
+	DIR *ptrDir = NULL;
+	struct dirent *ptrDirent = NULL;
+	int isCurrent = 0;
+	char acPath[FILENAME_MAX] = {'\0'};
 
-    isCurrent = strcmp(pcFileName, ".") == 0;
+	isCurrent = strcmp(pcFileName, ".") == 0;
 
-    ptrDir = opendir(pcFileName);
-    if (!ptrDir)
-    {
-        perror("Couldnt open directory:");
-        return 0;
-    }
+	ptrDir = opendir(pcFileName);
+	if (!ptrDir) {
+		perror("Couldnt open directory:");
+		return 0;
+	}
 
-    while(1)
-    {
-        char *ptrTemp = NULL;
-        errno = 0;
-        ptrDirent = readdir(ptrDir);    //not sorted, in order as `ls -f`
-        if (!ptrDirent)
-            break;
+	while(1) {
+		char *ptrTemp = NULL;
+		errno = 0;
+		ptrDirent = readdir(ptrDir);    //not sorted, in order as `ls -f`
+		if (!ptrDirent)
+			break;
 
-        if (!strcmp(ptrDirent->d_name, ".") || !strcmp(ptrDirent->d_name, ".."))
-            continue;
+		if (!strcmp(ptrDirent->d_name, ".") || !strcmp(ptrDirent->d_name, ".."))
+			continue;
 
-        snprintf(acPath, FILENAME_MAX, "%s/%s", pcFileName, ptrDirent->d_name);
-        with_color(seperator_color, printf("Dirent File Name: %s\n", acPath););
+		snprintf(acPath, FILENAME_MAX, "%s/%s", pcFileName, ptrDirent->d_name);
+		with_color(seperator_color, printf("Dirent File Name: %s\n", acPath););
 
-        if (is_dir(acPath))
-        {
-            //printf("%s/%s is Directory!\n", acPath, ptrDirent->d_name);
-            with_color(filename_color, printf("%s is Directory!\n", acPath););
-            do_search_in_directory(acPath, ptrRegex);
-        }
-        else {
-            ptrTemp = ptrDirent->d_name + strlen(ptrDirent->d_name) - 4;
-            if (!strncmp(".pdf", ptrTemp, 4))
-            {
-                with_color(filename_color, printf("%s is pdf file!\n", acPath););
-                do_search_in_document(acPath, ptrRegex);
+		if (is_dir(acPath)) {
+			//printf("%s/%s is Directory!\n", acPath, ptrDirent->d_name);
+			with_color(filename_color, printf("%s is Directory!\n", acPath););
+			do_search_in_directory(acPath, ptrRegex);
+		} else {
+			ptrTemp = ptrDirent->d_name + strlen(ptrDirent->d_name) - 4;
+			if (!strncmp(".pdf", ptrTemp, 4)) {
+				with_color(filename_color, printf("%s is pdf file!\n", acPath););
+				do_search_in_document(acPath, ptrRegex);
+			}
+		}
+	}
 
-            }
-        }
-    }
-
-    closedir(ptrDir);
+	closedir(ptrDir);
 }
 
 int main(int argc, char** argv)
@@ -609,9 +603,9 @@ int main(int argc, char** argv)
 			case 'n':
 				print_pagenum = 1;
 				break;
-                        case 'r':
-                                f_recursive_search = 1;
-                                break;
+			case 'r':
+				f_recursive_search = 1;
+				break;
 			case 'h':
 				print_filename = 0;
 				break;
@@ -687,14 +681,13 @@ int main(int argc, char** argv)
 
 	for (int i = optind; i < argc; i++) {
 		if (!is_dir(argv[i])) {
-                    do_search_in_document(argv[i], &regex);
-                    error = 1;
-                }
-                else if (f_recursive_search) {
-                    do_search_in_directory(argv[i], &regex);
-                }
-                else
-                    error = 1;
+			do_search_in_document(argv[i], &regex);
+			error = 1;
+		} else if (f_recursive_search) {
+			do_search_in_directory(argv[i], &regex);
+		} else {
+			error = 1;
+		}
 	}
 
 	if (error) {
