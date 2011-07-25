@@ -28,6 +28,10 @@
 #include <unistd.h>
 #include <math.h>
 #include <sys/ioctl.h>
+#include <fnmatch.h>
+#include <errno.h>
+#include <dirent.h>
+#include <sys/stat.h>
 
 #include <cpp/poppler-document.h>
 #include <cpp/poppler-page.h>
@@ -43,6 +47,7 @@ int found_something = 0;
 /* default options */
 
 int ignore_case = 0;
+int f_recursive_search = 0;
 /* characters of context to put around each match.
  * -1 means: print whole line
  * -2 means: try to fit context into terminal */
@@ -69,6 +74,7 @@ struct option long_options[] =
 	{"count", 0, 0, 'c'},
 	{"color", 1, 0, COLOR_OPTION},
 	{"context", 1, 0, 'C'},
+	{"recursive", 0, 0, 'r'},
 	{"help", 0, 0, HELP_OPTION},
 	{"version", 0, 0, 'V'},
 	{"quiet", 0, 0, 'q'},
@@ -292,6 +298,7 @@ void print_help(char *self)
 " -C, --context NUM\t\tPrint at most NUM chars of context\n"
 "     --color WHEN\t\tUse colors for highlighting;\n"
 " -q, --quiet\t\t\tSuppress normal output\n"
+" -r, --recursive\t\tSearch directory recursively\n"
 "\t\t\t\tWHEN can be `always', `never' or `auto'\n"
 "     --help\t\t\tPrint this help\n"
 " -V, --version\t\t\tShow version information\n");
@@ -302,13 +309,77 @@ void print_version()
 	printf("This is %s version %s\n", PACKAGE, VERSION);
 }
 
+int is_dir(const std::string filename)
+{
+	struct stat st;
+
+	if (stat(filename.c_str(), &st) == 0 && S_ISDIR(st.st_mode))
+		return 1;
+	else
+		return 0;
+}
+
+int do_search_in_document(const std::string filename, regex_t *ptrRegex)
+{
+	std::auto_ptr<poppler::document> doc(poppler::document::load_from_file(filename));
+
+	if (!doc.get() || doc->is_locked()) {
+		fprintf(stderr, "pdfgrep: Could not open %s\n",
+			filename.c_str());
+		return 1;
+	}
+
+	if (search_in_document(doc.get(), filename, ptrRegex) && quiet) {
+		exit(0);
+	}
+
+	return 0;
+}
+
+int do_search_in_directory(const std::string filename, regex_t *ptrRegex)
+{
+	DIR *ptrDir = NULL;
+	struct dirent *ptrDirent = NULL;
+
+	ptrDir = opendir(filename.c_str());
+	if (!ptrDir) {
+		fprintf(stderr, "pdfgrep: %s: %s\n", filename.c_str(),
+			strerror(errno));
+		return 1;
+	}
+
+	while(1) {
+		std::string path(filename);
+		errno = 0;
+		ptrDirent = readdir(ptrDir);    //not sorted, in order as `ls -f`
+		if (!ptrDirent)
+			break;
+
+		if (!strcmp(ptrDirent->d_name, ".") || !strcmp(ptrDirent->d_name, ".."))
+			continue;
+
+		path += "/";
+		path += ptrDirent->d_name;
+
+		if (is_dir(path)) {
+			do_search_in_directory(path, ptrRegex);
+		} else if (!fnmatch("*.pdf", ptrDirent->d_name, 0)) {
+			do_search_in_document(path, ptrRegex);
+		}
+	}
+
+	closedir(ptrDir);
+
+	return 0;
+}
+
 int main(int argc, char** argv)
 {
 	regex_t regex;
 	init_colors();
 
 	while (1) {
-		int c = getopt_long(argc, argv, "icC:nhHVq",
+		int c = getopt_long(argc, argv, "icC:nrhHVq",
 				long_options, NULL);
 
 		if (c == -1)
@@ -323,6 +394,9 @@ int main(int argc, char** argv)
 				exit(0);
 			case 'n':
 				outconf.pagenum = 1;
+				break;
+			case 'r':
+				f_recursive_search = 1;
 				break;
 			case 'h':
 				outconf.filename = 0;
@@ -388,8 +462,12 @@ int main(int argc, char** argv)
 
 	if (outconf.color) read_colors_from_env("GREP_COLORS");
 
-	if (outconf.filename < 0)
-		outconf.filename = (argc - optind) == 1 ? 0 : 1;
+	if (outconf.filename < 0) {
+		if ((argc - optind) == 1 && !is_dir(argv[optind])) {
+			outconf.filename = 0;
+		} else
+			outconf.filename = 1;
+	}
 
 	if (isatty(STDOUT_FILENO))
 		line_width = get_line_width();
@@ -398,16 +476,13 @@ int main(int argc, char** argv)
 
 	for (int i = optind; i < argc; i++) {
 		const std::string filename(argv[i]);
-		std::auto_ptr<poppler::document> doc(poppler::document::load_from_file(filename));
 
-		if (!doc.get() || doc->is_locked()) {
-			fprintf(stderr, "pdfgrep: Could not open %s\n", argv[i]);
+		if (!is_dir(filename)) {
+			do_search_in_document(filename, &regex);
+		} else if (f_recursive_search) {
+			do_search_in_directory(filename, &regex);
+		} else { // TODO: report errors
 			error = 1;
-			continue;
-		}
-
-		if (search_in_document(doc.get(), filename, &regex) && quiet) {
-			exit(0);
 		}
 	}
 
