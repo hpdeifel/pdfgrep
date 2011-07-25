@@ -99,7 +99,7 @@ int next_word_right(char *string, int index, int buflen)
 	int i = 0;
 	int in_whitespace;
 
-	if (index > buflen || string[index] == '\n')
+	if (index >= buflen || string[index] == '\n')
 		return -1;
 
 	in_whitespace = isspace(string[index]);
