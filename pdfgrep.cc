@@ -307,9 +307,9 @@ void print_help(char *self)
 " -c, --count\t\t\tPrint only a count of matches per file\n"
 " -C, --context NUM\t\tPrint at most NUM chars of context\n"
 "     --color WHEN\t\tUse colors for highlighting;\n"
+"\t\t\t\tWHEN can be `always', `never' or `auto'\n"
 " -q, --quiet\t\t\tSuppress normal output\n"
 " -r, --recursive\t\tSearch directories recursively\n"
-"\t\t\t\tWHEN can be `always', `never' or `auto'\n"
 "     --help\t\t\tPrint this help\n"
 " -V, --version\t\t\tShow version information\n");
 }
