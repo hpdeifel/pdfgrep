@@ -40,6 +40,7 @@
 
 #include "config.h"
 #include "output.h"
+#include "exclude.h"
 
 /* set this to 1 if any match was found. Used for the exit status */
 int found_something = 0;
@@ -62,8 +63,12 @@ struct outconf outconf = {
 	1,			/* color */
 };
 
-#define HELP_OPTION 1
-#define COLOR_OPTION 2
+enum {
+	HELP_OPTION,
+	COLOR_OPTION,
+	EXCLUDE_OPTION,
+	INCLUDE_OPTION,
+};
 
 struct option long_options[] =
 {
@@ -75,11 +80,16 @@ struct option long_options[] =
 	{"color", 1, 0, COLOR_OPTION},
 	{"context", 1, 0, 'C'},
 	{"recursive", 0, 0, 'r'},
+	{"exclude", 1, 0, EXCLUDE_OPTION},
+	{"include", 1, 0, INCLUDE_OPTION},
 	{"help", 0, 0, HELP_OPTION},
 	{"version", 0, 0, 'V'},
 	{"quiet", 0, 0, 'q'},
 	{0, 0, 0, 0}
 };
+
+ExcludeList excludes;
+ExcludeList includes;
 
 void regmatch_to_match(const regmatch_t match, int index, struct match *mt)
 {
@@ -319,17 +329,21 @@ int is_dir(const std::string filename)
 		return 0;
 }
 
-int do_search_in_document(const std::string filename, regex_t *ptrRegex)
+int do_search_in_document(const std::string path, const std::string filename,
+			  regex_t *ptrRegex)
 {
-	std::auto_ptr<poppler::document> doc(poppler::document::load_from_file(filename));
+	if (!is_excluded(includes, filename) || is_excluded(excludes, filename))
+		return 0;
+
+	std::auto_ptr<poppler::document> doc(poppler::document::load_from_file(path));
 
 	if (!doc.get() || doc->is_locked()) {
 		fprintf(stderr, "pdfgrep: Could not open %s\n",
-			filename.c_str());
+			path.c_str());
 		return 1;
 	}
 
-	if (search_in_document(doc.get(), filename, ptrRegex) && quiet) {
+	if (search_in_document(doc.get(), path, ptrRegex) && quiet) {
 		exit(0);
 	}
 
@@ -363,8 +377,8 @@ int do_search_in_directory(const std::string filename, regex_t *ptrRegex)
 
 		if (is_dir(path)) {
 			do_search_in_directory(path, ptrRegex);
-		} else if (!fnmatch("*.pdf", ptrDirent->d_name, 0)) {
-			do_search_in_document(path, ptrRegex);
+		} else {
+			do_search_in_document(path, ptrDirent->d_name, ptrRegex);
 		}
 	}
 
@@ -430,6 +444,12 @@ int main(int argc, char** argv)
 					}
 				}
 				break;
+			case EXCLUDE_OPTION:
+				exclude_add(excludes, optarg);
+				break;
+			case INCLUDE_OPTION:
+				exclude_add(includes, optarg);
+				break;
 			case 'q':
 				quiet = 1;
 				break;
@@ -472,13 +492,16 @@ int main(int argc, char** argv)
 	if (isatty(STDOUT_FILENO))
 		line_width = get_line_width();
 
+	if (excludes_empty(includes))
+		exclude_add(includes, "*.pdf");
+
 	error = 0;
 
 	for (int i = optind; i < argc; i++) {
 		const std::string filename(argv[i]);
 
 		if (!is_dir(filename)) {
-			do_search_in_document(filename, &regex);
+			do_search_in_document(filename, filename, &regex);
 		} else if (f_recursive_search) {
 			do_search_in_directory(filename, &regex);
 		} else { // TODO: report errors
