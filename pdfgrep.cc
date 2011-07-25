@@ -28,6 +28,7 @@
 #include <unistd.h>
 #include <math.h>
 #include <sys/ioctl.h>
+#include <fnmatch.h>
 
 #include <PDFDoc.h>
 #include <goo/GooString.h>
@@ -527,7 +528,7 @@ int do_search_in_document(const char *pcFileName, regex_t *ptrRegex)
 
 	if (!doc->isOk()) {
 		fprintf(stderr, "pdfgrep: Could not open %s\n", pcFileName);
-		return 0;
+		return 1;
 	}
 
 	if (search_in_document(doc, ptrRegex) && quiet) {
@@ -535,25 +536,23 @@ int do_search_in_document(const char *pcFileName, regex_t *ptrRegex)
 	}
 
 	delete doc;
+
+	return 0;
 }
 
 int do_search_in_directory(const char *pcFileName, regex_t *ptrRegex)
 {
 	DIR *ptrDir = NULL;
 	struct dirent *ptrDirent = NULL;
-	int isCurrent = 0;
-	char acPath[FILENAME_MAX] = {'\0'};
-
-	isCurrent = strcmp(pcFileName, ".") == 0;
+	char acPath[FILENAME_MAX] = {'\0'}; // FIXME don't use FILENAME_MAX
 
 	ptrDir = opendir(pcFileName);
 	if (!ptrDir) {
-		perror("Couldnt open directory:");
-		return 0;
+		fprintf(stderr, "pdfgrep: %s: %s\n", pcFileName, strerror(errno));
+		return 1;
 	}
 
 	while(1) {
-		char *ptrTemp = NULL;
 		errno = 0;
 		ptrDirent = readdir(ptrDir);    //not sorted, in order as `ls -f`
 		if (!ptrDirent)
@@ -563,22 +562,17 @@ int do_search_in_directory(const char *pcFileName, regex_t *ptrRegex)
 			continue;
 
 		snprintf(acPath, FILENAME_MAX, "%s/%s", pcFileName, ptrDirent->d_name);
-		with_color(seperator_color, printf("Dirent File Name: %s\n", acPath););
 
 		if (is_dir(acPath)) {
-			//printf("%s/%s is Directory!\n", acPath, ptrDirent->d_name);
-			with_color(filename_color, printf("%s is Directory!\n", acPath););
 			do_search_in_directory(acPath, ptrRegex);
-		} else {
-			ptrTemp = ptrDirent->d_name + strlen(ptrDirent->d_name) - 4;
-			if (!strncmp(".pdf", ptrTemp, 4)) {
-				with_color(filename_color, printf("%s is pdf file!\n", acPath););
-				do_search_in_document(acPath, ptrRegex);
-			}
+		} else if (!fnmatch("*.pdf", ptrDirent->d_name, 0)) {
+			do_search_in_document(acPath, ptrRegex);
 		}
 	}
 
 	closedir(ptrDir);
+
+	return 0;
 }
 
 int main(int argc, char** argv)
@@ -671,8 +665,12 @@ int main(int argc, char** argv)
 	if (color)
 		read_colors_from_env("GREP_COLORS");
 
-	if (print_filename < 0)
-		print_filename = (argc - optind) == 1 ? 0 : 1;
+	if (print_filename < 0) {
+		if ((argc - optind) == 1 && !is_dir(argv[optind])) {
+			print_filename = 0;
+		} else
+			print_filename = 1;
+	}
 
 	if (isatty(STDOUT_FILENO))
 		line_width = get_line_width();
@@ -685,7 +683,7 @@ int main(int argc, char** argv)
 			error = 1;
 		} else if (f_recursive_search) {
 			do_search_in_directory(argv[i], &regex);
-		} else {
+		} else { // TODO: report errors
 			error = 1;
 		}
 	}
