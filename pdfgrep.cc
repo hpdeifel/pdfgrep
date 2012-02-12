@@ -80,6 +80,7 @@ struct option long_options[] =
 	{"color", 1, 0, COLOR_OPTION},
 	{"context", 1, 0, 'C'},
 	{"recursive", 0, 0, 'r'},
+	{"recursive", 0, 0, 'R'},
 	{"exclude", 1, 0, EXCLUDE_OPTION},
 	{"include", 1, 0, INCLUDE_OPTION},
 	{"help", 0, 0, HELP_OPTION},
@@ -309,7 +310,7 @@ void print_help(char *self)
 "     --color WHEN\t\tUse colors for highlighting;\n"
 "\t\t\t\tWHEN can be `always', `never' or `auto'\n"
 " -q, --quiet\t\t\tSuppress normal output\n"
-" -r, --recursive\t\tSearch directories recursively\n"
+" -R, --recursive\t\tSearch directories recursively\n"
 "     --help\t\t\tPrint this help\n"
 " -V, --version\t\t\tShow version information\n");
 }
@@ -394,7 +395,7 @@ int main(int argc, char** argv)
 	init_colors();
 
 	while (1) {
-		int c = getopt_long(argc, argv, "icC:nrhHVq",
+		int c = getopt_long(argc, argv, "icC:nrRhHVq",
 				long_options, NULL);
 
 		if (c == -1)
@@ -411,6 +412,7 @@ int main(int argc, char** argv)
 				outconf.pagenum = 1;
 				break;
 			case 'r':
+			case 'R':
 				f_recursive_search = 1;
 				break;
 			case 'h':
