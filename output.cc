@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2011 by Hans-Peter Deifel                               *
+ *   Copyright (C) 2012 by Hans-Peter Deifel                               *
  *   hpdeifel@gmx.de                                                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
