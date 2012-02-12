@@ -1,4 +1,4 @@
-.TH pdfgrep 1 "July 25, 2011" "version 1.2" "USER COMMANDS"
+.TH pdfgrep 1 "February 12, 2012" "version 1.2" "USER COMMANDS"
 .SH NAME
 pdfgrep \- search pdf files for a regular expression
 .SH SYNOPSIS
@@ -67,14 +67,17 @@ Recursively search all files (restricted by \fB\-\^\-include\fP and
 .TP
 .BR \-\^\-exclude=\fIGLOB\fP
 Skip files whose base name matches \fIGLOB\fP. See \fBglob\fP(7) for wildcards
-you can use in \fIGLOB\fP. This takes precedence over \fB\-\^\-include\fP.
+you can use. You can use this option multiple times to exclude more patterns.
+It takes precedence over \fB\-\^\-include\fP. Note, that in- and excludes apply
+only to files found via \fB\-\^\-recursive\fP and not to the argument list.
 .TP
 .BR \-\^\-include=\fIGLOB\fP
-Only search files whole base name matches \fIGLOB\fP. See \fB\-\^\-exclude\fP for
+Only search files whose base name matches \fIGLOB\fP. See \fB\-\^\-exclude\fP for
 details. The default is \fI*.pdf\fP.
 .TP
 .BR \-q ", " \-\^\-quiet
-Suppress all normal output to stdout. Errors will be printed and the exit codes will be returned (see below).
+Suppress all normal output to stdout. Errors will be printed and the exit codes
+will be returned (see below).
 .TP
 .BR \-\^\-help
 Print a short summary of the options.

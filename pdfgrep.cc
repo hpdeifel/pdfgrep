@@ -330,9 +330,10 @@ int is_dir(const std::string filename)
 }
 
 int do_search_in_document(const std::string path, const std::string filename,
-			  regex_t *ptrRegex)
+			  regex_t *ptrRegex, bool check_excludes = true)
 {
-	if (!is_excluded(includes, filename) || is_excluded(excludes, filename))
+	if (check_excludes &&
+	    (!is_excluded(includes, filename) || is_excluded(excludes, filename)))
 		return 0;
 
 	std::auto_ptr<poppler::document> doc(poppler::document::load_from_file(path));
@@ -501,7 +502,7 @@ int main(int argc, char** argv)
 		const std::string filename(argv[i]);
 
 		if (!is_dir(filename)) {
-			do_search_in_document(filename, filename, &regex);
+			do_search_in_document(filename, filename, &regex,false);
 		} else if (f_recursive_search) {
 			do_search_in_directory(filename, &regex);
 		} else { // TODO: report errors
