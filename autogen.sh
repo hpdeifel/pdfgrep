@@ -1,1 +1,2 @@
+aclocal
 autoreconf --install
