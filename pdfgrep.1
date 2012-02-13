@@ -1,4 +1,4 @@
-.TH pdfgrep 1 "February 12, 2012" "version 1.2" "USER COMMANDS"
+.TH pdfgrep 1 "February 13, 2012" "version 1.2" "USER COMMANDS"
 .SH NAME
 pdfgrep \- search pdf files for a regular expression
 .SH SYNOPSIS
@@ -74,6 +74,15 @@ only to files found via \fB\-\^\-recursive\fP and not to the argument list.
 .BR \-\^\-include=\fIGLOB\fP
 Only search files whose base name matches \fIGLOB\fP. See \fB\-\^\-exclude\fP for
 details. The default is \fI*.pdf\fP.
+.TP
+.BR \-\^\-unac
+Remove accents and ligatures from both the search pattern and the PDF
+documents. This is useful if you want to search for a word containing 'ae', but
+the PDF uses the single character 'æ' instead. See \fBunac(3)\fP and
+\fBunaccent(1)\fP for details.
+
+\fB[This option is experimental and only available if pdfgrep is compiled with
+unac support.]\fP
 .TP
 .BR \-q ", " \-\^\-quiet
 Suppress all normal output to stdout. Errors will be printed and the exit codes
