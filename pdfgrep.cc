@@ -18,6 +18,8 @@
  *   Boston, MA 02110-1301 USA.                                            *
  ***************************************************************************/
 
+#include "config.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -36,9 +38,12 @@
 #include <cpp/poppler-document.h>
 #include <cpp/poppler-page.h>
 
+#ifdef HAVE_UNAC
+#include <unac.h>
+#endif
+
 #include <memory>
 
-#include "config.h"
 #include "output.h"
 #include "exclude.h"
 
@@ -57,6 +62,10 @@ int line_width = 80;
 int count = 0;
 int quiet = 0;
 
+#ifdef HAVE_UNAC
+int use_unac = 0;
+#endif
+
 struct outconf outconf = {
 	-1,			/* filename */
 	0,			/* pagenum */
@@ -68,6 +77,9 @@ enum {
 	COLOR_OPTION,
 	EXCLUDE_OPTION,
 	INCLUDE_OPTION,
+#ifdef HAVE_UNAC
+	UNAC_OPTION,
+#endif
 };
 
 struct option long_options[] =
@@ -86,6 +98,9 @@ struct option long_options[] =
 	{"help", 0, 0, HELP_OPTION},
 	{"version", 0, 0, 'V'},
 	{"quiet", 0, 0, 'q'},
+#ifdef HAVE_UNAC
+	{"unac", 0, 0, UNAC_OPTION},
+#endif
 	{0, 0, 0, 0}
 };
 
@@ -97,6 +112,32 @@ void regmatch_to_match(const regmatch_t match, int index, struct match *mt)
 	mt->start = match.rm_so + index;
 	mt->end   = match.rm_eo + index;
 }
+
+#ifdef HAVE_UNAC
+/* convenience layer over libunac. The result has to be freed with
+ * simple_unac_free */
+char *simple_unac(char *string)
+{
+	if (!use_unac)
+		return string;
+
+	char *res = NULL;
+	size_t reslen = 0;
+
+	if (unac_string("UTF-8", string, strlen(string), &res, &reslen)) {
+		perror("pdfgrep: Failed to remove accents: ");
+		return strdup(string);
+	}
+
+	return res;
+}
+
+void simple_unac_free(char *string)
+{
+	if (use_unac)
+		free(string);
+}
+#endif
 
 int search_in_document(poppler::document *doc, const std::string &filename, regex_t *needle)
 {
@@ -120,7 +161,12 @@ int search_in_document(poppler::document *doc, const std::string &filename, rege
 
 		poppler::byte_array str = doc_page->text().to_utf8();
 		str.resize(str.size() + 1, '\0');
+#ifdef HAVE_UNAC
+		char *unac_str = simple_unac(&str[0]);
+		char *str_start = unac_str;
+#else
 		char *str_start = &str[0];
+#endif
 		int index = 0;
 		struct match mt = {str_start, str.size()};
 
@@ -129,6 +175,9 @@ int search_in_document(poppler::document *doc, const std::string &filename, rege
 
 			count_matches++;
 			if (quiet) {
+#ifdef HAVE_UNAC
+				simple_unac_free(unac_str);
+#endif
 				goto clean;
 			} else if (!count) {
 				switch (context) {
@@ -167,7 +216,9 @@ int search_in_document(poppler::document *doc, const std::string &filename, rege
 			index += match[0].rm_so + 1;
 		}
 
-
+#ifdef HAVE_UNAC
+		simple_unac_free(unac_str);
+#endif
 	}
 
 	if (count && !quiet) {
@@ -176,7 +227,6 @@ int search_in_document(poppler::document *doc, const std::string &filename, rege
 	}
 
 clean:
-
 	return count_matches;
 }
 
@@ -456,6 +506,11 @@ int main(int argc, char** argv)
 			case 'q':
 				quiet = 1;
 				break;
+#ifdef HAVE_UNAC
+			case UNAC_OPTION:
+				use_unac = 1;
+				break;
+#endif
 			case '?':
 				/* TODO: do something here */
 				break;
@@ -469,7 +524,12 @@ int main(int argc, char** argv)
 		exit(2);
 	}
 
-	int error = regcomp(&regex, argv[optind++], REG_EXTENDED | ignore_case);
+	char *pattern = argv[optind++];
+#ifdef HAVE_UNAC
+	pattern = simple_unac(pattern);
+#endif
+
+	int error = regcomp(&regex, pattern, REG_EXTENDED | ignore_case);
 	if (error) {
 		char err_msg[256];
 		regerror(error, &regex, err_msg, 256);
