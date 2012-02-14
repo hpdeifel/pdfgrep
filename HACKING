@@ -28,11 +28,12 @@ more readable: do it!
 
 * Sending Patches
 
-You can either send your patches directly to me [1] or create a pull
-request on gitorious [2].
+You can either send your patches directly to me [1], to the mailing-list [2] or
+create a pull request on gitorious [3].
 
 
 Keep on hacking!
 
 [1] mailto:hpdeifel@gmx.de
-[2] https://gitorious.org/pdfgrep
+[2] mailto:pdfgrep-users@lists.sourceforge.net
+[3] https://gitorious.org/pdfgrep

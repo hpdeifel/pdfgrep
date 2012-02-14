@@ -11,8 +11,27 @@ similar to `grep'.
     + page number output.
     + optional case insensitivity.
     + count occurrences.
+    + recursive search
  - and the most important feature: color output!
 
 * Dependencies
 
  - poppler-cpp (poppler >= 0.14) [http://poppler.freedesktop.org/]
+
+* Building
+
+... is easy. Just use the standard procedure:
+
+  : ./configure
+  : make
+  : sudo make install
+
+To enable libunac-support, you have to pass '--with-unac'
+to configure.
+
+* Contact
+
+To send patches, ask questions, report bugs or anything
+else there is now a new mailing-list:
+
+  pdfgrep-users at sourceforge dot net

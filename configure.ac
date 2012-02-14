@@ -1,4 +1,4 @@
-AC_INIT([pdfgrep], [1.2], [hpdeifel@gmx.de])
+AC_INIT([pdfgrep], [1.3.0], [pdfgrep-users@lists.sourceforge.net])
 AM_INIT_AUTOMAKE([foreign])
 AC_CONFIG_HEADER([config.h])
 

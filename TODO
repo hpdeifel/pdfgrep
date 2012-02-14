@@ -10,6 +10,4 @@ An incomplete list of thing that should be done:
     + Regex (de)selection: -E/-F/-G
     + Match control: -v
     + Context: -A/-B
-    + Other: -Z/-r
-
- - Use of libunac.
+    + Other: -Z
