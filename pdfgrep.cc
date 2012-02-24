@@ -42,6 +42,11 @@
 #include <unac.h>
 #endif
 
+#ifdef HAVE_TERMIOS_H
+/* for TIOCGWINSZ on some platforms */
+#include <termios.h>
+#endif
+
 #include <memory>
 
 #include "output.h"
