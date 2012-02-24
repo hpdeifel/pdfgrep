@@ -194,7 +194,7 @@ int search_in_document(poppler::document *doc, const std::string &filename, rege
 					if (outconf.filename)
 						length += 1 + filename.size();
 					if (outconf.pagenum)
-						length += 1 + (int)log10(i);
+						length += 1 + (int)log10((double)i);
 
 					length += match[0].rm_eo - match[0].rm_so;
 
