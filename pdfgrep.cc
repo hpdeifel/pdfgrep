@@ -66,8 +66,7 @@ int context = -2;
 int line_width = 80;
 int count = 0;
 int quiet = 0;
-char *user_pw = (char*)"";
-char *owner_pw = (char*)"";
+char *password = (char*)"";
 
 #ifdef HAVE_UNAC
 int use_unac = 0;
@@ -84,8 +83,7 @@ enum {
 	COLOR_OPTION,
 	EXCLUDE_OPTION,
 	INCLUDE_OPTION,
-	USER_PASSWORD,
-	OWNER_PASSWORD,
+	PASSWORD,
 #ifdef HAVE_UNAC
 	UNAC_OPTION,
 #endif
@@ -107,8 +105,7 @@ struct option long_options[] =
 	{"help", 0, 0, HELP_OPTION},
 	{"version", 0, 0, 'V'},
 	{"quiet", 0, 0, 'q'},
-	{"user-password", 1, 0, USER_PASSWORD},
-	{"owner-password", 1, 0, OWNER_PASSWORD},
+	{"password", 1, 0, PASSWORD},
 #ifdef HAVE_UNAC
 	{"unac", 0, 0, UNAC_OPTION},
 #endif
@@ -399,8 +396,8 @@ int do_search_in_document(const std::string path, const std::string filename,
 		return 0;
 
 	std::auto_ptr<poppler::document>
-		doc(poppler::document::load_from_file(path, std::string(owner_pw),
-						      std::string(user_pw)));
+		doc(poppler::document::load_from_file(path, std::string(password),
+						      std::string(password)));
 
 	if (!doc.get() || doc->is_locked()) {
 		fprintf(stderr, "pdfgrep: Could not open %s\n",
@@ -520,11 +517,8 @@ int main(int argc, char** argv)
 				quiet = 1;
 				break;
 
-			case USER_PASSWORD:
-				user_pw = strdup(optarg);
-				break;
-			case OWNER_PASSWORD:
-				owner_pw = strdup(optarg);
+			case PASSWORD:
+				password = strdup(optarg);
 				break;
 #ifdef HAVE_UNAC
 			case UNAC_OPTION:
