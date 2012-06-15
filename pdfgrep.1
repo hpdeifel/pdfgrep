@@ -1,4 +1,4 @@
-.TH pdfgrep 1 "February 14, 2012" "version 1.2" "USER COMMANDS"
+.TH pdfgrep 1 "June 16, 2012" "version 1.3.0" "USER COMMANDS"
 .SH NAME
 pdfgrep \- search pdf files for a regular expression
 .SH SYNOPSIS
@@ -74,6 +74,13 @@ only to files found via \fB\-\^\-recursive\fP and not to the argument list.
 .BR \-\^\-include=\fIGLOB\fP
 Only search files whose base name matches \fIGLOB\fP. See \fB\-\^\-exclude\fP for
 details. The default is \fI*.pdf\fP.
+.TP
+.BR \-\^\-password=\fIPASSWORD\fP
+Use PASSWORD to decrypt the PDF-files. \fBNote\fP that this password
+will show up in your command history and the output of 'ps'. So please
+do not use this if the security of PASSWORD is important. It is also
+currently not possible to use individual passwords for different
+files.
 .TP
 .BR \-\^\-unac
 Remove accents and ligatures from both the search pattern and the PDF
