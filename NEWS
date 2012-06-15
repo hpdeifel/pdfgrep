@@ -1,6 +1,11 @@
+NEXT RELEASE
+
+	- Support for password-protected PDFs
+
 Release 1.3.0    [2012-02-14]
 
-	- Experimental support for libunac (removing accents and ligatures before search)
+	- Experimental support for libunac (removing accents and ligatures
+          before search)
 	- Recursive search [--recursive] (by Mahmut Gundes)
 	- Don't use colors on dumb terminals
 	- A few minor bug fixes
