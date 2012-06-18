@@ -30,5 +30,5 @@ AS_IF([test "x$with_unac" = "xyes"], [
 	AC_DEFINE([HAVE_UNAC], [1], [Define to 1 if you have libunac _and_ want to use it])
 ])
 
-AC_CONFIG_FILES([Makefile completion/Makefile])
+AC_CONFIG_FILES([Makefile completion/Makefile doc/Makefile])
 AC_OUTPUT

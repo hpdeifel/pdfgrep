@@ -16,3 +16,4 @@ depcomp
 Makefile
 TAGS
 tags
+pdfgrep.1
