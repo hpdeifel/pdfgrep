@@ -75,9 +75,9 @@ OPTIONS
   and the PDF documents. This is useful if you want to search for a
   word containing "ae", but the PDF uses the single character "æ"
   instead. See *unac(3)* and *unaccent(1)* for details.
-
-  *This option is experimental and only available if pdfgrep is
-  compiled with unac support.*
++
+*This option is experimental and only available if pdfgrep is
+compiled with unac support.*
 
 *-q*, *--quiet* :: Suppress all normal output to stdout. Errors will
   be printed and the exit codes will be returned (see below).
