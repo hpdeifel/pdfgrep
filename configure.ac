@@ -30,5 +30,16 @@ AS_IF([test "x$with_unac" = "xyes"], [
 	AC_DEFINE([HAVE_UNAC], [1], [Define to 1 if you have libunac _and_ want to use it])
 ])
 
+AC_CHECK_PROG(HAVE_A2X, [a2x], [yes], [no])
+
 AC_CONFIG_FILES([Makefile completion/Makefile doc/Makefile])
 AC_OUTPUT
+
+
+AS_IF([test "x$HAVE_A2X" = "xno"], [
+	echo
+	echo "* I didn't find Asciidoc, so you won't be able to (re)build the manpage."
+	echo "* That's not a problem, if you're building from a release-tarball, because"
+	echo "* they include a prebuild manpage. But if you build from git, you should"
+	echo "* install Asciidoc."
+])
