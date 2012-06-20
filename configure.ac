@@ -12,6 +12,22 @@ AC_FUNC_REALLOC
 AC_CHECK_FUNCS([regcomp])
 AC_CHECK_FUNCS([getopt_long])
 
+dnl git revision, code stolen from paludis
+if test -d "${GIT_DIR:-${ac_top_srcdir:-./}/.git}" ; then
+	GITHEAD=`git describe 2>/dev/null`
+	if test -z ${GITHEAD} ; then
+		GITHEAD=`git rev-parse HEAD`
+	fi
+	if test -n "`git diff-index -m --name-only HEAD`" ; then
+		GITHEAD=${GITHEAD}-dirty
+	fi
+else
+	GITHEAD=
+fi
+AC_MSG_CHECKING([for git head])
+AC_MSG_RESULT([$GITHEAD])
+AC_DEFINE_UNQUOTED([PDFGREP_GIT_HEAD], ["$GITHEAD"], [Git commit used to build this programm])
+
 
 dnl Poppler checking
 PKG_CHECK_MODULES(poppler_cpp, poppler-cpp)
