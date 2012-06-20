@@ -6,4 +6,6 @@ AM_CPPFLAGS = $(poppler_cpp_CFLAGS) $(unac_CFLAGS)
 
 dist_man1_MANS = pdfgrep.1
 
+EXTRA_DIST=autogen.sh
+
 SUBDIRS = completion
