@@ -1,7 +1,7 @@
 dist_man1_MANS = pdfgrep.1
 
 EXTRA_DIST = pdfgrep.txt
-MAINTAINERCLEANFILES = pdfgrep.1
+DISTCLEANFILES = pdfgrep.1
 
 HTMLFILES = pdfgrep.html
 
