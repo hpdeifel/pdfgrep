@@ -536,7 +536,7 @@ int main(int argc, char** argv)
 		}
 	}
 
-	if (argc - optind < 2) {
+	if (argc == optind || (argc - optind < 2 && !f_recursive_search)) {
 		print_usage(argv[0]);
 		exit(2);
 	}
@@ -587,6 +587,10 @@ int main(int argc, char** argv)
 		} else { // TODO: report errors
 			error = 1;
 		}
+	}
+
+	if (argc == optind && f_recursive_search) {
+		do_search_in_directory(".", &regex);
 	}
 
 	if (error) {
