@@ -53,8 +53,12 @@ OPTIONS
   *never* ;; Do not use colors.
   *auto* ;; Use colors only when stdout is a terminal.
 
-*-R*, *-r*, *--recursive*:: Recursively search all files (restricted
-  by *--include* and *--exclude*) under each directory.
+*-r*, *--recursive*:: Recursively search all files (restricted by
+  *--include* and *--exclude*) under each directory, following symlinks
+  only if they are on the command line.
+
+*-R*, *--dereference-recursive*:: Same as *-r*, but follows all
+  symlinks.
 
 *--exclude=*'GLOB' :: Skip files whose base name matches 'GLOB'. See
   'glob'(7) for wildcards you can use. You can use this option

@@ -1,5 +1,6 @@
 NEXT RELEASE
 
+	- INCOMPATIBLE CHANGE: -r doesn't follow symlinks
 	- A zsh completion module
 	- Support for password-protected PDFs
 	- Allow to omit '.' with -r to search current directory

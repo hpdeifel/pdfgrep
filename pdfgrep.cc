@@ -59,6 +59,7 @@ int found_something = 0;
 
 int ignore_case = 0;
 int f_recursive_search = 0;
+int follow_symlinks = 1;
 /* characters of context to put around each match.
  * -1 means: print whole line
  * -2 means: try to fit context into terminal */
@@ -99,7 +100,7 @@ struct option long_options[] =
 	{"color", 1, 0, COLOR_OPTION},
 	{"context", 1, 0, 'C'},
 	{"recursive", 0, 0, 'r'},
-	{"recursive", 0, 0, 'R'},
+	{"dereference-recursive", 0, 0, 'R'},
 	{"exclude", 1, 0, EXCLUDE_OPTION},
 	{"include", 1, 0, INCLUDE_OPTION},
 	{"help", 0, 0, HELP_OPTION},
@@ -368,7 +369,8 @@ void print_help(char *self)
 "     --color WHEN\t\tUse colors for highlighting;\n"
 "\t\t\t\tWHEN can be `always', `never' or `auto'\n"
 " -q, --quiet\t\t\tSuppress normal output\n"
-" -R, --recursive\t\tSearch directories recursively\n"
+" -r, --recursive\t\tSearch directories recursively\n"
+" -R, --dereference-recursive\tLikewise, but follow all symlinks\n"
 "     --help\t\t\tPrint this help\n"
 " -V, --version\t\t\tShow version information\n");
 }
@@ -440,7 +442,22 @@ int do_search_in_directory(const std::string filename, regex_t *ptrRegex)
 		path += "/";
 		path += ptrDirent->d_name;
 
-		if (is_dir(path)) {
+		struct stat st;
+		int statret;
+
+		if (follow_symlinks) statret = stat(path.c_str(), &st);
+		else                 statret = lstat(path.c_str(), &st);
+
+		if (statret) {
+			fprintf(stderr, "pdfgrep: %s: %s\n", filename.c_str(),
+				strerror(errno));
+			continue;
+		}
+
+		if (S_ISLNK(st.st_mode))
+			continue;
+
+		if (S_ISDIR(st.st_mode)) {
 			do_search_in_directory(path, ptrRegex);
 		} else {
 			do_search_in_document(path, ptrDirent->d_name, ptrRegex);
@@ -475,6 +492,7 @@ int main(int argc, char** argv)
 				outconf.pagenum = 1;
 				break;
 			case 'r':
+				follow_symlinks = 0;
 			case 'R':
 				f_recursive_search = 1;
 				break;
