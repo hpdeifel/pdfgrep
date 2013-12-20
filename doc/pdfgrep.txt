@@ -36,9 +36,12 @@ OPTIONS
 *-n*, *--page-number* :: Prefix each match with the number of the page
   where it was found.
 
-*-c*,*--count* :: Suppress normal output. Instead print the number of
+*-c*, *--count* :: Suppress normal output. Instead print the number of
   matches for each input file. Note that unlike grep, multiple matches
   on the same page will be counted individually.
+
+*-p*, *--page-count* :: Like *-c*, but prints the number of matches
+  per page.
 
 *-C*, *--context* 'NUM' :: Print at most 'INUM' characters of context
   around each match. The exact number will vary, because pdfgrep tries

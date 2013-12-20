@@ -4,6 +4,7 @@ NEXT RELEASE
 	- A zsh completion module
 	- Support for password-protected PDFs
 	- Allow to omit '.' with -r to search current directory
+	- Add -p or --page-count to count matches per page (by Jascha Knack)
 
 Release 1.3.0    [2012-02-14]
 
