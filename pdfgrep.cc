@@ -66,6 +66,7 @@ int follow_symlinks = 1;
 int context = -2;
 int line_width = 80;
 int count = 0;
+int pagecount = 0;
 int quiet = 0;
 char *password = (char*)"";
 
@@ -105,6 +106,7 @@ struct option long_options[] =
 	{"include", 1, 0, INCLUDE_OPTION},
 	{"help", 0, 0, HELP_OPTION},
 	{"version", 0, 0, 'V'},
+	{"page-count", 0, 0, 'p'},
 	{"quiet", 0, 0, 'q'},
 	{"password", 1, 0, PASSWORD},
 #ifdef HAVE_UNAC
@@ -152,6 +154,7 @@ int search_in_document(poppler::document *doc, const std::string &filename, rege
 {
 	regmatch_t match[] = {{0, 0}};
 	int count_matches = 0;
+	int page_matches = 0;
 	int length = 0;
 	struct context cntxt = {context, 0, (char*)filename.c_str(), 0, &outconf};
 
@@ -188,7 +191,7 @@ int search_in_document(poppler::document *doc, const std::string &filename, rege
 				simple_unac_free(unac_str);
 #endif
 				goto clean;
-			} else if (!count) {
+			} else if (!count && !pagecount) {
 				switch (context) {
 				/* print whole line */
 				case -1:
@@ -228,6 +231,11 @@ int search_in_document(poppler::document *doc, const std::string &filename, rege
 #ifdef HAVE_UNAC
 		simple_unac_free(unac_str);
 #endif
+		if(!quiet && pagecount && count_matches > page_matches) {
+			print_line_prefix(&outconf, filename.c_str(), -1);
+			printf("%d:%d\n", i, count_matches-page_matches);
+			page_matches = count_matches;
+		}
 	}
 
 	if (count && !quiet) {
@@ -368,6 +376,7 @@ void print_help(char *self)
 " -C, --context NUM\t\tPrint at most NUM chars of context\n"
 "     --color WHEN\t\tUse colors for highlighting;\n"
 "\t\t\t\tWHEN can be `always', `never' or `auto'\n"
+" -p, --page-count\t\tPrint only a count of matches per page\n"
 " -q, --quiet\t\t\tSuppress normal output\n"
 " -r, --recursive\t\tSearch directories recursively\n"
 " -R, --dereference-recursive\tLikewise, but follow all symlinks\n"
@@ -475,7 +484,7 @@ int main(int argc, char** argv)
 	init_colors();
 
 	while (1) {
-		int c = getopt_long(argc, argv, "icC:nrRhHVq",
+		int c = getopt_long(argc, argv, "icC:nrRhHVpq",
 				long_options, NULL);
 
 		if (c == -1)
@@ -534,6 +543,10 @@ int main(int argc, char** argv)
 			case INCLUDE_OPTION:
 				exclude_add(includes, optarg);
 				break;
+			case 'p':
+				pagecount = 1;
+				break;
+			
 			case 'q':
 				quiet = 1;
 				break;
