@@ -65,8 +65,11 @@ void print_line_prefix(const struct outconf *conf, const char *filename, const i
 
 void putsn(char *string, int from, int to)
 {
-	for (; from < to; from++)
-		putchar(string[from]);
+	for (; from < to; from++) {
+		char c = string[from];
+		if (isprint(c))
+			putchar(c);
+	}
 }
 
 
