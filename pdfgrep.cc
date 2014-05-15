@@ -491,7 +491,7 @@ int main(int argc, char** argv)
 	init_colors();
 
 	while (1) {
-		int c = getopt_long(argc, argv, "icCm:nrRhHVpq",
+		int c = getopt_long(argc, argv, "icC:nrRhHVpqm:",
 				long_options, NULL);
 
 		if (c == -1)

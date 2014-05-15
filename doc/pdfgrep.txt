@@ -78,6 +78,10 @@ OPTIONS
   'PASSWORD' is important. It is also currently not possible to use
   individual passwords for different files.
 
+*-m*, *--max-count* 'NUM' :: Stop reading a file after 'NUM' matching
+  lines. When the -c or --count option is also used, pdfgrep does not output a
+  count greater than 'NUM'.
+
 *--unac* :: Remove accents and ligatures from both the search pattern
   and the PDF documents. This is useful if you want to search for a
   word containing "ae", but the PDF uses the single character "æ"
