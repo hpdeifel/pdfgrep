@@ -69,6 +69,7 @@ int count = 0;
 int pagecount = 0;
 int quiet = 0;
 char *password = (char*)"";
+int max_count = 0;
 
 #ifdef HAVE_UNAC
 int use_unac = 0;
@@ -109,6 +110,7 @@ struct option long_options[] =
 	{"page-count", 0, 0, 'p'},
 	{"quiet", 0, 0, 'q'},
 	{"password", 1, 0, PASSWORD},
+	{"max-count", 1, 0, 'm'},
 #ifdef HAVE_UNAC
 	{"unac", 0, 0, UNAC_OPTION},
 #endif
@@ -158,9 +160,9 @@ int search_in_document(poppler::document *doc, const std::string &filename, rege
 	int length = 0;
 	struct context cntxt = {context, 0, (char*)filename.c_str(), 0, &outconf};
 
+	bool max_count_reached = false;
 
-
-	for (int i = 1; i <= doc->pages(); i++) {
+	for (int i = 1; i <= doc->pages() && !max_count_reached; i++) {
 		std::auto_ptr<poppler::page> doc_page(doc->create_page(i - 1));
 		if (!doc_page.get()) {
 			if (!quiet) {
@@ -182,10 +184,14 @@ int search_in_document(poppler::document *doc, const std::string &filename, rege
 		int index = 0;
 		struct match mt = {str_start, str.size()};
 
-		while (!regexec(needle, str_start+index, 1, match, 0)) {
+		while (!max_count_reached && !regexec(needle, str_start+index, 1, match, 0)) {
 			regmatch_to_match(match[0], index, &mt);
 
 			count_matches++;
+			if (max_count > 0 && count_matches >= max_count)
+			{
+				max_count_reached = true;
+			}
 			if (quiet) {
 #ifdef HAVE_UNAC
 				simple_unac_free(unac_str);
@@ -377,6 +383,7 @@ void print_help(char *self)
 "     --color WHEN\t\tUse colors for highlighting;\n"
 "\t\t\t\tWHEN can be `always', `never' or `auto'\n"
 " -p, --page-count\t\tPrint only a count of matches per page\n"
+" -m, --max-count NUM\t\tStop reading after NUM matching lines (per file)\n"
 " -q, --quiet\t\t\tSuppress normal output\n"
 " -r, --recursive\t\tSearch directories recursively\n"
 " -R, --dereference-recursive\tLikewise, but follow all symlinks\n"
@@ -484,7 +491,7 @@ int main(int argc, char** argv)
 	init_colors();
 
 	while (1) {
-		int c = getopt_long(argc, argv, "icC:nrRhHVpq",
+		int c = getopt_long(argc, argv, "icCm:nrRhHVpq",
 				long_options, NULL);
 
 		if (c == -1)
@@ -553,6 +560,12 @@ int main(int argc, char** argv)
 
 			case PASSWORD:
 				password = strdup(optarg);
+				break;
+
+			case 'm':
+				if (optarg) {
+					max_count = atoi(optarg);
+				}
 				break;
 #ifdef HAVE_UNAC
 			case UNAC_OPTION:
