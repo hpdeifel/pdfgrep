@@ -29,6 +29,14 @@ similar to `grep'.
 To enable libunac-support, you have to pass '--with-unac'
 to configure.
 
+* Download
+
+Tarballs for releases are available at
+http://sourceforge.net/projects/pdfgrep/files/
+
+The development version is available as a git repository at
+https://gitorious.org/pdfgrep/pdfgrep/
+
 * Contact
 
 To send patches, ask questions, report bugs or anything
