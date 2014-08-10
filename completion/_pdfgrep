@@ -2,7 +2,7 @@
 
 # Zsh completion for pdfgrep.
 
-# Copyright (C) 2012 by Hans-Peter Deifel (hpdeifel@gmx.de)
+# Copyright (C) 2014 by Hans-Peter Deifel (hpdeifel@gmx.de)
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -39,6 +39,7 @@ _arguments -s -S \
     "(-V --version)"{-V,--version}"[Show version information]" \
     "(-q --quiet)"{-q,--quiet}"[Suppress all normal output]" \
     "(--password)--password=[Password to encrypt file]:Password:" \
+    "(-m --max-count)"{-m,--max-count=}"[Process at most count matches]:Count:" \
     "(--unac)--unac[Remove accents and ligatures]" \
     ":pdf file:_files -g \"*.pdf\"" \
     && return 0
