@@ -34,6 +34,7 @@
 #include <errno.h>
 #include <dirent.h>
 #include <sys/stat.h>
+#include <limits.h>
 
 #include <cpp/poppler-document.h>
 #include <cpp/poppler-page.h>
@@ -485,6 +486,20 @@ int do_search_in_directory(const std::string filename, regex_t *ptrRegex)
 	return 0;
 }
 
+bool parse_int(const char *str, int *i)
+{
+	char *endptr;
+	errno = 0;
+	unsigned long int d = strtoul(str, &endptr, 10);
+	if (errno != 0 || (long)d > INT_MAX || (long)d < INT_MIN
+	    || *endptr != '\0') {
+		return false;
+	}
+
+	*i = d;
+	return true;
+}
+
 int main(int argc, char** argv)
 {
 	regex_t regex;
@@ -538,8 +553,15 @@ int main(int argc, char** argv)
 			case 'C':
 				if (!strcmp(optarg, "line")) {
 					context = -1;
-				} else {
-					context = atoi(optarg);
+					break;
+				}
+				if (!parse_int(optarg, &context)) {
+					fprintf(stderr, "pdfgrep: Could not parse number: %s.\n",
+						optarg);
+					exit(2);
+				} else if (context <= 0) {
+					fprintf(stderr, "pdfgrep: --context must be positive.\n");
+					exit(2);
 				}
 				break;
 			case EXCLUDE_OPTION:
@@ -561,15 +583,27 @@ int main(int argc, char** argv)
 				break;
 
 			case 'm':
-				max_count = atoi(optarg);
+				if (!parse_int(optarg, &max_count)) {
+					fprintf(stderr, "pdfgrep: Could not parse number: %s.\n",
+						optarg);
+					exit(2);
+				} else if (max_count <= 0) {
+					fprintf(stderr, "pdfgrep: --max-count must be positive.\n");
+					exit(2);
+				}
 				break;
 #ifdef HAVE_UNAC
 			case UNAC_OPTION:
 				use_unac = 1;
 				break;
 #endif
-			case '?':
-				/* TODO: do something here */
+
+			/* In these two cases, getopt already prints an
+			 * error message
+			 */
+			case '?': // unknown option
+			case ':': // missing argument
+				exit(2);
 				break;
 			default:
 				break;
