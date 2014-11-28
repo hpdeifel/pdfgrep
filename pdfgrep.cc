@@ -536,12 +536,10 @@ int main(int argc, char** argv)
 				}
 				break;
 			case 'C':
-				if (optarg) {
-					if (!strcmp(optarg, "line")) {
-						context = -1;
-					} else {
-						context = atoi(optarg);
-					}
+				if (!strcmp(optarg, "line")) {
+					context = -1;
+				} else {
+					context = atoi(optarg);
 				}
 				break;
 			case EXCLUDE_OPTION:
@@ -563,9 +561,7 @@ int main(int argc, char** argv)
 				break;
 
 			case 'm':
-				if (optarg) {
-					max_count = atoi(optarg);
-				}
+				max_count = atoi(optarg);
 				break;
 #ifdef HAVE_UNAC
 			case UNAC_OPTION:
