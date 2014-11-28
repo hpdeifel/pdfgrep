@@ -553,7 +553,7 @@ int main(int argc, char** argv)
 			case 'p':
 				pagecount = 1;
 				break;
-			
+
 			case 'q':
 				quiet = 1;
 				break;
