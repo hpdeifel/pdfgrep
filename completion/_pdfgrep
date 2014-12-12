@@ -40,6 +40,7 @@ _arguments -s -S \
     "(-q --quiet)"{-q,--quiet}"[Suppress all normal output]" \
     "(--password)--password=[Password to encrypt file]:Password:" \
     "(-m --max-count)"{-m,--max-count=}"[Process at most count matches]:Count:" \
+    "(--debug)"--debug"[Enable debug output]" \
     "(--unac)--unac[Remove accents and ligatures]" \
     ":pdf file:_files -g \"*.pdf\"" \
     && return 0

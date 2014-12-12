@@ -82,6 +82,10 @@ OPTIONS
   lines. When the -c or --count option is also used, pdfgrep does not output a
   count greater than 'NUM'.
 
+*--debug* :: Enable debug output. *Note*: Due to limitations of
+   poppler before version 0.30.0, some debug output is also printed
+   without *--debug* when using such a poppler version.
+
 *--unac* :: Remove accents and ligatures from both the search pattern
   and the PDF documents. This is useful if you want to search for a
   word containing "ae", but the PDF uses the single character "æ"

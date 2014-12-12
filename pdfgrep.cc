@@ -73,6 +73,7 @@ int pagecount = 0;
 int quiet = 0;
 char *password = (char*)"";
 int max_count = 0;
+int debug = 0;
 
 #ifdef HAVE_UNAC
 int use_unac = 0;
@@ -90,6 +91,7 @@ enum {
 	EXCLUDE_OPTION,
 	INCLUDE_OPTION,
 	PASSWORD,
+	DEBUG_OPTION,
 #ifdef HAVE_UNAC
 	UNAC_OPTION,
 #endif
@@ -114,6 +116,7 @@ struct option long_options[] =
 	{"quiet", 0, 0, 'q'},
 	{"password", 1, 0, PASSWORD},
 	{"max-count", 1, 0, 'm'},
+	{"debug", 0, 0, DEBUG_OPTION},
 #ifdef HAVE_UNAC
 	{"unac", 0, 0, UNAC_OPTION},
 #endif
@@ -505,7 +508,9 @@ bool parse_int(const char *str, int *i)
 #if POPPLER_VERSION_MAJOR > 0 || POPPLER_VERSION_MINOR >= 29
 void handle_poppler_errors(const std::string &msg, void *)
 {
+	if (debug) {
 		fprintf(stderr, "pdfgrep: %s\n", msg.c_str());
+	}
 }
 #endif
 
@@ -600,6 +605,9 @@ int main(int argc, char** argv)
 					fprintf(stderr, "pdfgrep: --max-count must be positive.\n");
 					exit(2);
 				}
+				break;
+			case DEBUG_OPTION:
+				debug = 1;
 				break;
 #ifdef HAVE_UNAC
 			case UNAC_OPTION:
