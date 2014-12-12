@@ -38,6 +38,8 @@
 
 #include <cpp/poppler-document.h>
 #include <cpp/poppler-page.h>
+#include <cpp/poppler-version.h>
+
 
 #ifdef HAVE_UNAC
 #include <unac.h>
@@ -500,6 +502,13 @@ bool parse_int(const char *str, int *i)
 	return true;
 }
 
+#if POPPLER_VERSION_MAJOR > 0 || POPPLER_VERSION_MINOR >= 29
+void handle_poppler_errors(const std::string &msg, void *)
+{
+		fprintf(stderr, "pdfgrep: %s\n", msg.c_str());
+}
+#endif
+
 int main(int argc, char** argv)
 {
 	regex_t regex;
@@ -627,6 +636,11 @@ int main(int argc, char** argv)
 		fprintf(stderr, "pdfgrep: %s\n", err_msg);
 		exit(2);
 	}
+
+#if POPPLER_VERSION_MAJOR > 0 || POPPLER_VERSION_MINOR >= 29
+	// set poppler error output function
+	poppler::set_debug_error_function(handle_poppler_errors, NULL);
+#endif
 
 	bool color_tty = isatty(STDOUT_FILENO) && getenv("TERM") &&
 		strcmp(getenv("TERM"), "dumb");
