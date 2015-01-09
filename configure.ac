@@ -46,6 +46,20 @@ AS_IF([test "x$with_unac" = "xyes"], [
 	AC_DEFINE([HAVE_UNAC], [1], [Define to 1 if you have libunac _and_ want to use it])
 ])
 
+AC_MSG_CHECKING([zsh completion])
+AS_VAR_SET([ZSH_COMPL_DIR], ["${datadir}/zsh/site-functions"])
+AC_ARG_WITH([zsh-completion],
+	[AS_HELP_STRING([--with-zsh-completion=DIR],
+		[install zsh-completion file in directory DIR])],
+	[AS_CASE([${withval}],
+		["/"*], [AS_VAR_COPY([ZSH_COMPL_DIR], [withval])],
+		[no], [AS_VAR_SET([ZSH_COMPL_DIR], [])])])
+AC_SUBST(ZSH_COMPL_DIR)
+AM_CONDITIONAL([INSTALL_ZSH_COMPLETION], [test "x$ZSH_COMPL_DIR" != "x"])
+AM_COND_IF([INSTALL_ZSH_COMPLETION],
+  [AC_MSG_RESULT($ZSH_COMPL_DIR)],
+  [AC_MSG_RESULT(no)])
+
 AC_CHECK_PROG(HAVE_A2X, [a2x], [yes], [no])
 
 AC_CONFIG_FILES([Makefile completion/Makefile doc/Makefile])
