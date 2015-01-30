@@ -409,7 +409,7 @@ void print_version()
 #endif
 }
 
-int is_dir(const std::string filename)
+int is_dir(const std::string &filename)
 {
 	struct stat st;
 
@@ -419,7 +419,7 @@ int is_dir(const std::string filename)
 		return 0;
 }
 
-int do_search_in_document(const std::string path, const std::string filename,
+int do_search_in_document(const std::string &path, const std::string &filename,
 			  regex_t *ptrRegex, bool check_excludes = true)
 {
 	if (check_excludes &&
@@ -443,7 +443,7 @@ int do_search_in_document(const std::string path, const std::string filename,
 	return 0;
 }
 
-int do_search_in_directory(const std::string filename, regex_t *ptrRegex)
+int do_search_in_directory(const std::string &filename, regex_t *ptrRegex)
 {
 	DIR *ptrDir = NULL;
 	struct dirent *ptrDirent = NULL;
