@@ -26,7 +26,9 @@ else
 fi
 AC_MSG_CHECKING([for git head])
 AC_MSG_RESULT([$GITHEAD])
+AS_IF([test "x$GITHEAD" != "x"], [
 AC_DEFINE_UNQUOTED([PDFGREP_GIT_HEAD], ["$GITHEAD"], [Git commit used to build this programm])
+])
 
 
 dnl Poppler checking
