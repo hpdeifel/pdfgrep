@@ -401,6 +401,9 @@ void print_version()
 {
 	printf("This is %s version %s.\n", PACKAGE, VERSION);
 	printf("\nUsing poppler version %s\n", poppler::version_string().c_str());
+#ifdef HAVE_UNAC
+	printf("\nUsing unac version %s\n", unac_version());
+#endif
 #ifdef PDFGREP_GIT_HEAD
 	printf("Built from git-commit %s\n", PDFGREP_GIT_HEAD);
 #endif
