@@ -399,7 +399,8 @@ void print_help(char *self)
 
 void print_version()
 {
-	printf("This is %s version %s\n", PACKAGE, VERSION);
+	printf("This is %s version %s.\n", PACKAGE, VERSION);
+	printf("\nUsing poppler version %s\n", poppler::version_string().c_str());
 	if (strcmp(PDFGREP_GIT_HEAD, "") != 0) {
 		printf("Built from git-commit %s\n", PDFGREP_GIT_HEAD);
 	}
