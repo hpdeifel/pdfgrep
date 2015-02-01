@@ -669,8 +669,12 @@ int main(int argc, char** argv)
 			outconf.filename = 1;
 	}
 
-	if (isatty(STDOUT_FILENO))
+	if (isatty(STDOUT_FILENO)) {
 		line_width = get_line_width();
+	} else if (context == -2) {
+		// on non-terminals, always print the whole line
+		context = -1;
+	}
 
 	if (excludes_empty(includes))
 		exclude_add(includes, "*.pdf");
