@@ -1,5 +1,6 @@
 NEXT RELEASE
 
+	- Don't limit output to 80 characters on non-terminals
 	- Print a lot less error messages by default (only with
 	  >= poppler-0.30.0)
 	- New option --debug to print verbose debug output
