@@ -244,8 +244,8 @@ int search_in_document(poppler::document *doc, const std::string &filename, rege
 		simple_unac_free(unac_str);
 #endif
 		if(!quiet && pagecount && count_matches > page_matches) {
-			print_line_prefix(&outconf, filename.c_str(), -1);
-			printf("%d:%d\n", i, count_matches-page_matches);
+			print_line_prefix(&outconf, filename.c_str(), i);
+			printf("%d\n", count_matches-page_matches);
 			page_matches = count_matches;
 		}
 	}
@@ -590,6 +590,7 @@ int main(int argc, char** argv)
 				break;
 			case 'p':
 				pagecount = 1;
+				outconf.pagenum = 1;
 				break;
 
 			case 'q':
