@@ -10,7 +10,7 @@ configure
 install-sh
 missing
 *.o
-pdfgrep
+/pdfgrep
 stamp-h1
 depcomp
 Makefile
