@@ -1,3 +1,5 @@
+# zsh completion
+
 zshcompldir = $(ZSH_COMPL_DIR)
 
 if INSTALL_ZSH_COMPLETION
@@ -8,5 +10,10 @@ endif
 
 # bash completion
 
-noinst_DATA = pdfgrep
-EXTRA_DIST = pdfgrep
+bashcompldir = $(BASH_COMPL_DIR)
+
+if INSTALL_BASH_COMPLETION
+bashcompl_DATA = pdfgrep
+else
+dist_bashcompl_DATA = pdfgrep
+endif

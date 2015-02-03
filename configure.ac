@@ -62,6 +62,21 @@ AM_COND_IF([INSTALL_ZSH_COMPLETION],
   [AC_MSG_RESULT($ZSH_COMPL_DIR)],
   [AC_MSG_RESULT(no)])
 
+AC_MSG_CHECKING([bash completion])
+AS_VAR_SET([BASH_COMPL_DIR], ["${datadir}/bash-completion/completions"])
+AC_ARG_WITH([bash-completion],
+	[AS_HELP_STRING([--with-bash-completion=DIR],
+		[install bash-completion file in directory DIR])],
+	[AS_CASE([${withval}],
+		["/"*], [AS_VAR_COPY([BASH_COMPL_DIR], [withval])],
+		[no], [AS_VAR_SET([BASH_COMPL_DIR], [])])])
+AC_SUBST(BASH_COMPL_DIR)
+AM_CONDITIONAL([INSTALL_BASH_COMPLETION], [test "x$BASH_COMPL_DIR" != "x"])
+AM_COND_IF([INSTALL_BASH_COMPLETION],
+  [AC_MSG_RESULT($BASH_COMPL_DIR)],
+  [AC_MSG_RESULT(no)])
+
+
 AC_CHECK_PROG(HAVE_A2X, [a2x], [yes], [no])
 
 AC_CONFIG_FILES([Makefile completion/Makefile doc/Makefile])
