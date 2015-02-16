@@ -2,6 +2,8 @@
 
 _Pdfgrep_ is a tool to search text in PDF files. It works similar to grep.
 
+image:screenshot.png["scr"]
+
 == Features
 
 * search for regular expressions.

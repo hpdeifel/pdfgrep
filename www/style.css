@@ -9,11 +9,25 @@ body {
   color: #4d4d4c;
 }
 
+span.image {
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+span.image img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 @media only all and (max-device-width: 1000px) {
     body {
 	max-width: none;
 	margin: 1em 5px 1em 5px;
 	font-size: 20px;
+    }
+    span.image img {
+	width: 100%;
     }
 }
 
