@@ -1,0 +1,36 @@
+== Overview
+
+_Pdfgrep_ is a tool to search text in PDF files. It works similar to grep.
+
+== Features
+
+* search for regular expressions.
+* support for some important grep options, including:
+** filename output.
+** page number output.
+** optional case insensitivity.
+** count occurrences.
+** recursive search
+* and the most important feature: color output!
+
+For a complete documentation, please consult the link:pdfgrep.html[manpage].
+
+== Download
+
+The latest version is 1.3.1. You can download it
+link:https://sourceforge.net/projects/pdfgrep/files/[here].
+
+The development happens on gitorious. You can get the git version
+link:http://gitorious.org/pdfgrep/pdfgrep[there].
+
+== Contact
+
+pdfgrep-users [at] lists [dot] sourceforge [dot] net
+
+== Dependencies
+
+- poppler
+
+// Local Variables:
+// mode: adoc
+// End:

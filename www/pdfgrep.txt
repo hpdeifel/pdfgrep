@@ -1,0 +1,6 @@
+include::../doc/pdfgrep.txt[]
+
+
+// Local Variables:
+// mode: adoc
+// End:
