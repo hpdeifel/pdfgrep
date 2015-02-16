@@ -1,18 +1,19 @@
 == Overview
 
-_Pdfgrep_ is a tool to search text in PDF files. It works similar to grep.
+_Pdfgrep_ is a tool to search text in PDF files. It works similarly to
+grep.
 
 image:screenshot.png["scr"]
 
 == Features
 
-* search for regular expressions.
+* search using regular expressions.
 * support for some important grep options, including:
 ** filename output.
 ** page number output.
 ** optional case insensitivity.
 ** count occurrences.
-** recursive search
+** recursive search.
 * and the most important feature: color output!
 
 For a complete documentation, please consult the link:pdfgrep.html[manpage].
