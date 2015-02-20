@@ -1,5 +1,5 @@
-NEXT RELEASE
-------------
+Version 1.3.2    [2015-02-20]
+-----------------------------
 
         - A bash completion module
 	- Don't limit output to 80 characters on non-terminals
