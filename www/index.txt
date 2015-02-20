@@ -20,7 +20,7 @@ For a complete documentation, please consult the link:pdfgrep.html[manpage].
 
 == Download
 
-The latest version is 1.3.1. You can download it
+The latest version is 1.3.2. You can download it
 link:https://sourceforge.net/projects/pdfgrep/files/[here].
 
 The development happens on gitorious. You can get the git version
