@@ -500,7 +500,7 @@ div.tableblock > table[frame="vsides"] {
 .monospaced {
   font-family: "Courier New", Courier, monospace;
   font-size: inherit;
-  color: navy;
+  color: #3e999f;
 }
 
 table.tableblock {

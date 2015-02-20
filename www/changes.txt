@@ -1,0 +1,6 @@
+include::../NEWS[]
+
+
+// Local Variables:
+// mode: adoc
+// End:

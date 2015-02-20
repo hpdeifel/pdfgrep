@@ -1,4 +1,4 @@
-HTML = index.html pdfgrep.html
+HTML = index.html pdfgrep.html changes.html
 CSS = style.css
 IMAGES = screenshot.png
 ASCIIDOC = asciidoc
