@@ -1,41 +1,47 @@
 NEXT RELEASE
+------------
 
 	- Don't limit output to 80 characters on non-terminals
 	- Print a lot less error messages by default (only with
 	  >= poppler-0.30.0)
-	- New option --debug to print verbose debug output
-	- Installation: New configure flag --with-zsh-completion
+	- New option +--debug+ to print verbose debug output
+	- Installation: New configure flag +--with-zsh-completion+
 
-Release 1.3.1    [2014-08-10]
+Version 1.3.1    [2014-08-10]
+-----------------------------
 
-	- INCOMPATIBLE CHANGE: -r doesn't follow symlinks
+	- *Incompatible change*: +-r+ doesn't follow symlinks
 	- A zsh completion module
 	- Support for password-protected PDFs
-	- Allow to omit '.' with -r to search current directory
-	- Add -p or --page-count to count matches per page (by Jascha Knack)
-	- Add -m or --max-count to limit matches per file (by Thibault Marin)
+	- Allow to omit '.' with +-r+ to search current directory
+	- Add +-p+ or +--page-count+ to count matches per page (by Jascha Knack)
+	- Add +-m+ or +--max-count+ to limit matches per file (by Thibault Marin)
 
-Release 1.3.0    [2012-02-14]
+Version 1.3.0    [2012-02-14]
+-----------------------------
 
 	- Experimental support for libunac (removing accents and ligatures
           before search)
-	- Recursive search [--recursive] (by Mahmut Gundes)
+	- Recursive search [+--recursive+] (by Mahmut Gundes)
 	- Don't use colors on dumb terminals
 	- A few minor bug fixes
 	- Use poppler-cpp instead of the poppler core library (by Pino Toscano)
 
-Release 1.2
+Version 1.2
+-----------
 
-	- 2 small bugfixes ('-h' option and closing open files)
+	- 2 small bugfixes (+-h+ option and closing open files)
 	- This is probably the last release that supports poppler < 0.14
 
-Release 1.1
+Version 1.1
+-----------
 
-	- Respect the GREP_COLORS environment variable
+	- Respect the +GREP_COLORS+ environment variable
 	- Fix buffer overflow bug
 	- Don't exit on the first error
 	- Use terminal width to calculate the context length
 
-Release 1.0
+Version 1.0
+-----------
 
 	- First release
