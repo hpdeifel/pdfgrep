@@ -1,7 +1,6 @@
 == Overview
 
-_Pdfgrep_ is a tool to search text in PDF files. It works similarly to
-`grep'.
+_Pdfgrep_ is a tool to search text in PDF files. It works similarly to _grep_.
 
 == Features
 
@@ -20,26 +19,22 @@ _Pdfgrep_ is a tool to search text in PDF files. It works similarly to
 
 == Building
 
-... is easy. Just use the standard procedure:
+… is easy. Just use the standard procedure:
 
-  : ./configure
-  : make
-  : sudo make install
+  ./configure
+  make
+  sudo make install
 
-To enable libunac-support, you have to pass '--with-unac'
-to configure.
+To enable libunac-support, you have to pass +--with-unac+ to configure.
 
 == Download
 
-Tarballs for releases are available at
-http://sourceforge.net/projects/pdfgrep/files/
+Tarballs for releases are available at http://sourceforge.net/projects/pdfgrep/files/
 
-The development version is available as a git repository at
-https://gitorious.org/pdfgrep/pdfgrep/
+The development version is available as a git repository at https://gitorious.org/pdfgrep/pdfgrep/
 
 == Contact
 
-To send patches, ask questions, report bugs or anything
-else there is the mailing-list:
+To send patches, ask questions, report bugs or anything else there is the mailing-list:
 
-  pdfgrep-users@lists.sourceforge.net
+mailto:pdfgrep-users@lists.sourceforge.net[pdfgrep-users@lists.sourceforge.net]
