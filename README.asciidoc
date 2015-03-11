@@ -1,24 +1,24 @@
-* Overview
+== Overview
 
-Pdfgrep is a tool to search text in PDF files. It works
-similarly to `grep'.
+_Pdfgrep_ is a tool to search text in PDF files. It works similarly to
+`grep'.
 
-* Features
+== Features
 
- - search for regular expressions.
- - support for some important grep options, including:
-    + filename output.
-    + page number output.
-    + optional case insensitivity.
-    + count occurrences.
-    + recursive search
- - and the most important feature: color output!
+ * search for regular expressions.
+ * support for some important grep options, including:
+    ** filename output.
+    ** page number output.
+    ** optional case insensitivity.
+    ** count occurrences.
+    ** recursive search
+ * and the most important feature: color output!
 
-* Dependencies
+== Dependencies
 
  - poppler-cpp (poppler >= 0.14) [http://poppler.freedesktop.org/]
 
-* Building
+== Building
 
 ... is easy. Just use the standard procedure:
 
@@ -29,7 +29,7 @@ similarly to `grep'.
 To enable libunac-support, you have to pass '--with-unac'
 to configure.
 
-* Download
+== Download
 
 Tarballs for releases are available at
 http://sourceforge.net/projects/pdfgrep/files/
@@ -37,7 +37,7 @@ http://sourceforge.net/projects/pdfgrep/files/
 The development version is available as a git repository at
 https://gitorious.org/pdfgrep/pdfgrep/
 
-* Contact
+== Contact
 
 To send patches, ask questions, report bugs or anything
 else there is the mailing-list:
