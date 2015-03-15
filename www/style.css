@@ -133,6 +133,7 @@ ul > li > * { color: #4d4d4c; }
 pre {
   padding: 0;
   margin: 0;
+  margin-left: 2em;
 }
 
 #author {
@@ -500,7 +501,6 @@ div.tableblock > table[frame="vsides"] {
 .monospaced {
   font-family: "Courier New", Courier, monospace;
   font-size: inherit;
-  color: #3e999f;
 }
 
 table.tableblock {

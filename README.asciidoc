@@ -13,6 +13,8 @@ _Pdfgrep_ is a tool to search text in PDF files. It works similarly to _grep_.
     ** recursive search
  * and the most important feature: color output!
 
+For a complete documentation, please consult the link:pdfgrep.html[manpage].
+
 == Dependencies
 
  - poppler-cpp (poppler >= 0.14) [http://poppler.freedesktop.org/]
@@ -31,10 +33,17 @@ To enable libunac-support, you have to pass +--with-unac+ to configure.
 
 Tarballs for releases are available at http://sourceforge.net/projects/pdfgrep/files/
 
-The development version is available as a git repository at https://gitorious.org/pdfgrep/pdfgrep/
+The development version is available as a git repository at
+https://gitlab.com/pdfgrep/pdfgrep
 
 == Contact
 
-To send patches, ask questions, report bugs or anything else there is the mailing-list:
+General questions, suggestions, bug reports, patches or anything else
+can be sent to the mailinglist at
+mailto:pdfgrep-users@lists.sourceforge.net[pdfgrep-users@lists.sourceforge.net].
 
-mailto:pdfgrep-users@lists.sourceforge.net[pdfgrep-users@lists.sourceforge.net]
+You can also use the
+link:https://gitlab.com/pdfgrep/pdfgrep/issues[issue tracker] for bug
+reports or create a
+link:https://gitlab.com/pdfgrep/pdfgrep/merge_requests[merge request]
+on GitLab, if you prefer that over mailinglists.
