@@ -25,6 +25,7 @@ _pdfgrep()
     prev="${COMP_WORDS[COMP_CWORD-1]}"
     opts=(-n --page-number \
 	  -i --ignore-case \
+	  -P --pcre \
 	  -H --with-filename \
 	  -h --no-filename \
 	  -c --count \
