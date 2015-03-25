@@ -511,7 +511,7 @@ int is_dir(const std::string &filename)
 }
 
 int do_search_in_document(const std::string &path, const std::string &filename,
-			  rengine_h *ptrRegex, bool check_excludes = true)
+			  rengine_h *rh, bool check_excludes = true)
 {
 	if (check_excludes &&
 	    (!is_excluded(includes, filename) || is_excluded(excludes, filename)))
@@ -527,14 +527,14 @@ int do_search_in_document(const std::string &path, const std::string &filename,
 		return 1;
 	}
 
-	if (search_in_document(doc.get(), path, ptrRegex) && quiet) {
+	if (search_in_document(doc.get(), path, rh) && quiet) {
 		exit(0);
 	}
 
 	return 0;
 }
 
-int do_search_in_directory(const std::string &filename, rengine_h *ptrRegex)
+int do_search_in_directory(const std::string &filename, rengine_h *rh)
 {
 	DIR *ptrDir = NULL;
 	struct dirent *ptrDirent = NULL;
@@ -575,9 +575,9 @@ int do_search_in_directory(const std::string &filename, rengine_h *ptrRegex)
 			continue;
 
 		if (S_ISDIR(st.st_mode)) {
-			do_search_in_directory(path, ptrRegex);
+			do_search_in_directory(path, rh);
 		} else {
-			do_search_in_document(path, ptrDirent->d_name, ptrRegex);
+			do_search_in_document(path, ptrDirent->d_name, rh);
 		}
 	}
 
