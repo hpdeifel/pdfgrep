@@ -238,9 +238,9 @@ int rengine_exec(rengine_h *hdl, char *str, size_t len, off_t ofs, size_t nmatch
 		return 0;
 #ifdef HAVE_LIBPCRE
 	case ENGINE_PCRE:
-		ret = pcre_exec(hdl->h_pcre, NULL, str, strlen(str) /* improve this! */,
-				0, 0, ov, 3);
-		if(ret <= 0)
+		ret = pcre_exec(hdl->h_pcre, NULL, str + ofs, len,
+				0, PCRE_NOTEMPTY, ov, 3);
+		if(ret < 0)
 			return 1;
 		m->start = ofs + ov[0];
 		m->end = ofs + ov[1];
