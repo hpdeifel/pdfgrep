@@ -172,25 +172,20 @@ void simple_unac_free(char *string)
 }
 #endif
 
-int rengine_init(rengine_h *hdl, const char *pat, ...)
+int rengine_init(rengine_h *hdl, const char *pat, int ic)
 {
 	int err;
-	va_list ap;
 
 	/* for regex(3) */
-	int regex_flags;
+	int regex_flags = REG_EXTENDED | (ic ? REG_ICASE : 0);
 
 	/* for pcre(3) */
-	int pcre_options = 0;
+	int pcre_options = ic ? PCRE_CASELESS : 0;
 	const char *pcre_err;
 	int pcre_err_ofs;
 
 	switch(re_engine) {
 	case ENGINE_REGEX:
-		va_start(ap, pat);
-		regex_flags = va_arg(ap, int);
-		va_end(ap);
-
 		err = regcomp(&hdl->h_regex, pat, regex_flags);
 		if(err) {
 			char err_msg[256];
@@ -650,7 +645,7 @@ int main(int argc, char** argv)
 				outconf.filename = 1;
 				break;
 			case 'i':
-				ignore_case = REG_ICASE;
+				ignore_case = 1;
 				break;
 			case 'c':
 				count = 1;
@@ -748,7 +743,7 @@ int main(int argc, char** argv)
 	pattern = simple_unac(pattern);
 #endif
 
-	if(rengine_init(&rh, pattern, REG_EXTENDED | ignore_case) != 0)
+	if(rengine_init(&rh, pattern, ignore_case) != 0)
 		exit(2);
 
 #if POPPLER_VERSION_MAJOR > 0 || POPPLER_VERSION_MINOR >= 29
