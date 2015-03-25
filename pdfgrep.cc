@@ -27,6 +27,7 @@
 #include <sys/types.h>
 #include <regex.h>
 #include <getopt.h>
+#include <stdarg.h>
 #include <unistd.h>
 #include <math.h>
 #include <sys/ioctl.h>
@@ -85,6 +86,16 @@ struct outconf outconf = {
 	1,			/* color */
 };
 
+/* unified regex engine handling */
+enum {
+	ENGINE_REGEX,
+};
+int re_engine;
+
+typedef union {
+	regex_t h_regex;
+} rengine_h;
+
 enum {
 	HELP_OPTION,
 	COLOR_OPTION,
@@ -126,12 +137,6 @@ struct option long_options[] =
 ExcludeList excludes;
 ExcludeList includes;
 
-void regmatch_to_match(const regmatch_t match, int index, struct match *mt)
-{
-	mt->start = match.rm_so + index;
-	mt->end   = match.rm_eo + index;
-}
-
 #ifdef HAVE_UNAC
 /* convenience layer over libunac. The result has to be freed with
  * simple_unac_free */
@@ -158,9 +163,58 @@ void simple_unac_free(char *string)
 }
 #endif
 
-int search_in_document(poppler::document *doc, const std::string &filename, regex_t *needle)
+int rengine_init(rengine_h *hdl, char *pat, ...)
 {
+	int err;
+	va_list ap;
+
+	/* for regex(7) */
+	int regex_flags;
+
+	switch(re_engine) {
+	case ENGINE_REGEX:
+		va_start(ap, pat);
+		regex_flags = va_arg(ap, int);
+		va_end(ap);
+
+		err = regcomp(&hdl->h_regex, pat, regex_flags);
+		if(err) {
+			char err_msg[256];
+			regerror(err, &hdl->h_regex, err_msg, 256);
+			fprintf(stderr, "pdfgrep: %s\n", err_msg);
+			return 1;
+		}
+		return 0;
+	default:
+		fprintf(stderr, "Unknown regex engine requested!\n");
+		break;
+	}
+	return 1;
+
+}
+
+int rengine_exec(rengine_h *hdl, char *str, size_t len, off_t ofs, size_t nmatch, struct match *m, int flags)
+{
+	int ret;
 	regmatch_t match[] = {{0, 0}};
+
+	switch(re_engine) {
+	case ENGINE_REGEX:
+		ret = regexec(&hdl->h_regex, str + ofs, nmatch, match, 0);
+		if(ret)
+			return ret;
+		m->start = ofs + match[0].rm_so;
+		m->end = ofs + match[0].rm_eo;
+		return 0;
+	default:
+		fprintf(stderr, "Unknown regex engine requested!\n");
+		break;
+	}
+	return 1;
+}
+
+int search_in_document(poppler::document *doc, const std::string &filename, rengine_h *rh)
+{
 	int count_matches = 0;
 	int page_matches = 0;
 	int length = 0;
@@ -181,18 +235,18 @@ int search_in_document(poppler::document *doc, const std::string &filename, rege
 
 		poppler::byte_array str = doc_page->text().to_utf8();
 		str.resize(str.size() + 1, '\0');
+		size_t str_len = str.size();
 #ifdef HAVE_UNAC
 		char *unac_str = simple_unac(&str[0]);
 		char *str_start = unac_str;
 #else
 		char *str_start = &str[0];
 #endif
-		int index = 0;
-		struct match mt = {str_start, str.size()};
+		off_t index = 0;
+		struct match mt = { .string = str_start, .strlen = str.size() };
 
-		while (!max_count_reached && !regexec(needle, str_start+index, 1, match, 0)) {
-			regmatch_to_match(match[0], index, &mt);
-
+		while (!max_count_reached &&
+			!rengine_exec(rh, str_start, str_len, index, 1, &mt, 0)) {
 			count_matches++;
 			if (max_count > 0 && count_matches >= max_count)
 			{
@@ -220,7 +274,7 @@ int search_in_document(poppler::document *doc, const std::string &filename, rege
 					if (outconf.pagenum)
 						length += 1 + (int)log10((double)i);
 
-					length += match[0].rm_eo - match[0].rm_so;
+					length += mt.end - mt.start;
 
 					cntxt.before = line_width - length;
 
@@ -235,9 +289,10 @@ int search_in_document(poppler::document *doc, const std::string &filename, rege
 				printf("\n");
 			}
 
+			index += mt.end;
+			if(index >= str_len)
+				break;
 			found_something = 1;
-
-			index += match[0].rm_so + 1;
 		}
 
 #ifdef HAVE_UNAC
@@ -420,7 +475,7 @@ int is_dir(const std::string &filename)
 }
 
 int do_search_in_document(const std::string &path, const std::string &filename,
-			  regex_t *ptrRegex, bool check_excludes = true)
+			  rengine_h *ptrRegex, bool check_excludes = true)
 {
 	if (check_excludes &&
 	    (!is_excluded(includes, filename) || is_excluded(excludes, filename)))
@@ -443,7 +498,7 @@ int do_search_in_document(const std::string &path, const std::string &filename,
 	return 0;
 }
 
-int do_search_in_directory(const std::string &filename, regex_t *ptrRegex)
+int do_search_in_directory(const std::string &filename, rengine_h *ptrRegex)
 {
 	DIR *ptrDir = NULL;
 	struct dirent *ptrDirent = NULL;
@@ -520,7 +575,7 @@ void handle_poppler_errors(const std::string &msg, void *)
 
 int main(int argc, char** argv)
 {
-	regex_t regex;
+	rengine_h rh;
 	init_colors();
 
 	while (1) {
@@ -642,13 +697,9 @@ int main(int argc, char** argv)
 	pattern = simple_unac(pattern);
 #endif
 
-	int error = regcomp(&regex, pattern, REG_EXTENDED | ignore_case);
-	if (error) {
-		char err_msg[256];
-		regerror(error, &regex, err_msg, 256);
-		fprintf(stderr, "pdfgrep: %s\n", err_msg);
+	re_engine = ENGINE_REGEX;
+	if(rengine_init(&rh, pattern, REG_EXTENDED | ignore_case) != 0)
 		exit(2);
-	}
 
 #if POPPLER_VERSION_MAJOR > 0 || POPPLER_VERSION_MINOR >= 29
 	// set poppler error output function
@@ -680,22 +731,22 @@ int main(int argc, char** argv)
 	if (excludes_empty(includes))
 		exclude_add(includes, "*.pdf");
 
-	error = 0;
+	int error = 0;
 
 	for (int i = optind; i < argc; i++) {
 		const std::string filename(argv[i]);
 
 		if (!is_dir(filename)) {
-			do_search_in_document(filename, filename, &regex,false);
+			do_search_in_document(filename, filename, &rh, false);
 		} else if (f_recursive_search) {
-			do_search_in_directory(filename, &regex);
+			do_search_in_directory(filename, &rh);
 		} else { // TODO: report errors
 			error = 1;
 		}
 	}
 
 	if (argc == optind && f_recursive_search) {
-		do_search_in_directory(".", &regex);
+		do_search_in_directory(".", &rh);
 	}
 
 	if (error) {
