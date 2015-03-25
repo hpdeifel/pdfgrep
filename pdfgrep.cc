@@ -51,6 +51,10 @@
 #include <termios.h>
 #endif
 
+#ifdef HAVE_LIBPCRE
+#include <pcre.h>
+#endif
+
 #include <memory>
 
 #include "output.h"
@@ -89,11 +93,15 @@ struct outconf outconf = {
 /* unified regex engine handling */
 enum {
 	ENGINE_REGEX,
+	ENGINE_PCRE,
 };
 int re_engine;
 
 typedef union {
 	regex_t h_regex;
+#ifdef HAVE_LIBPCRE
+	pcre *h_pcre;
+#endif
 } rengine_h;
 
 enum {
@@ -111,6 +119,7 @@ enum {
 struct option long_options[] =
 {
 	{"ignore-case", 0, 0, 'i'},
+	{"pcre", 0, 0, 'P'},
 	{"page-number", 0, 0, 'n'},
 	{"with-filename", 0, 0, 'H'},
 	{"no-filename", 0, 0, 'h'},
@@ -163,13 +172,18 @@ void simple_unac_free(char *string)
 }
 #endif
 
-int rengine_init(rengine_h *hdl, char *pat, ...)
+int rengine_init(rengine_h *hdl, const char *pat, ...)
 {
 	int err;
 	va_list ap;
 
-	/* for regex(7) */
+	/* for regex(3) */
 	int regex_flags;
+
+	/* for pcre(3) */
+	int pcre_options = 0;
+	const char *pcre_err;
+	int pcre_err_ofs;
 
 	switch(re_engine) {
 	case ENGINE_REGEX:
@@ -185,6 +199,17 @@ int rengine_init(rengine_h *hdl, char *pat, ...)
 			return 1;
 		}
 		return 0;
+#ifdef HAVE_LIBPCRE
+	case ENGINE_PCRE:
+		hdl->h_pcre = pcre_compile(pat, pcre_options,
+				&pcre_err, &pcre_err_ofs, NULL);
+		if(hdl->h_pcre != NULL)
+			return 0;
+		fprintf(stderr, "pdfgrep: %s\n", pat);
+		fprintf(stderr, "pdfgrep: %*s\n", pcre_err_ofs + 1, "^");
+		fprintf(stderr, "pdfgrep: Error compiling PCRE pattern: %s\n", pcre_err);
+		return 1;
+#endif
 	default:
 		fprintf(stderr, "Unknown regex engine requested!\n");
 		break;
@@ -196,7 +221,12 @@ int rengine_init(rengine_h *hdl, char *pat, ...)
 int rengine_exec(rengine_h *hdl, char *str, size_t len, off_t ofs, size_t nmatch, struct match *m, int flags)
 {
 	int ret;
+
+	/* for regex(3) */
 	regmatch_t match[] = {{0, 0}};
+
+	/* for pcre(3) */
+	int ov[3];
 
 	switch(re_engine) {
 	case ENGINE_REGEX:
@@ -206,6 +236,16 @@ int rengine_exec(rengine_h *hdl, char *str, size_t len, off_t ofs, size_t nmatch
 		m->start = ofs + match[0].rm_so;
 		m->end = ofs + match[0].rm_eo;
 		return 0;
+#ifdef HAVE_LIBPCRE
+	case ENGINE_PCRE:
+		ret = pcre_exec(hdl->h_pcre, NULL, str, strlen(str) /* improve this! */,
+				0, 0, ov, 3);
+		if(ret <= 0)
+			return 1;
+		m->start = ofs + ov[0];
+		m->end = ofs + ov[1];
+		return 0;
+#endif
 	default:
 		fprintf(stderr, "Unknown regex engine requested!\n");
 		break;
@@ -436,6 +476,7 @@ void print_help(char *self)
 
 "Options:\n"
 " -i, --ignore-case\t\tIgnore case distinctions\n"
+" -P, --pcre\t\t\tUse Perl compatible regular expressions (PCRE)\n"
 " -H, --with-filename\t\tPrint the file name for each match\n"
 " -h, --no-filename\t\tSuppress the prefixing of file name on output\n"
 " -n, --page-number\t\tPrint page number with output lines\n"
@@ -578,8 +619,10 @@ int main(int argc, char** argv)
 	rengine_h rh;
 	init_colors();
 
+	re_engine = ENGINE_REGEX;
+
 	while (1) {
-		int c = getopt_long(argc, argv, "icC:nrRhHVpqm:",
+		int c = getopt_long(argc, argv, "icC:nrRhHVPpqm:",
 				long_options, NULL);
 
 		if (c == -1)
@@ -643,6 +686,14 @@ int main(int argc, char** argv)
 			case INCLUDE_OPTION:
 				exclude_add(includes, optarg);
 				break;
+			case 'P':
+#ifndef HAVE_LIBPCRE
+				fprintf(stderr, "PCRE support disabled at compile time!");
+				exit(2);
+#else
+				re_engine = ENGINE_PCRE;
+#endif
+				break;
 			case 'p':
 				pagecount = 1;
 				outconf.pagenum = 1;
@@ -697,7 +748,6 @@ int main(int argc, char** argv)
 	pattern = simple_unac(pattern);
 #endif
 
-	re_engine = ENGINE_REGEX;
 	if(rengine_init(&rh, pattern, REG_EXTENDED | ignore_case) != 0)
 		exit(2);
 

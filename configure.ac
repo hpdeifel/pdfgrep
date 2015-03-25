@@ -36,6 +36,11 @@ PKG_CHECK_MODULES(poppler_cpp, poppler-cpp)
 AC_SUBST(poppler_cpp_CFLAGS)
 AC_SUBST(poppler_cpp_LIBS)
 
+dnl PCRE (optional)
+AC_CHECK_LIB([pcre], [pcre_compile], [], [AC_MSG_NOTICE([libpcre not found, building without PCRE support])])
+AC_SUBST(pcre_CFLAGS)
+AC_SUBST(pcre_LIBS)
+
 dnl libunac stuff
 AC_ARG_WITH([unac],
 	AS_HELP_STRING([--with-unac], [enable experimental support for libunac])
