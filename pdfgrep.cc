@@ -233,7 +233,7 @@ int rengine_exec(rengine_h *hdl, char *str, size_t len, off_t ofs, size_t nmatch
 		return 0;
 #ifdef HAVE_LIBPCRE
 	case ENGINE_PCRE:
-		ret = pcre_exec(hdl->h_pcre, NULL, str + ofs, len,
+		ret = pcre_exec(hdl->h_pcre, NULL, str + ofs, len - ofs,
 				0, PCRE_NOTEMPTY, ov, 3);
 		if(ret < 0)
 			return 1;
