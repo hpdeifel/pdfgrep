@@ -180,7 +180,9 @@ int rengine_init(rengine_h *hdl, const char *pat, int ic)
 	int regex_flags = REG_EXTENDED | (ic ? REG_ICASE : 0);
 
 	/* for pcre(3) */
+#ifdef HAVE_LIBPCRE
 	int pcre_options = ic ? PCRE_CASELESS : 0;
+#endif
 	const char *pcre_err;
 	int pcre_err_ofs;
 
