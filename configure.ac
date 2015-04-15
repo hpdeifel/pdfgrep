@@ -37,9 +37,16 @@ AC_SUBST(poppler_cpp_CFLAGS)
 AC_SUBST(poppler_cpp_LIBS)
 
 dnl PCRE (optional)
-AC_CHECK_LIB([pcre], [pcre_compile], [], [AC_MSG_NOTICE([libpcre not found, building without PCRE support])])
-AC_SUBST(pcre_CFLAGS)
-AC_SUBST(pcre_LIBS)
+AC_ARG_WITH([libpcre],
+	AS_HELP_STRING([--without-libpcre], [disable support for perl compatible regular expresssions])
+)
+
+AS_IF([test "x$with_libpcre" != "xno"], [
+	PKG_CHECK_MODULES([libpcre], [libpcre])
+	AC_SUBST(libpcre_CFLAGS)
+	AC_SUBST(libpcre_LIBS)
+	AC_DEFINE([HAVE_LIBPCRE], [1], [Define to 1 if you have libpcre _and_ want to use it])
+])
 
 dnl libunac stuff
 AC_ARG_WITH([unac],
