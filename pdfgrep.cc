@@ -25,8 +25,8 @@
 #include <string.h>
 #include <ctype.h>
 #include <sys/types.h>
-#include <regex.h>
 #include <getopt.h>
+#include <stdarg.h>
 #include <unistd.h>
 #include <math.h>
 #include <sys/ioctl.h>
@@ -54,6 +54,8 @@
 
 #include "output.h"
 #include "exclude.h"
+#include "regengine.h"
+
 
 /* set this to 1 if any match was found. Used for the exit status */
 int found_something = 0;
@@ -100,6 +102,7 @@ enum {
 struct option long_options[] =
 {
 	{"ignore-case", 0, 0, 'i'},
+	{"pcre", 0, 0, 'P'},
 	{"page-number", 0, 0, 'n'},
 	{"with-filename", 0, 0, 'H'},
 	{"no-filename", 0, 0, 'h'},
@@ -125,12 +128,6 @@ struct option long_options[] =
 
 ExcludeList excludes;
 ExcludeList includes;
-
-void regmatch_to_match(const regmatch_t match, int index, struct match *mt)
-{
-	mt->start = match.rm_so + index;
-	mt->end   = match.rm_eo + index;
-}
 
 #ifdef HAVE_UNAC
 /* convenience layer over libunac. The result has to be freed with
@@ -158,9 +155,8 @@ void simple_unac_free(char *string)
 }
 #endif
 
-int search_in_document(poppler::document *doc, const std::string &filename, regex_t *needle)
+int search_in_document(poppler::document *doc, const std::string &filename, Regengine &re)
 {
-	regmatch_t match[] = {{0, 0}};
 	int count_matches = 0;
 	int page_matches = 0;
 	int length = 0;
@@ -181,18 +177,17 @@ int search_in_document(poppler::document *doc, const std::string &filename, rege
 
 		poppler::byte_array str = doc_page->text().to_utf8();
 		str.resize(str.size() + 1, '\0');
+		size_t str_len = str.size();
 #ifdef HAVE_UNAC
 		char *unac_str = simple_unac(&str[0]);
 		char *str_start = unac_str;
 #else
 		char *str_start = &str[0];
 #endif
-		int index = 0;
-		struct match mt = {str_start, str.size()};
+		size_t index = 0;
+		struct match mt = { .string = str_start, .strlen = str.size() };
 
-		while (!max_count_reached && !regexec(needle, str_start+index, 1, match, 0)) {
-			regmatch_to_match(match[0], index, &mt);
-
+		while (!max_count_reached && !re.exec(str_start, index, &mt)) {
 			count_matches++;
 			if (max_count > 0 && count_matches >= max_count)
 			{
@@ -220,7 +215,7 @@ int search_in_document(poppler::document *doc, const std::string &filename, rege
 					if (outconf.pagenum)
 						length += 1 + (int)log10((double)i);
 
-					length += match[0].rm_eo - match[0].rm_so;
+					length += mt.end - mt.start;
 
 					cntxt.before = line_width - length;
 
@@ -235,9 +230,10 @@ int search_in_document(poppler::document *doc, const std::string &filename, rege
 				printf("\n");
 			}
 
+			index += mt.end;
+			if(index >= str_len)
+				break;
 			found_something = 1;
-
-			index += match[0].rm_so + 1;
 		}
 
 #ifdef HAVE_UNAC
@@ -381,6 +377,7 @@ void print_help(char *self)
 
 "Options:\n"
 " -i, --ignore-case\t\tIgnore case distinctions\n"
+" -P, --pcre\t\t\tUse Perl compatible regular expressions (PCRE)\n"
 " -H, --with-filename\t\tPrint the file name for each match\n"
 " -h, --no-filename\t\tSuppress the prefixing of file name on output\n"
 " -n, --page-number\t\tPrint page number with output lines\n"
@@ -420,7 +417,7 @@ int is_dir(const std::string &filename)
 }
 
 int do_search_in_document(const std::string &path, const std::string &filename,
-			  regex_t *ptrRegex, bool check_excludes = true)
+                          Regengine &re, bool check_excludes = true)
 {
 	if (check_excludes &&
 	    (!is_excluded(includes, filename) || is_excluded(excludes, filename)))
@@ -436,14 +433,14 @@ int do_search_in_document(const std::string &path, const std::string &filename,
 		return 1;
 	}
 
-	if (search_in_document(doc.get(), path, ptrRegex) && quiet) {
+	if (search_in_document(doc.get(), path, re) && quiet) {
 		exit(0);
 	}
 
 	return 0;
 }
 
-int do_search_in_directory(const std::string &filename, regex_t *ptrRegex)
+int do_search_in_directory(const std::string &filename, Regengine &re)
 {
 	DIR *ptrDir = NULL;
 	struct dirent *ptrDirent = NULL;
@@ -484,9 +481,9 @@ int do_search_in_directory(const std::string &filename, regex_t *ptrRegex)
 			continue;
 
 		if (S_ISDIR(st.st_mode)) {
-			do_search_in_directory(path, ptrRegex);
+			do_search_in_directory(path, re);
 		} else {
-			do_search_in_document(path, ptrDirent->d_name, ptrRegex);
+			do_search_in_document(path, ptrDirent->d_name, re);
 		}
 	}
 
@@ -520,11 +517,15 @@ void handle_poppler_errors(const std::string &msg, void *)
 
 int main(int argc, char** argv)
 {
-	regex_t regex;
 	init_colors();
 
+	enum {
+		RE_PCRE,
+		RE_POSIX
+	} re_engine = RE_POSIX;
+
 	while (1) {
-		int c = getopt_long(argc, argv, "icC:nrRhHVpqm:",
+		int c = getopt_long(argc, argv, "icC:nrRhHVPpqm:",
 				long_options, NULL);
 
 		if (c == -1)
@@ -552,7 +553,7 @@ int main(int argc, char** argv)
 				outconf.filename = 1;
 				break;
 			case 'i':
-				ignore_case = REG_ICASE;
+				ignore_case = 1;
 				break;
 			case 'c':
 				count = 1;
@@ -587,6 +588,14 @@ int main(int argc, char** argv)
 				break;
 			case INCLUDE_OPTION:
 				exclude_add(includes, optarg);
+				break;
+			case 'P':
+#ifndef HAVE_LIBPCRE
+				fprintf(stderr, "pdfgrep: PCRE support disabled at compile time!\n");
+				exit(2);
+#else
+				re_engine = RE_PCRE;
+#endif
 				break;
 			case 'p':
 				pagecount = 1;
@@ -642,12 +651,14 @@ int main(int argc, char** argv)
 	pattern = simple_unac(pattern);
 #endif
 
-	int error = regcomp(&regex, pattern, REG_EXTENDED | ignore_case);
-	if (error) {
-		char err_msg[256];
-		regerror(error, &regex, err_msg, 256);
-		fprintf(stderr, "pdfgrep: %s\n", err_msg);
-		exit(2);
+	Regengine *re = NULL;
+#ifdef HAVE_LIBPCRE
+	if (re_engine == RE_PCRE) {
+		re = new PCRERegex(pattern, ignore_case);
+	}
+#endif // HAVE_LIBPCRE
+	if (re == NULL) {
+		re = new PosixRegex(pattern, ignore_case);
 	}
 
 #if POPPLER_VERSION_MAJOR > 0 || POPPLER_VERSION_MINOR >= 29
@@ -680,22 +691,22 @@ int main(int argc, char** argv)
 	if (excludes_empty(includes))
 		exclude_add(includes, "*.pdf");
 
-	error = 0;
+	int error = 0;
 
 	for (int i = optind; i < argc; i++) {
 		const std::string filename(argv[i]);
 
 		if (!is_dir(filename)) {
-			do_search_in_document(filename, filename, &regex,false);
+			do_search_in_document(filename, filename, *re, false);
 		} else if (f_recursive_search) {
-			do_search_in_directory(filename, &regex);
+			do_search_in_directory(filename, *re);
 		} else { // TODO: report errors
 			error = 1;
 		}
 	}
 
 	if (argc == optind && f_recursive_search) {
-		do_search_in_directory(".", &regex);
+		do_search_in_directory(".", *re);
 	}
 
 	if (error) {

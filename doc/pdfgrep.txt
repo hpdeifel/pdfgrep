@@ -26,6 +26,9 @@ OPTIONS
 *-i*, *--ignore-case* :: Ignore case distinctions in both the
   'PATTERN' and the input files.
 
+*-P*, *--pcre* :: Interpret 'PATTERN' as a Perl compatible regular
+  expression (PCRE). See 'pcresyntax'(3) for a quick overview.
+
 *-H*, *--with-filename* :: Print the file name for each match. This is
   the default setting when there is more than one file to search.
 
@@ -126,4 +129,4 @@ Hans-Peter Deifel <hpdeifel at gmx.de>
 
 SEE ALSO
 --------
-grep(1), regex(7)
+grep(1), pcre(3), regex(7)

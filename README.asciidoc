@@ -11,6 +11,7 @@ _Pdfgrep_ is a tool to search text in PDF files. It works similarly to _grep_.
     ** optional case insensitivity.
     ** count occurrences.
     ** recursive search
+    ** support for extended or (optionally) Perl compatible regular expressions
  * and the most important feature: color output!
 
 For a complete documentation, please consult the link:pdfgrep.html[manpage].
@@ -18,6 +19,7 @@ For a complete documentation, please consult the link:pdfgrep.html[manpage].
 == Dependencies
 
  - poppler-cpp (poppler >= 0.14) [http://poppler.freedesktop.org/]
+ - optionally libpcre [http://www.pcre.org/]
 
 == Building
 
