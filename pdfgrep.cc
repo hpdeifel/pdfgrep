@@ -591,7 +591,7 @@ int main(int argc, char** argv)
 				break;
 			case 'P':
 #ifndef HAVE_LIBPCRE
-				fprintf(stderr, "PCRE support disabled at compile time!");
+				fprintf(stderr, "pdfgrep: PCRE support disabled at compile time!\n");
 				exit(2);
 #else
 				re_engine = RE_PCRE;
