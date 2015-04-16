@@ -2,6 +2,7 @@ NEXT RELEASE
 ------------
 
 	- PCRE support (by Julius Plenz)
+	- Installation: New configure flag +--without-libpcre+
 
 Version 1.3.2    [2015-02-20]
 -----------------------------
