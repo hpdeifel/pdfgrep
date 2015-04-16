@@ -70,7 +70,7 @@ PosixRegex::~PosixRegex()
 
 #ifdef HAVE_LIBPCRE
 
-PCRERegex::PCRERegex(char *pattern, bool case_insensitive)
+PCRERegex::PCRERegex(const char *pattern, bool case_insensitive)
 {
 	const char *pcre_err;
 	int pcre_err_ofs;
@@ -111,3 +111,25 @@ int PCRERegex::exec(const char *str, size_t offset, struct match *m)
 }
 
 #endif // HAVE_LIBPCRE
+
+FixedString::FixedString(const char *pattern, bool case_insensitive)
+	: pattern(pattern), case_insensitive(case_insensitive)
+{}
+
+int FixedString::exec(const char *str, size_t offset, struct match *m)
+{
+	const char *result;
+	if (this->case_insensitive) {
+		result = strcasestr(str+offset, pattern);
+	} else {
+		result = strstr(str+offset, pattern);
+	}
+
+	if (result == NULL) {
+		return 1;
+	}
+
+	m->start = offset + (result - (str + offset));
+	m->end = m->start + strlen(pattern);
+	return 0;
+}

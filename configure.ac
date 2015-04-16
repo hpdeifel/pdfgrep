@@ -11,6 +11,7 @@ AC_FUNC_MALLOC
 AC_FUNC_REALLOC
 AC_CHECK_FUNCS([regcomp])
 AC_CHECK_FUNCS([getopt_long])
+AC_CHECK_FUNCS([strcasestr])
 
 dnl git revision, code stolen from paludis
 if test -d "${GIT_DIR:-${ac_top_srcdir:-./}/.git}" ; then

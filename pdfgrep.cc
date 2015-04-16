@@ -123,6 +123,7 @@ struct option long_options[] =
 #ifdef HAVE_UNAC
 	{"unac", 0, 0, UNAC_OPTION},
 #endif
+	{"fixed", 0, 0, 'F'},
 	{0, 0, 0, 0}
 };
 
@@ -519,13 +520,16 @@ int main(int argc, char** argv)
 {
 	init_colors();
 
-	enum {
-		RE_PCRE,
-		RE_POSIX
-	} re_engine = RE_POSIX;
+	enum re_engine_type {
+		RE_POSIX = 0,
+		RE_PCRE = 1,
+		RE_FIXED = 2
+	};
+
+	int re_engine = RE_POSIX;
 
 	while (1) {
-		int c = getopt_long(argc, argv, "icC:nrRhHVPpqm:",
+		int c = getopt_long(argc, argv, "icC:nrRhHVPpqm:F",
 				long_options, NULL);
 
 		if (c == -1)
@@ -594,7 +598,7 @@ int main(int argc, char** argv)
 				fprintf(stderr, "pdfgrep: PCRE support disabled at compile time!\n");
 				exit(2);
 #else
-				re_engine = RE_PCRE;
+				re_engine |= RE_PCRE;
 #endif
 				break;
 			case 'p':
@@ -628,6 +632,9 @@ int main(int argc, char** argv)
 				use_unac = 1;
 				break;
 #endif
+			case 'F':
+				re_engine |= RE_FIXED;
+				break;
 
 			/* In these two cases, getopt already prints an
 			 * error message
@@ -652,12 +659,18 @@ int main(int argc, char** argv)
 #endif
 
 	Regengine *re = NULL;
+	if (re_engine == (RE_FIXED | RE_PCRE)) {
+		fprintf(stderr, "pdfgrep: --pcre and --fixed cannot be used together\n");
+		exit(2);
+	}
 #ifdef HAVE_LIBPCRE
 	if (re_engine == RE_PCRE) {
 		re = new PCRERegex(pattern, ignore_case);
-	}
+	} else
 #endif // HAVE_LIBPCRE
-	if (re == NULL) {
+	if (re_engine == RE_FIXED) {
+		re = new FixedString(pattern, ignore_case);
+	} else {
 		re = new PosixRegex(pattern, ignore_case);
 	}
 

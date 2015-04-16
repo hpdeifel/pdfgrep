@@ -53,12 +53,22 @@ private:
 class PCRERegex : public Regengine
 {
 public:
-	PCRERegex(char *pattern, bool case_insensitive);
+	PCRERegex(const char *pattern, bool case_insensitive);
 	~PCRERegex();
 	int exec(const char *str, size_t offset, struct match *m);
 private:
 	pcre *regex;
 };
 #endif
+
+class FixedString : public Regengine
+{
+public:
+	FixedString(const char *pattern, bool case_insensitive);
+	int exec(const char *str, size_t offset, struct match *m);
+private:
+	const char *pattern;
+	bool case_insensitive;
+};
 
 #endif /* REGENGINE_H */
