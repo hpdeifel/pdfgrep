@@ -26,6 +26,9 @@ OPTIONS
 *-i*, *--ignore-case* :: Ignore case distinctions in both the
   'PATTERN' and the input files.
 
+*-F*, *--fixed-strings* :: Interpret 'PATTERN' as a list of fixed
+  strings separated by newlines, any of which is to be matched.
+
 *-P*, *--perl-regexp* :: Interpret 'PATTERN' as a Perl compatible
   regular expression (PCRE). See 'pcresyntax'(3) for a quick overview.
 
