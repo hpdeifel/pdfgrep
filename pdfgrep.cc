@@ -102,7 +102,7 @@ enum {
 struct option long_options[] =
 {
 	{"ignore-case", 0, 0, 'i'},
-	{"pcre", 0, 0, 'P'},
+	{"perl-regexp", 0, 0, 'P'},
 	{"page-number", 0, 0, 'n'},
 	{"with-filename", 0, 0, 'H'},
 	{"no-filename", 0, 0, 'h'},

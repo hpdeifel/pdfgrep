@@ -26,7 +26,7 @@ local context state line
 _arguments -s -S \
     "(-n --page-number)"{-n,--page-number}"[Prefix match with page number]" \
     "(-i --ignore-case)"{-i,--ignore-case}"[Ignore case distinctions]" \
-    "(-P --pcre)"{-P,--pcre}"[Use Perl compatible regular expression syntax]" \
+    "(-P --perl-regexp)"{-P,--perl-regexp}"[Use Perl compatible regular expression syntax]" \
     "(-H --with-filename -h --no-filename)"{-H,--with-filename}"[Print filename for each match]" \
     "(-h --no-filename -H --with-filename)"{-h,--no-filename}"[Don't print filename]" \
     "(-c --count)"{-c,--count}"[Print only a count of matches per file]" \
