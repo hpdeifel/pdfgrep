@@ -2,7 +2,9 @@ NEXT RELEASE
 ------------
 
 	- PCRE support (by Julius Plenz)
+	- Fixed string search
 	- Installation: New configure flag +--without-libpcre+
+	- Installation: pdfgrep now requires c++11
 
 Version 1.3.2    [2015-02-20]
 -----------------------------
