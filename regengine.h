@@ -29,6 +29,8 @@
 #ifdef HAVE_LIBPCRE
 #include <pcre.h>
 #endif
+#include <vector>
+
 
 struct match;
 
@@ -64,10 +66,10 @@ private:
 class FixedString : public Regengine
 {
 public:
-	FixedString(const char *pattern, bool case_insensitive);
+	FixedString(char *pattern, bool case_insensitive);
 	int exec(const char *str, size_t offset, struct match *m);
 private:
-	const char *pattern;
+	std::vector<const char*> patterns;
 	bool case_insensitive;
 };
 

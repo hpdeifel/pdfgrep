@@ -112,24 +112,35 @@ int PCRERegex::exec(const char *str, size_t offset, struct match *m)
 
 #endif // HAVE_LIBPCRE
 
-FixedString::FixedString(const char *pattern, bool case_insensitive)
-	: pattern(pattern), case_insensitive(case_insensitive)
-{}
+FixedString::FixedString(char *pattern, bool case_insensitive)
+	: case_insensitive(case_insensitive)
+{
+	// split pattern at newlines
+	const char *token = strtok(pattern, "\n");
+	while (token != NULL) {
+		patterns.push_back(token);
+		token = strtok(NULL, "\n");
+	}
+}
 
 int FixedString::exec(const char *str, size_t offset, struct match *m)
 {
-	const char *result;
-	if (this->case_insensitive) {
-		result = strcasestr(str+offset, pattern);
-	} else {
-		result = strstr(str+offset, pattern);
+	for (const char* pattern : patterns) {
+		const char *result;
+		if (this->case_insensitive) {
+			result = strcasestr(str+offset, pattern);
+		} else {
+			result = strstr(str+offset, pattern);
+		}
+
+		if (result == NULL) {
+			continue;
+		}
+
+		m->start = offset + (result - (str + offset));
+		m->end = m->start + strlen(pattern);
+		return 0;
 	}
 
-	if (result == NULL) {
-		return 1;
-	}
-
-	m->start = offset + (result - (str + offset));
-	m->end = m->start + strlen(pattern);
-	return 0;
+	return 1;
 }

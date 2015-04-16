@@ -123,7 +123,7 @@ struct option long_options[] =
 #ifdef HAVE_UNAC
 	{"unac", 0, 0, UNAC_OPTION},
 #endif
-	{"fixed", 0, 0, 'F'},
+	{"fixed-strings", 0, 0, 'F'},
 	{0, 0, 0, 0}
 };
 
