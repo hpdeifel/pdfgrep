@@ -25,7 +25,6 @@
 #include <string.h>
 #include <ctype.h>
 #include <sys/types.h>
-#include <regex.h>
 #include <getopt.h>
 #include <stdarg.h>
 #include <unistd.h>
@@ -51,14 +50,12 @@
 #include <termios.h>
 #endif
 
-#ifdef HAVE_LIBPCRE
-#include <pcre.h>
-#endif
-
 #include <memory>
 
 #include "output.h"
 #include "exclude.h"
+#include "regengine.h"
+
 
 /* set this to 1 if any match was found. Used for the exit status */
 int found_something = 0;
@@ -89,20 +86,6 @@ struct outconf outconf = {
 	0,			/* pagenum */
 	1,			/* color */
 };
-
-/* unified regex engine handling */
-enum {
-	ENGINE_REGEX,
-	ENGINE_PCRE,
-};
-int re_engine;
-
-typedef union {
-	regex_t h_regex;
-#ifdef HAVE_LIBPCRE
-	pcre *h_pcre;
-#endif
-} rengine_h;
 
 enum {
 	HELP_OPTION,
@@ -172,85 +155,7 @@ void simple_unac_free(char *string)
 }
 #endif
 
-int rengine_init(rengine_h *hdl, const char *pat, int ic)
-{
-	int err;
-
-	/* for regex(3) */
-	int regex_flags = REG_EXTENDED | (ic ? REG_ICASE : 0);
-
-	/* for pcre(3) */
-#ifdef HAVE_LIBPCRE
-	int pcre_options = ic ? PCRE_CASELESS : 0;
-#endif
-	const char *pcre_err;
-	int pcre_err_ofs;
-
-	switch(re_engine) {
-	case ENGINE_REGEX:
-		err = regcomp(&hdl->h_regex, pat, regex_flags);
-		if(err) {
-			char err_msg[256];
-			regerror(err, &hdl->h_regex, err_msg, 256);
-			fprintf(stderr, "pdfgrep: %s\n", err_msg);
-			return 1;
-		}
-		return 0;
-#ifdef HAVE_LIBPCRE
-	case ENGINE_PCRE:
-		hdl->h_pcre = pcre_compile(pat, pcre_options,
-				&pcre_err, &pcre_err_ofs, NULL);
-		if(hdl->h_pcre != NULL)
-			return 0;
-		fprintf(stderr, "pdfgrep: %s\n", pat);
-		fprintf(stderr, "pdfgrep: %*s\n", pcre_err_ofs + 1, "^");
-		fprintf(stderr, "pdfgrep: Error compiling PCRE pattern: %s\n", pcre_err);
-		return 1;
-#endif
-	default:
-		fprintf(stderr, "Unknown regex engine requested!\n");
-		break;
-	}
-	return 1;
-
-}
-
-int rengine_exec(rengine_h *hdl, char *str, size_t len, off_t ofs, size_t nmatch, struct match *m, int flags)
-{
-	int ret;
-
-	/* for regex(3) */
-	regmatch_t match[] = {{0, 0}};
-
-	/* for pcre(3) */
-	int ov[3];
-
-	switch(re_engine) {
-	case ENGINE_REGEX:
-		ret = regexec(&hdl->h_regex, str + ofs, nmatch, match, 0);
-		if(ret)
-			return ret;
-		m->start = ofs + match[0].rm_so;
-		m->end = ofs + match[0].rm_eo;
-		return 0;
-#ifdef HAVE_LIBPCRE
-	case ENGINE_PCRE:
-		ret = pcre_exec(hdl->h_pcre, NULL, str + ofs, len - ofs,
-				0, PCRE_NOTEMPTY, ov, 3);
-		if(ret < 0)
-			return 1;
-		m->start = ofs + ov[0];
-		m->end = ofs + ov[1];
-		return 0;
-#endif
-	default:
-		fprintf(stderr, "Unknown regex engine requested!\n");
-		break;
-	}
-	return 1;
-}
-
-int search_in_document(poppler::document *doc, const std::string &filename, rengine_h *rh)
+int search_in_document(poppler::document *doc, const std::string &filename, Regengine &re)
 {
 	int count_matches = 0;
 	int page_matches = 0;
@@ -279,11 +184,10 @@ int search_in_document(poppler::document *doc, const std::string &filename, reng
 #else
 		char *str_start = &str[0];
 #endif
-		off_t index = 0;
+		size_t index = 0;
 		struct match mt = { .string = str_start, .strlen = str.size() };
 
-		while (!max_count_reached &&
-			!rengine_exec(rh, str_start, str_len, index, 1, &mt, 0)) {
+		while (!max_count_reached && !re.exec(str_start, index, &mt)) {
 			count_matches++;
 			if (max_count > 0 && count_matches >= max_count)
 			{
@@ -513,7 +417,7 @@ int is_dir(const std::string &filename)
 }
 
 int do_search_in_document(const std::string &path, const std::string &filename,
-			  rengine_h *rh, bool check_excludes = true)
+                          Regengine &re, bool check_excludes = true)
 {
 	if (check_excludes &&
 	    (!is_excluded(includes, filename) || is_excluded(excludes, filename)))
@@ -529,14 +433,14 @@ int do_search_in_document(const std::string &path, const std::string &filename,
 		return 1;
 	}
 
-	if (search_in_document(doc.get(), path, rh) && quiet) {
+	if (search_in_document(doc.get(), path, re) && quiet) {
 		exit(0);
 	}
 
 	return 0;
 }
 
-int do_search_in_directory(const std::string &filename, rengine_h *rh)
+int do_search_in_directory(const std::string &filename, Regengine &re)
 {
 	DIR *ptrDir = NULL;
 	struct dirent *ptrDirent = NULL;
@@ -577,9 +481,9 @@ int do_search_in_directory(const std::string &filename, rengine_h *rh)
 			continue;
 
 		if (S_ISDIR(st.st_mode)) {
-			do_search_in_directory(path, rh);
+			do_search_in_directory(path, re);
 		} else {
-			do_search_in_document(path, ptrDirent->d_name, rh);
+			do_search_in_document(path, ptrDirent->d_name, re);
 		}
 	}
 
@@ -613,10 +517,12 @@ void handle_poppler_errors(const std::string &msg, void *)
 
 int main(int argc, char** argv)
 {
-	rengine_h rh;
 	init_colors();
 
-	re_engine = ENGINE_REGEX;
+	enum {
+		RE_PCRE,
+		RE_POSIX
+	} re_engine = RE_POSIX;
 
 	while (1) {
 		int c = getopt_long(argc, argv, "icC:nrRhHVPpqm:",
@@ -688,7 +594,7 @@ int main(int argc, char** argv)
 				fprintf(stderr, "PCRE support disabled at compile time!");
 				exit(2);
 #else
-				re_engine = ENGINE_PCRE;
+				re_engine = RE_PCRE;
 #endif
 				break;
 			case 'p':
@@ -745,8 +651,15 @@ int main(int argc, char** argv)
 	pattern = simple_unac(pattern);
 #endif
 
-	if(rengine_init(&rh, pattern, ignore_case) != 0)
-		exit(2);
+	Regengine *re = NULL;
+#ifdef HAVE_LIBPCRE
+	if (re_engine == RE_PCRE) {
+		re = new PCRERegex(pattern, ignore_case);
+	}
+#endif // HAVE_LIBPCRE
+	if (re == NULL) {
+		re = new PosixRegex(pattern, ignore_case);
+	}
 
 #if POPPLER_VERSION_MAJOR > 0 || POPPLER_VERSION_MINOR >= 29
 	// set poppler error output function
@@ -784,16 +697,16 @@ int main(int argc, char** argv)
 		const std::string filename(argv[i]);
 
 		if (!is_dir(filename)) {
-			do_search_in_document(filename, filename, &rh, false);
+			do_search_in_document(filename, filename, *re, false);
 		} else if (f_recursive_search) {
-			do_search_in_directory(filename, &rh);
+			do_search_in_directory(filename, *re);
 		} else { // TODO: report errors
 			error = 1;
 		}
 	}
 
 	if (argc == optind && f_recursive_search) {
-		do_search_in_directory(".", &rh);
+		do_search_in_directory(".", *re);
 	}
 
 	if (error) {
