@@ -43,7 +43,8 @@ _arguments -s -S \
     "(-m --max-count)"{-m,--max-count=}"[Process at most count matches]:Count:" \
     "(--debug)"--debug"[Enable debug output]" \
     "(--unac)--unac[Remove accents and ligatures]" \
-    ":pdf file:_files -g \"*.pdf\"" \
+    "1:pattern:" \
+    "*:pdf file:_files -g \"*.pdf\"" \
     && return 0
 
 return 1
