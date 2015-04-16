@@ -21,6 +21,9 @@
 #ifndef OUTPUT_H
 #define OUTPUT_H
 
+#include <sys/types.h>
+
+
 struct colorconf {
 	char *filename;
 	char *pagenum;
@@ -55,7 +58,7 @@ struct context {
 
 struct match {
 	char *string;
-	int   strlen;
+	size_t   strlen;
 	int   start;
 	int   end;
 };

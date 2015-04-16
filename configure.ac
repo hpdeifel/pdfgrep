@@ -1,9 +1,13 @@
 AC_INIT([pdfgrep], [1.3.2], [pdfgrep-users@lists.sourceforge.net])
+AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([foreign])
 AC_CONFIG_HEADER([config.h])
 
 AC_PROG_CXX
 AC_PROG_CC
+
+dnl check for c++11 std
+AX_CXX_COMPILE_STDCXX_11([noext], [mandatory])
 
 AC_CHECK_HEADERS([stdlib.h string.h unistd.h sys/ioctl.h getopt.h termios.h])
 

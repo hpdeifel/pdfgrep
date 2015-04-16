@@ -1,3 +1,5 @@
+ACLOCAL_AMFLAGS = -I m4
+
 bin_PROGRAMS = pdfgrep
 
 pdfgrep_SOURCES = pdfgrep.cc output.cc output.h exclude.cc exclude.h regengine.h regengine.cc
