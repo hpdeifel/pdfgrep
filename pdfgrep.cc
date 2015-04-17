@@ -35,6 +35,7 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <limits.h>
+#include <vector>
 
 #include <cpp/poppler-document.h>
 #include <cpp/poppler-page.h>
@@ -73,7 +74,8 @@ int line_width = 80;
 int count = 0;
 int pagecount = 0;
 int quiet = 0;
-char *password = (char*)"";
+// vector of all passwords to try on any pdf
+std::vector<std::string> passwords;
 int max_count = 0;
 int debug = 0;
 
@@ -424,9 +426,19 @@ int do_search_in_document(const std::string &path, const std::string &filename,
 	    (!is_excluded(includes, filename) || is_excluded(excludes, filename)))
 		return 0;
 
-	std::auto_ptr<poppler::document>
-		doc(poppler::document::load_from_file(path, std::string(password),
-						      std::string(password)));
+	std::shared_ptr<poppler::document> doc;
+
+	if (passwords.empty()) {
+		fprintf(stderr, "pdfgrep: Internal error, password vector empty!\n");
+		abort();
+	}
+
+	for (std::string password : passwords) {
+		doc = std::shared_ptr<poppler::document>(
+			poppler::document::load_from_file(path, std::string(password),
+							  std::string(password))
+			);
+	}
 
 	if (!doc.get() || doc->is_locked()) {
 		fprintf(stderr, "pdfgrep: Could not open %s\n",
@@ -611,7 +623,7 @@ int main(int argc, char** argv)
 				break;
 
 			case PASSWORD:
-				password = strdup(optarg);
+				passwords.push_back(std::string(optarg));
 				break;
 
 			case 'm':
@@ -703,6 +715,12 @@ int main(int argc, char** argv)
 
 	if (excludes_empty(includes))
 		exclude_add(includes, "*.pdf");
+
+	// If no password has been specified on the command line, insert the
+	// empty string aka "no password" into the passwords array.
+	if (passwords.empty()) {
+		passwords.push_back("");
+	}
 
 	int error = 0;
 
