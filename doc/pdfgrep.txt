@@ -78,11 +78,12 @@ OPTIONS
 *--include=*'GLOB' :: Only search files whose base name matches
   'GLOB'. See *--exclude* for details. The default is '*.pdf'.
 
-*--password=*'PASSWORD' :: Use PASSWORD to decrypt the PDF-files.
+*--password=*'PASSWORD' :: Use PASSWORD to decrypt the PDF-files. Can
+  be specified multiple times; all passwords will be tried on all
+  PDFs.
   *Note* that this password will show up in your command history and
   the output of 'ps'(1). So please do not use this if the security of
-  'PASSWORD' is important. It is also currently not possible to use
-  individual passwords for different files.
+  'PASSWORD' is important.
 
 *-m*, *--max-count* 'NUM' :: Stop reading a file after 'NUM' matching
   lines. When the -c or --count option is also used, pdfgrep does not output a
