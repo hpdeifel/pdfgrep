@@ -33,7 +33,7 @@ To enable libunac-support, you have to pass +--with-unac+ to configure.
 
 == Download
 
-Tarballs for releases are available at http://sourceforge.net/projects/pdfgrep/files/
+Tarballs for releases are available at https://pdfgrep.org/download.html
 
 The development version is available as a git repository at
 https://gitlab.com/pdfgrep/pdfgrep
@@ -42,7 +42,7 @@ https://gitlab.com/pdfgrep/pdfgrep
 
 General questions, suggestions, bug reports, patches or anything else
 can be sent to the mailinglist at
-mailto:pdfgrep-users@lists.sourceforge.net[pdfgrep-users@lists.sourceforge.net].
+mailto:pdfgrep-users@pdfgrep.org[pdfgrep-users@pdfgrep.org].
 
 You can also use the
 link:https://gitlab.com/pdfgrep/pdfgrep/issues[issue tracker] for bug
