@@ -11,7 +11,7 @@ pdfgrep - search pdf files for a regular expression
 
 SYNOPSIS
 --------
-*pdfgrep* ['OPTION'...] 'PATTERN' 'FILE'...
+*pdfgrep* ['OPTION'...] 'PATTERN' ['FILE'...]
 
 DESCRIPTION
 -----------
