@@ -42,6 +42,7 @@ struct outconf {
 	 *  2: color (regardless of stdout)
 	 */
 	int color;
+	bool only_matching;
 
 	struct colorconf colors;
 };
@@ -72,5 +73,8 @@ struct match {
 void print_line_prefix(const struct outconf *conf, const char *filename, const int pagenum);
 void print_context_chars(const struct context *context, const struct match *match);
 void print_context_line(const struct context *context, const struct match *match);
+
+/* print the line prefix followed only by the match */
+void print_only_match(const struct context *context, const struct match *match);
 
 #endif

@@ -87,6 +87,7 @@ struct outconf outconf = {
 	-1,			/* filename */
 	0,			/* pagenum */
 	1,			/* color */
+	false,			/* only_matching */
 };
 
 enum {
@@ -122,6 +123,7 @@ struct option long_options[] =
 	{"password", 1, 0, PASSWORD},
 	{"max-count", 1, 0, 'm'},
 	{"debug", 0, 0, DEBUG_OPTION},
+	{"only-matching", 0, 0, 'o'},
 #ifdef HAVE_UNAC
 	{"unac", 0, 0, UNAC_OPTION},
 #endif
@@ -201,6 +203,9 @@ int search_in_document(poppler::document *doc, const std::string &filename, Rege
 				simple_unac_free(unac_str);
 #endif
 				goto clean;
+			} else if (!count && !pagecount && outconf.only_matching) {
+				print_only_match(&cntxt, &mt);
+				printf("\n");
 			} else if (!count && !pagecount) {
 				switch (context) {
 				/* print whole line */
@@ -541,7 +546,7 @@ int main(int argc, char** argv)
 	int re_engine = RE_POSIX;
 
 	while (1) {
-		int c = getopt_long(argc, argv, "icC:nrRhHVPpqm:F",
+		int c = getopt_long(argc, argv, "icC:nrRhHVPpqm:Fo",
 				long_options, NULL);
 
 		if (c == -1)
@@ -646,6 +651,10 @@ int main(int argc, char** argv)
 #endif
 			case 'F':
 				re_engine |= RE_FIXED;
+				break;
+
+			case 'o':
+				outconf.only_matching = true;
 				break;
 
 			/* In these two cases, getopt already prints an

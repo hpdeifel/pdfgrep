@@ -182,3 +182,12 @@ void print_context_line(const struct context *context, const struct match *match
 
 	putsn(match->string, match->end, b);
 }
+
+void print_only_match(const struct context *context, const struct match *match)
+{
+	print_line_prefix(context->out, context->filename, context->pagenum);
+
+	with_color(context->out->color, context->out->colors.highlight,
+		putsn(match->string, match->start, match->end);
+	);
+}
