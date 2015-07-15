@@ -4,6 +4,7 @@ NEXT RELEASE
 	- PCRE support (by Julius Plenz)
 	- Fixed string search
 	- Ability to pass multiple passwords to pdfgrep
+	- New option from grep: +--only-matching+
 	- Installation: New configure flag +--without-libpcre+
 	- Installation: pdfgrep now requires c++11
 

@@ -62,6 +62,9 @@ OPTIONS
   *never* ;; Do not use colors.
   *auto* ;; Use colors only when stdout is a terminal.
 
+*-o*, *--only-matching* :: Print only the matched part of a line
+  without any surrounding context.
+
 *-r*, *--recursive*:: Recursively search all files (restricted by
   *--include* and *--exclude*) under each directory, following symlinks
   only if they are on the command line.
