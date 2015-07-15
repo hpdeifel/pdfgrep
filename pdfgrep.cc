@@ -205,7 +205,6 @@ int search_in_document(poppler::document *doc, const std::string &filename, Rege
 				goto clean;
 			} else if (!count && !pagecount && outconf.only_matching) {
 				print_only_match(&cntxt, &mt);
-				printf("\n");
 			} else if (!count && !pagecount) {
 				switch (context) {
 				/* print whole line */
@@ -234,8 +233,6 @@ int search_in_document(poppler::document *doc, const std::string &filename, Rege
 					print_context_chars(&cntxt, &mt);
 					break;
 				}
-
-				printf("\n");
 			}
 
 			index += mt.end;

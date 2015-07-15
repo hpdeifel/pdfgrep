@@ -158,6 +158,8 @@ void print_context_chars(const struct context *context, const struct match *matc
 	);
 
 	putsn(match->string, match->end, b);
+
+	printf("\n");
 }
 
 void print_context_line(const struct context *context, const struct match *match)
@@ -181,6 +183,8 @@ void print_context_line(const struct context *context, const struct match *match
 	);
 
 	putsn(match->string, match->end, b);
+
+	printf("\n");
 }
 
 void print_only_match(const struct context *context, const struct match *match)
@@ -190,4 +194,6 @@ void print_only_match(const struct context *context, const struct match *match)
 	with_color(context->out->color, context->out->colors.highlight,
 		putsn(match->string, match->start, match->end);
 	);
+
+	printf("\n");
 }
