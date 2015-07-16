@@ -10,7 +10,6 @@ configure
 install-sh
 missing
 *.o
-/pdfgrep
 stamp-h1
 depcomp
 Makefile
@@ -18,3 +17,4 @@ TAGS
 tags
 doc/pdfgrep.1
 doc/pdfgrep.html
+/src/pdfgrep

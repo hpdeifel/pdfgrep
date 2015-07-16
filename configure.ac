@@ -96,7 +96,7 @@ AM_COND_IF([INSTALL_BASH_COMPLETION],
 
 AC_CHECK_PROG(HAVE_A2X, [a2x], [yes], [no])
 
-AC_CONFIG_FILES([Makefile completion/Makefile doc/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile completion/Makefile doc/Makefile])
 AC_OUTPUT
 
 
