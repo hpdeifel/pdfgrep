@@ -738,7 +738,8 @@ int main(int argc, char** argv)
 			do_search_in_document(filename, filename, *re, false);
 		} else if (f_recursive_search) {
 			do_search_in_directory(filename, *re);
-		} else { // TODO: report errors
+		} else {
+			fprintf(stderr, "pdfgrep: %s is a directory\n", filename.c_str());
 			error = 1;
 		}
 	}
