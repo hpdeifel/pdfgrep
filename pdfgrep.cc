@@ -53,6 +53,7 @@
 
 #include <memory>
 
+#include "pdfgrep.h"
 #include "output.h"
 #include "exclude.h"
 #include "regengine.h"
@@ -449,7 +450,7 @@ int do_search_in_document(const std::string &path, const std::string &filename,
 	}
 
 	if (search_in_document(doc.get(), path, re) && quiet) {
-		exit(0);
+		exit(EXIT_SUCCESS);
 	}
 
 	return 0;
@@ -552,10 +553,10 @@ int main(int argc, char** argv)
 		switch (c) {
 			case HELP_OPTION:
 				print_help(argv[0]);
-				exit(0);
+				exit(EXIT_SUCCESS);
 			case 'V':
 				print_version();
-				exit(0);
+				exit(EXIT_SUCCESS);
 			case 'n':
 				outconf.pagenum = 1;
 				break;
@@ -595,10 +596,10 @@ int main(int argc, char** argv)
 				if (!parse_int(optarg, &context)) {
 					fprintf(stderr, "pdfgrep: Could not parse number: %s.\n",
 						optarg);
-					exit(2);
+					exit(EXIT_ERROR);
 				} else if (context <= 0) {
 					fprintf(stderr, "pdfgrep: --context must be positive.\n");
-					exit(2);
+					exit(EXIT_ERROR);
 				}
 				break;
 			case EXCLUDE_OPTION:
@@ -610,7 +611,7 @@ int main(int argc, char** argv)
 			case 'P':
 #ifndef HAVE_LIBPCRE
 				fprintf(stderr, "pdfgrep: PCRE support disabled at compile time!\n");
-				exit(2);
+				exit(EXIT_ERROR);
 #else
 				re_engine |= RE_PCRE;
 #endif
@@ -632,10 +633,10 @@ int main(int argc, char** argv)
 				if (!parse_int(optarg, &max_count)) {
 					fprintf(stderr, "pdfgrep: Could not parse number: %s.\n",
 						optarg);
-					exit(2);
+					exit(EXIT_ERROR);
 				} else if (max_count <= 0) {
 					fprintf(stderr, "pdfgrep: --max-count must be positive.\n");
-					exit(2);
+					exit(EXIT_ERROR);
 				}
 				break;
 			case DEBUG_OPTION:
@@ -659,7 +660,7 @@ int main(int argc, char** argv)
 			 */
 			case '?': // unknown option
 			case ':': // missing argument
-				exit(2);
+				exit(EXIT_ERROR);
 				break;
 			default:
 				break;
@@ -668,7 +669,7 @@ int main(int argc, char** argv)
 
 	if (argc == optind || (argc - optind < 2 && !f_recursive_search)) {
 		print_usage(argv[0]);
-		exit(2);
+		exit(EXIT_ERROR);
 	}
 
 	char *pattern = argv[optind++];
@@ -679,7 +680,7 @@ int main(int argc, char** argv)
 	Regengine *re = NULL;
 	if (re_engine == (RE_FIXED | RE_PCRE)) {
 		fprintf(stderr, "pdfgrep: --pcre and --fixed cannot be used together\n");
-		exit(2);
+		exit(EXIT_ERROR);
 	}
 #ifdef HAVE_LIBPCRE
 	if (re_engine == RE_PCRE) {
@@ -747,11 +748,11 @@ int main(int argc, char** argv)
 	}
 
 	if (error) {
-		exit(2);
+		exit(EXIT_ERROR);
 	} else if (found_something) {
-		exit(0);
+		exit(EXIT_SUCCESS);
 	} else {
-		exit(1);
+		exit(EXIT_ERROR);
 	}
 }
 

@@ -26,7 +26,7 @@
 #include <string.h>
 
 #include "output.h"
-
+#include "pdfgrep.h"
 
 // regex(3)
 
@@ -39,7 +39,7 @@ PosixRegex::PosixRegex(const char *pattern, bool case_insensitive)
 		char err_msg[256];
 		regerror(err, &this->regex, err_msg, 256);
 		fprintf(stderr, "pdfgrep: %s\n", err_msg);
-		exit(2);
+		exit(EXIT_ERROR);
 	}
 }
 
@@ -83,7 +83,7 @@ PCRERegex::PCRERegex(const char *pattern, bool case_insensitive)
 		fprintf(stderr, "pdfgrep: %s\n", pattern);
 		fprintf(stderr, "pdfgrep: %*s\n", pcre_err_ofs + 1, "^");
 		fprintf(stderr, "pdfgrep: Error compiling PCRE pattern: %s\n", pcre_err);
-		exit(2);
+		exit(EXIT_ERROR);
 	}
 }
 
