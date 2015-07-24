@@ -124,7 +124,7 @@ match is found and 2 if an error occurred. But if the *--quiet* or
 regardless of errors.
 
 == AUTHOR
-Hans-Peter Deifel <hpdeifel at gmx.de>
+Hans-Peter Deifel <hpd at hpdeifel.de>
 
 == SEE ALSO
 grep(1), pcre(3), regex(7)
