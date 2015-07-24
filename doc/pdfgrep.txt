@@ -1,28 +1,23 @@
-pdfgrep(1)
-==========
+= pdfgrep(1)
 :doctype: manpage
 :man source: Pdfgrep
 :man manual: Pdfgrep Manual
 :man version: {pdfgrepversion}
 
-NAME
-----
+== NAME
 pdfgrep - search pdf files for a regular expression
 
-SYNOPSIS
---------
+== SYNOPSIS
 *pdfgrep* ['OPTION'...] 'PATTERN' ['FILE'...]
 
-DESCRIPTION
------------
+== DESCRIPTION
 Search for 'PATTERN' in each 'FILE'. 'PATTERN' is an extended regular
 expression.
 
 *pdfgrep* works much like grep, with one distinction: It operates on
 pages and not on lines.
 
-OPTIONS
--------
+== OPTIONS
 *-i*, *--ignore-case* :: Ignore case distinctions in both the
   'PATTERN' and the input files.
 
@@ -111,8 +106,7 @@ compiled with unac support.*
 
 *-V*, *--version* Show version information.
 
-ENVIRONMENT VARIABLES
----------------------
+== ENVIRONMENT VARIABLES
 The behavior of *pdfgrep* is affected by the following environment
 variable.
 
@@ -123,17 +117,14 @@ variable.
   *se* are used by *pdfgrep*, where *mt*, *ms* and *mc* have the same
   effect on *pdfgrep*.
 
-EXIT STATUS
------------
+== EXIT STATUS
 Normally, the exit status is 0 if at least one match is found, 1 if no
 match is found and 2 if an error occurred. But if the *--quiet* or
 *-q* option is used and a match was found, *pdfgrep* will return 0
 regardless of errors.
 
-AUTHOR
-------
+== AUTHOR
 Hans-Peter Deifel <hpdeifel at gmx.de>
 
-SEE ALSO
---------
+== SEE ALSO
 grep(1), pcre(3), regex(7)
