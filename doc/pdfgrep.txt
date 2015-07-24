@@ -117,6 +117,30 @@ variable.
   *se* are used by *pdfgrep*, where *mt*, *ms* and *mc* have the same
   effect on *pdfgrep*.
 
+== Examples
+*Print the first ten lines matching 'pattern' and print their page number* ::
++
+--------------------------------------------------
+pdfgrep -n --max-count 10 pattern foo.pdf
+--------------------------------------------------
+
+*Search all .pdf files whose names begin with 'foo' recursively in the current directory* ::
++
+--------------------------------------------------
+pdfgrep -r --include "foo*.pdf" pattern
+--------------------------------------------------
+
+*Search all .pdf files that are smaller than 12M recursively in the current directory* ::
++
+--------------------------------------------------
+find . -name "*.pdf" -size -12M -print0 | xargs -0 pdfgrep pattern
+--------------------------------------------------
++
+Note that in contrast to the previous examples, this task could not be
+solved with pdfgrep alone, but the Unix tools *find(1)* and *xargs(1)*
+had to be used. That's because pdfgrep itself doesn't include options
+to exclude files by their size. But as you see, it doesn't have to!
+
 == EXIT STATUS
 Normally, the exit status is 0 if at least one match is found, 1 if no
 match is found and 2 if an error occurred. But if the *--quiet* or
