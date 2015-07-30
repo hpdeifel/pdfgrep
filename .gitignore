@@ -9,7 +9,7 @@ config.status
 configure
 install-sh
 missing
-*.o
+/src/*.o
 stamp-h1
 depcomp
 Makefile
@@ -18,3 +18,4 @@ tags
 doc/pdfgrep.1
 doc/pdfgrep.html
 /src/pdfgrep
+/src/.dir-locals.el
