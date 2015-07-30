@@ -40,6 +40,7 @@ _arguments -s -S \
     "(--help)--help[show a short help message]" \
     "(-V --version)"{-V,--version}"[Show version information]" \
     "(-q --quiet)"{-q,--quiet}"[Suppress all normal output]" \
+    "(-Z --null)"{-Z,--null}"[Replace colon after filename by null byte]" \
     "(--password)--password=[Password to encrypt file]:Password:" \
     "(-m --max-count)"{-m,--max-count=}"[Process at most count matches]:Count:" \
     "(--debug)"--debug"[Enable debug output]" \

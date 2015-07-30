@@ -43,6 +43,7 @@ struct outconf {
 	 */
 	int color;
 	bool only_matching;
+	bool null_byte_sep;
 
 	struct colorconf colors;
 };

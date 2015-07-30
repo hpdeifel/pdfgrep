@@ -54,7 +54,11 @@ void print_line_prefix(const struct outconf *conf, const char *filename, const i
 	if (filename && conf->filename) {
 		with_color(conf->color, conf->colors.filename,
 			printf("%s", filename););
-		with_color(conf->color, conf->colors.separator, printf(":"););
+		if (conf->null_byte_sep) {
+			putchar('\0');
+		} else {
+			with_color(conf->color, conf->colors.separator, printf(":"););
+		}
 	}
 	if (pagenum >= 0 && conf->pagenum) {
 		with_color(conf->color, conf->colors.pagenum,

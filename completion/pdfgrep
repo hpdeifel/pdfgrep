@@ -39,6 +39,7 @@ _pdfgrep()
 	  --help \
 	  -V --version \
 	  -q --quiet \
+	  -Z --null\
 	  --password \
 	  -m --max-count \
 	  --debug \

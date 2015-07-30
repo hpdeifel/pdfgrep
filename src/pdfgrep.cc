@@ -89,6 +89,7 @@ struct outconf outconf = {
 	0,			/* pagenum */
 	1,			/* color */
 	false,			/* only_matching */
+	false,			/* null byte separator */
 };
 
 enum {
@@ -125,6 +126,7 @@ struct option long_options[] =
 	{"max-count", 1, 0, 'm'},
 	{"debug", 0, 0, DEBUG_OPTION},
 	{"only-matching", 0, 0, 'o'},
+	{"null", 0, 0, 'Z'},
 #ifdef HAVE_UNAC
 	{"unac", 0, 0, UNAC_OPTION},
 #endif
@@ -544,7 +546,7 @@ int main(int argc, char** argv)
 	int re_engine = RE_POSIX;
 
 	while (1) {
-		int c = getopt_long(argc, argv, "icC:nrRhHVPpqm:Fo",
+		int c = getopt_long(argc, argv, "icC:nrRhHVPpqm:FoZ",
 				long_options, NULL);
 
 		if (c == -1)
@@ -653,6 +655,11 @@ int main(int argc, char** argv)
 
 			case 'o':
 				outconf.only_matching = true;
+				break;
+
+			case 'Z':
+				// --null
+				outconf.null_byte_sep = true;
 				break;
 
 			/* In these two cases, getopt already prints an
