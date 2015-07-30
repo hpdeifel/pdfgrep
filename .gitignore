@@ -19,3 +19,6 @@ doc/pdfgrep.1
 doc/pdfgrep.html
 /src/pdfgrep
 /src/.dir-locals.el
+/src/GPATH
+/src/GRTAGS
+/src/GTAGS
