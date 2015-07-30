@@ -5,6 +5,7 @@ NEXT RELEASE
 	- Fixed string search
 	- Ability to pass multiple passwords to pdfgrep
 	- New option from grep: +--only-matching+
+	- New option from grep: +--null+
 	- Bugfix: Correctly print unicode characters
 	- Installation: New configure flag +--without-libpcre+
 	- Installation: pdfgrep now requires c++11

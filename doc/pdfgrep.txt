@@ -87,6 +87,13 @@ pages and not on lines.
   lines. When the -c or --count option is also used, pdfgrep does not output a
   count greater than 'NUM'.
 
+*-Z*, *--null* :: Output a null byte (called 'NUL' in ASCII and \'\0'
+  in C) instead of the colon that usually separates a filename from
+  the rest of the line. This option makes the output unambiguous in
+  the presence of colons, spaces or newlines in the filename. It can
+  be used in conjunction with commands such as 'xargs -0' or
+  'perl -0'.
+
 *--debug* :: Enable debug output. *Note*: Due to limitations of
    poppler before version 0.30.0, some debug output is also printed
    without *--debug* when using such a poppler version.
