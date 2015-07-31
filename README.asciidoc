@@ -41,6 +41,12 @@ process, the most important of which are:
    expressions.
  --disable-doc :: Disable manpage generation.
 
+See +configure --help+ for more info or read the (very extensive)
++INSTALL+ file in the source.
+
+If you're using the git version, you will also have to run
++./autogen.sh+ in advance.
+
 == Download
 
 Tarballs for releases are available at https://pdfgrep.org/download.html
