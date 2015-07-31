@@ -29,7 +29,17 @@ For a complete documentation, please consult the link:pdfgrep.html[manpage].
   make
   sudo make install
 
-To enable libunac-support, you have to pass +--with-unac+ to configure.
+The ./configure script can take lots of options to customize the build
+process, the most important of which are:
+
+ --with-unac :: Build with experimental libunac support and add the
+   +--unac+ flag to pdfgrep that strips all accents from characters,
+   making it possible to find the character 'ä' by searching 'a'.
+ --with-{zsh,bash}-completion :: Configure installation directory
+   for shell completion files.
+ --without-libpcre :: Disable support for perl compatible regular
+   expressions.
+ --disable-doc :: Disable manpage generation.
 
 == Download
 
