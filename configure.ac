@@ -93,17 +93,25 @@ AM_COND_IF([INSTALL_BASH_COMPLETION],
   [AC_MSG_RESULT($BASH_COMPL_DIR)],
   [AC_MSG_RESULT(no)])
 
+AC_ARG_ENABLE([doc],
+	AS_HELP_STRING([--disable-doc], [disable manpage generation])
+)
 
-AC_CHECK_PROG(HAVE_A2X, [a2x], [yes], [no])
+AS_IF([test "x$enable_doc" != "xno"], [
+	AC_CHECK_PROG(HAVE_A2X, [a2x], [yes], [no])
+
+	AS_IF([test "x$HAVE_A2X" = "xno"], [
+		echo
+		echo "* I didn't find Asciidoc, so you won't be able to (re)build the manpage."
+		echo "* That's not a problem, if you're building from a release-tarball, because"
+		echo "* they include a prebuild manpage. But if you build from git, you should"
+		echo "* install Asciidoc or disable manpage generation with:"
+		echo "* ./configure --disable-doc"
+	])
+])
+
+AM_CONDITIONAL([BUILD_DOCUMENTATION], [test "x$enable_doc" != "xno"])
 
 AC_CONFIG_FILES([Makefile src/Makefile completion/Makefile doc/Makefile])
 AC_OUTPUT
 
-
-AS_IF([test "x$HAVE_A2X" = "xno"], [
-	echo
-	echo "* I didn't find Asciidoc, so you won't be able to (re)build the manpage."
-	echo "* That's not a problem, if you're building from a release-tarball, because"
-	echo "* they include a prebuild manpage. But if you build from git, you should"
-	echo "* install Asciidoc."
-])

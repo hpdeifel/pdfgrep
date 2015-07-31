@@ -1,7 +1,9 @@
+if BUILD_DOCUMENTATION
 dist_man1_MANS = pdfgrep.1
+DISTCLEANFILES = pdfgrep.1
+endif
 
 EXTRA_DIST = pdfgrep.txt
-DISTCLEANFILES = pdfgrep.1
 
 HTMLFILES = pdfgrep.html
 
@@ -12,3 +14,4 @@ html: $(HTMLFILES)
 
 .txt.html:
 	asciidoc $<
+
