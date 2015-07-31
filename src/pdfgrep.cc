@@ -375,6 +375,7 @@ int get_line_width()
 void print_usage(char *self)
 {
 	printf("Usage: %s [OPTION]... PATTERN FILE...\n", self);
+	printf("See '%s --help' for more information\n", self);
 }
 
 void print_help(char *self)
