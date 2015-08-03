@@ -94,6 +94,12 @@ pages and not on lines.
   be used in conjunction with commands such as 'xargs -0' or
   'perl -0'.
 
+*--match-prefix-separator* 'SEP' :: Changes the colon used to separate
+   filename, line number and text in the output to 'SEP', which can be
+   an arbitrary string. This is useful when filenames contain colons,
+   but only for interactive usage. For scripting, *--null* should be
+   used.
+
 *--debug* :: Enable debug output. *Note*: Due to limitations of
    poppler before version 0.30.0, some debug output is also printed
    without *--debug* when using such a poppler version.

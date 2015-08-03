@@ -4,6 +4,7 @@ NEXT RELEASE
 	- PCRE support (by Julius Plenz)
 	- Fixed string search
 	- Ability to pass multiple passwords to pdfgrep
+	- Option to change the colon as prefix separator
 	- New option from grep: +--only-matching+
 	- New option from grep: +--null+
 	- Bugfix: Correctly print unicode characters
