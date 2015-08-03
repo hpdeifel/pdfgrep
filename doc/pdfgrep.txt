@@ -104,6 +104,10 @@ pages and not on lines.
    poppler before version 0.30.0, some debug output is also printed
    without *--debug* when using such a poppler version.
 
+*--warn-empty* :: Print a warning to 'stderr' if a PDF contains no
+   searchable text. This is the case for PDFs that consist only of
+   images, for example scanned documents.
+
 *--unac* :: Remove accents and ligatures from both the search pattern
   and the PDF documents. This is useful if you want to search for a
   word containing "ae", but the PDF uses the single character "æ"
