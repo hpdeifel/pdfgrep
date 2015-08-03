@@ -40,6 +40,7 @@ _pdfgrep()
 	  -V --version \
 	  -q --quiet \
 	  -Z --null\
+	  --match-prefix-separator \
 	  --password \
 	  -m --max-count \
 	  --debug \
@@ -53,7 +54,7 @@ _pdfgrep()
 	--context)
 	    COMPREPLY=( $(compgen -W "line" -- ${cur}) )
 	    ;;
-	--exclude|--include|--password|-m|--max-count)
+	--exclude|--include|--password|-m|--max-count|--match-prefix-separator)
 	    COMPREPLY=( )
 	    ;;
 	*)

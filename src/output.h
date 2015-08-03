@@ -22,6 +22,7 @@
 #define OUTPUT_H
 
 #include <sys/types.h>
+#include <string>
 
 
 struct colorconf {
@@ -44,6 +45,7 @@ struct outconf {
 	int color;
 	bool only_matching;
 	bool null_byte_sep;
+	std::string prefix_sep;
 
 	struct colorconf colors;
 };

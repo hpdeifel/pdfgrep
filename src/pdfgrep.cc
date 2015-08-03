@@ -85,11 +85,12 @@ int use_unac = 0;
 #endif
 
 struct outconf outconf = {
-	-1,			/* filename */
-	0,			/* pagenum */
-	1,			/* color */
-	false,			/* only_matching */
-	false,			/* null byte separator */
+	-1,                     /* filename */
+	0,                      /* pagenum */
+	1,                      /* color */
+	false,                  /* only_matching */
+	false,                  /* null byte separator */
+	":",                    /* prefix separator */
 };
 
 enum {
@@ -99,6 +100,7 @@ enum {
 	INCLUDE_OPTION,
 	PASSWORD,
 	DEBUG_OPTION,
+	PREFIX_SEP_OPTION,
 #ifdef HAVE_UNAC
 	UNAC_OPTION,
 #endif
@@ -127,6 +129,7 @@ struct option long_options[] =
 	{"debug", 0, 0, DEBUG_OPTION},
 	{"only-matching", 0, 0, 'o'},
 	{"null", 0, 0, 'Z'},
+	{"match-prefix-separator", 1, 0, PREFIX_SEP_OPTION},
 #ifdef HAVE_UNAC
 	{"unac", 0, 0, UNAC_OPTION},
 #endif
@@ -661,6 +664,10 @@ int main(int argc, char** argv)
 			case 'Z':
 				// --null
 				outconf.null_byte_sep = true;
+				break;
+
+			case PREFIX_SEP_OPTION:
+				outconf.prefix_sep = std::string(optarg);
 				break;
 
 			/* In these two cases, getopt already prints an

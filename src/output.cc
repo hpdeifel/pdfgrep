@@ -54,16 +54,21 @@ void print_line_prefix(const struct outconf *conf, const char *filename, const i
 	if (filename && conf->filename) {
 		with_color(conf->color, conf->colors.filename,
 			printf("%s", filename););
+		// Here, --null takes precedence over --match-prefix-separator
+		// in the sense, that if --null is given, the null byte is
+		// always printed after the filename instead of the separator.
 		if (conf->null_byte_sep) {
 			putchar('\0');
 		} else {
-			with_color(conf->color, conf->colors.separator, printf(":"););
+			with_color(conf->color, conf->colors.separator,
+				printf("%s", conf->prefix_sep.c_str()););
 		}
 	}
 	if (pagenum >= 0 && conf->pagenum) {
 		with_color(conf->color, conf->colors.pagenum,
 			printf("%d", pagenum););
-		with_color(conf->color, conf->colors.separator, printf(":"););
+		with_color(conf->color, conf->colors.separator,
+			printf("%s", conf->prefix_sep.c_str()););
 	}
 }
 
