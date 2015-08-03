@@ -79,6 +79,7 @@ int quiet = 0;
 std::vector<std::string> passwords;
 int max_count = 0;
 int debug = 0;
+bool warn_empty = false;
 
 #ifdef HAVE_UNAC
 int use_unac = 0;
@@ -101,6 +102,7 @@ enum {
 	PASSWORD,
 	DEBUG_OPTION,
 	PREFIX_SEP_OPTION,
+	WARN_EMPTY_OPTION,
 #ifdef HAVE_UNAC
 	UNAC_OPTION,
 #endif
@@ -130,6 +132,7 @@ struct option long_options[] =
 	{"only-matching", 0, 0, 'o'},
 	{"null", 0, 0, 'Z'},
 	{"match-prefix-separator", 1, 0, PREFIX_SEP_OPTION},
+	{"warn-empty", 0, 0, WARN_EMPTY_OPTION},
 #ifdef HAVE_UNAC
 	{"unac", 0, 0, UNAC_OPTION},
 #endif
@@ -175,6 +178,9 @@ int search_in_document(poppler::document *doc, const std::string &filename, Rege
 
 	bool max_count_reached = false;
 
+	// Tracks if there is text on any of the pages
+	bool document_empty = true;
+
 	for (int i = 1; i <= doc->pages() && !max_count_reached; i++) {
 		std::auto_ptr<poppler::page> doc_page(doc->create_page(i - 1));
 		if (!doc_page.get()) {
@@ -185,6 +191,12 @@ int search_in_document(poppler::document *doc, const std::string &filename, Rege
 		}
 
 		cntxt.pagenum = i;
+
+		// page not empty, set document_empty to false
+		if (doc_page->text().empty() == false) {
+			document_empty = false;
+		}
+
 
 		poppler::byte_array str = doc_page->text().to_utf8();
 		str.resize(str.size() + 1, '\0');
@@ -260,6 +272,11 @@ int search_in_document(poppler::document *doc, const std::string &filename, Rege
 	if (count && !quiet) {
 		print_line_prefix(&outconf, filename.c_str(), -1);
 		printf("%d\n", count_matches);
+	}
+
+	if (warn_empty && document_empty) {
+		fprintf(stderr, "pdfgrep: File does not contain text: %s\n",
+		        filename.c_str());
 	}
 
 clean:
@@ -668,6 +685,10 @@ int main(int argc, char** argv)
 
 			case PREFIX_SEP_OPTION:
 				outconf.prefix_sep = std::string(optarg);
+				break;
+
+			case WARN_EMPTY_OPTION:
+				warn_empty = true;
 				break;
 
 			/* In these two cases, getopt already prints an

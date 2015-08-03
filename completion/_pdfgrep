@@ -45,6 +45,7 @@ _arguments -s -S \
     "(--password)--password=[Password to encrypt file]:Password:" \
     "(-m --max-count)"{-m,--max-count=}"[Process at most count matches]:Count:" \
     "(--debug)"--debug"[Enable debug output]" \
+    "(--warn-empty)"--warn-empty"[Warn if a PDF file contains no text]" \
     "(--unac)--unac[Remove accents and ligatures]" \
     "1:pattern:" \
     "*:pdf file:_files -g \"*.pdf\"" \

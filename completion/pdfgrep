@@ -44,6 +44,7 @@ _pdfgrep()
 	  --password \
 	  -m --max-count \
 	  --debug \
+	  --warn-empty \
 	  --unac \
 	 )
 
