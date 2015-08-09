@@ -1,11 +1,11 @@
-NEXT RELEASE
-------------
+Version 1.4.0  [2015-08-14]
+---------------------------
 
 	- PCRE support (by Julius Plenz)
 	- Fixed string search
-	- Ability to pass multiple passwords to pdfgrep
+	- Ability to pass multiple passwords
 	- Option to change the colon as prefix separator
-	- Optional warning about PDFs containing no searchable text
+	- Optional warning about PDFs that contain no searchable text
 	- New option from grep: +--only-matching+
 	- New option from grep: +--null+
 	- Bugfix: Correctly print unicode characters
