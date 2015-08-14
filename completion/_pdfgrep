@@ -47,7 +47,7 @@ _arguments -s -S \
     "(--debug)"--debug"[Enable debug output]" \
     "(--warn-empty)"--warn-empty"[Warn if a PDF file contains no text]" \
     "(--unac)--unac[Remove accents and ligatures]" \
-    "1:pattern:" \
+    "1:pattern:()" \
     "*:pdf file:_files -g \"*.pdf\"" \
     && return 0
 
