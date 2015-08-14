@@ -42,7 +42,7 @@ _arguments -s -S \
     "(-q --quiet)"{-q,--quiet}"[Suppress all normal output]" \
     "(-Z --null)"{-Z,--null}"[Replace colon after filename by null byte]" \
     "(--match-prefix-separator)--match-prefix-separator=[Separator between filename, page and text]:Separator:" \
-    "(--password)--password=[Password to encrypt file]:Password:" \
+    "*--password=[Password to encrypt file]:Password:" \
     "(-m --max-count)"{-m,--max-count=}"[Process at most count matches]:Count:" \
     "(--debug)"--debug"[Enable debug output]" \
     "(--warn-empty)"--warn-empty"[Warn if a PDF file contains no text]" \
