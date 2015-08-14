@@ -35,8 +35,8 @@ _arguments -s -S \
     "(--color)--color=[Use colors for highlighting]:Color:(always never auto)" \
     "(-C --context)"{-C,--context=}"[Limit output]:Context:" \
     "(-r -R --recursive)"{-r,-R,--recursive}"[Search directories recursively]" \
-    "--exclude=[Skip files]:Exclude:" \
-    "--include=[Opposite of exclude]:Include:" \
+    "*--exclude=[Skip files]:Exclude:" \
+    "*--include=[Opposite of exclude]:Include:" \
     "(--help)--help[show a short help message]" \
     "(-V --version)"{-V,--version}"[Show version information]" \
     "(-q --quiet)"{-q,--quiet}"[Suppress all normal output]" \
