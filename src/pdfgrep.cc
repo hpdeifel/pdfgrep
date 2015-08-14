@@ -103,9 +103,7 @@ enum {
 	DEBUG_OPTION,
 	PREFIX_SEP_OPTION,
 	WARN_EMPTY_OPTION,
-#ifdef HAVE_UNAC
 	UNAC_OPTION,
-#endif
 };
 
 struct option long_options[] =
@@ -133,9 +131,7 @@ struct option long_options[] =
 	{"null", 0, 0, 'Z'},
 	{"match-prefix-separator", 1, 0, PREFIX_SEP_OPTION},
 	{"warn-empty", 0, 0, WARN_EMPTY_OPTION},
-#ifdef HAVE_UNAC
 	{"unac", 0, 0, UNAC_OPTION},
-#endif
 	{"fixed-strings", 0, 0, 'F'},
 	{0, 0, 0, 0}
 };
@@ -665,11 +661,15 @@ int main(int argc, char** argv)
 			case DEBUG_OPTION:
 				debug = 1;
 				break;
-#ifdef HAVE_UNAC
+
 			case UNAC_OPTION:
+#ifndef HAVE_UNAC
+				fprintf(stderr, "pdfgrep: UNAC support disabled at compile time!\n");
+				exit(EXIT_ERROR);
+#else
 				use_unac = 1;
-				break;
 #endif
+				break;
 			case 'F':
 				re_engine |= RE_FIXED;
 				break;
