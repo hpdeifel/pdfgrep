@@ -396,9 +396,9 @@ void print_usage(char *self)
 
 void print_help(char *self)
 {
-	print_usage(self);
-	printf("\nSearch for PATTERN in each FILE.\n"
-"PATTERN is an extended regular expression.\n\n"
+	printf("Usage: %s [OPTION]... PATTERN FILE...\n"
+"\nSearch for PATTERN in each FILE.\n"
+"PATTERN is, by default, an extended regular expression.\n\n"
 
 "Options:\n"
 " -i, --ignore-case\t\tIgnore case distinctions\n"
@@ -416,7 +416,7 @@ void print_help(char *self)
 " -r, --recursive\t\tSearch directories recursively\n"
 " -R, --dereference-recursive\tLikewise, but follow all symlinks\n"
 "     --help\t\t\tPrint this help\n"
-" -V, --version\t\t\tShow version information\n");
+" -V, --version\t\t\tShow version information\n", self);
 }
 
 void print_version()
