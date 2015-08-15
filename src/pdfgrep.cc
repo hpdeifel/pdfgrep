@@ -204,7 +204,7 @@ int search_in_document(poppler::document *doc, const std::string &filename, Rege
 		char *str_start = &str[0];
 #endif
 		size_t index = 0;
-		struct match mt = { .string = str_start, .strlen = str.size() };
+		struct match mt = { .string = str_start, .strlen = str.size() - 1 };
 
 		while (!max_count_reached && !re.exec(str_start, index, &mt)) {
 			count_matches++;
