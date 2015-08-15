@@ -252,6 +252,12 @@ int search_in_document(poppler::document *doc, const std::string &filename, Rege
 			found_something = 1;
 
 			index = mt.end;
+
+			// prevent loop if match is empty
+			if (mt.start == mt.end) {
+				index++;
+			}
+
 			if(index >= str_len)
 				break;
 		}
