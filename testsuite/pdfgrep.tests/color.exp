@@ -1,0 +1,11 @@
+set test "Print error if the argument for --color is invalid"
+
+pdfgrep --color=INVALID -r pattern
+
+# The error message should contain the wrong argument and the expected ones
+expect {
+    -re "^pdfgrep: .*((INVALID|auto|never|always).*){4}.*$" { pass $test }
+    default { fail $test }
+}
+
+expect_exit_status 2
