@@ -196,7 +196,7 @@ int search_in_document(poppler::document *doc, const std::string &filename, Rege
 
 		poppler::byte_array str = doc_page->text().to_utf8();
 		str.resize(str.size() + 1, '\0');
-		size_t str_len = str.size();
+		size_t str_len = str.size() - 1;
 #ifdef HAVE_UNAC
 		char *unac_str = simple_unac(&str[0]);
 		char *str_start = unac_str;
@@ -204,7 +204,7 @@ int search_in_document(poppler::document *doc, const std::string &filename, Rege
 		char *str_start = &str[0];
 #endif
 		size_t index = 0;
-		struct match mt = { .string = str_start, .strlen = str.size() - 1 };
+		struct match mt = { .string = str_start, .strlen = str_len };
 
 		while (!max_count_reached && !re.exec(str_start, index, &mt)) {
 			count_matches++;
@@ -249,10 +249,11 @@ int search_in_document(poppler::document *doc, const std::string &filename, Rege
 				}
 			}
 
-			index += mt.end;
+			found_something = 1;
+
+			index = mt.end;
 			if(index >= str_len)
 				break;
-			found_something = 1;
 		}
 
 #ifdef HAVE_UNAC
