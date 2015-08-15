@@ -1,0 +1,22 @@
+set test "Match line after double match"
+
+# pdfgrep currently prints a line with two matches twice. This is of course not
+# grep compatible and should be changed in the future.
+
+# Nevertheless, right now it's the documented behaviour and should be tested
+# for.
+
+# This case tests specifically for a bug where a line after a double match would
+# not be printed.
+
+clear_pdfdir
+set pdf [mkpdf regex {
+    foofoo\\
+    foo test
+}]
+
+
+pdfgrep_expect foo $pdf \
+"foofoo
+foofoo
+foo test"
