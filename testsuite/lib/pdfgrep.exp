@@ -36,6 +36,15 @@ proc pdfgrep_noerr args {
 # pattern is a regular expression that _completely_ matches the output. I.e it
 # pdfgrep_expect encloses it int ^$.
 proc pdfgrep_expect args {
+    pdfgrep_expect_internal 0 {*}$args
+}
+
+# Same as above, but expect the test to fail
+proc pdfgrep_expect_x args {
+    pdfgrep_expect_internal 1 {*}$args
+}
+
+proc pdfgrep_expect_internal {expected_failure args} {
     global spawn_id test
 
     set output [lindex $args end]
@@ -51,8 +60,21 @@ proc pdfgrep_expect args {
     expect {
 	# I don't know why 'close' is needed here, but not elsewhere. Removing
 	# it prevents further tests from executing.
-	-re "^$output\r\n\$" {pass $test; close}
-	default {fail $test}
+	-re "^$output\r\n\$" {
+	    if {$expected_failure} {
+		xpass $test
+	    } else {
+		pass $test
+	    }
+	    close
+	}
+	default {
+	    if {$expected_failure} {
+		xfail $test
+	    } else {
+		fail $test
+	    }
+	}
     }
 }
 
