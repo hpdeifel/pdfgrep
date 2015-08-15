@@ -1,0 +1,8 @@
+set test "warn empty"
+
+clear_pdfdir
+set pdf [mkpdf empty {\rule{1cm}{1cm}}]
+
+pdfgrep_expect_error --warn-empty "foo" $pdf
+
+expect_exit_status 1
