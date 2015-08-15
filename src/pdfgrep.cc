@@ -771,9 +771,13 @@ int main(int argc, char** argv)
 		const std::string filename(argv[i]);
 
 		if (!is_dir(filename)) {
-			do_search_in_document(filename, filename, *re, false);
+			if (do_search_in_document(filename, filename, *re, false)) {
+				error = 1;
+			}
 		} else if (f_recursive_search) {
-			do_search_in_directory(filename, *re);
+			if (do_search_in_directory(filename, *re)) {
+				error = 1;
+			}
 		} else {
 			fprintf(stderr, "pdfgrep: %s is a directory\n", filename.c_str());
 			error = 1;
@@ -789,7 +793,7 @@ int main(int argc, char** argv)
 	} else if (found_something) {
 		exit(EXIT_SUCCESS);
 	} else {
-		exit(EXIT_ERROR);
+		exit(EXIT_NOT_FOUND);
 	}
 }
 
