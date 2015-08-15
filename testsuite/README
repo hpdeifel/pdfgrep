@@ -1,5 +1,8 @@
 This directory contains the testsuite for pdfgrep.
 
+WARNING: Many of these test cases only pass with a patch for a bug in
+poppler-cpp. See https://bugs.freedesktop.org/show_bug.cgi?id=91644
+
 The tests depend on the following packages:
 
   - dejagnu
