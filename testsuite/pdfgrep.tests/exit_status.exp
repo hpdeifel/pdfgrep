@@ -9,6 +9,15 @@ expect_exit_status 0
 
 ########################################
 
+set test "Exit status is 0 when something is found, also with --quiet"
+
+pdfgrep --quiet foobar $pdf
+
+expect_exit_status 0
+
+
+########################################
+
 set test "Exit status is 1 when nothing is found"
 
 pdfgrep not-there $pdf
