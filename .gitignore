@@ -22,3 +22,7 @@ doc/pdfgrep.html
 /src/GPATH
 /src/GRTAGS
 /src/GTAGS
+/testsuite/site.exp
+/testsuite/pdfgrep.sum
+/testsuite/pdfgrep.log
+/testsuite/generated_pdfs
