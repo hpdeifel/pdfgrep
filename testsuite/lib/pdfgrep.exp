@@ -1,0 +1,134 @@
+# This file contains functions that can be used by all test scripts in
+# pdfgrep.tests.
+#
+# It is only loaded once for all tests.
+
+########################################
+### Running pdfgrep ####################
+########################################
+
+
+# Just spawns pdfgrep with the given arguments
+proc pdfgrep args {
+    global spawn_id
+    spawn ../src/pdfgrep {*}$args
+}
+
+
+# Spawns pdfgrep and fail is pdfgrep prints something on stderr.
+proc pdfgrep_noerr args {
+    global spawn_id test
+    pdfgrep {*}$args
+    expect_before {
+	-re "^pdfgrep:" {fail "$test -- error from pdfgrep"}
+    }
+}
+
+
+# Syntax: pdfgrep_expect args pattern
+#
+# Spawns pdfgrep with args, fail on stderr and compares the output with pattern.
+#
+# pattern is a regular expression that _completely_ matches the output. I.e it
+# pdfgrep_expect encloses it int ^$.
+proc pdfgrep_expect args {
+    global spawn_id test
+
+    set output [lindex $args end]
+    set args [lreplace $args end end]
+
+    # expect configures the terminal to use \r\n for newlines, but since we
+    # don't want to sprinkle our source code with \r, we convert newlines.
+    set output [string map {\n \r\n} $output]
+
+    # --color=never is necessary because we dont want to have escape sequences
+    # in the output.
+    pdfgrep_noerr --color=never {*}$args
+    expect {
+	# I don't know why 'close' is needed here, but not elsewhere. Removing
+	# it prevents further tests from executing.
+	-re "^$output\r\n\$" {pass $test; close}
+	default {fail $test}
+    }
+}
+
+
+# Compare the exit status of the last spawned program to $expected
+proc expect_exit_status {expected} {
+    global test
+
+    set wait_status [wait]
+
+    if {[lindex $wait_status 3] != $expected} {
+	send_user "Exit status is [lindex $wait_status 3], but expected $expected\n"
+	fail "$test \[exit status\]"
+    } else {
+	pass "$test \[exit status\]"
+    }
+}
+
+########################################
+### PDF generation ####################
+########################################
+
+# The following code supports on the fly generation of PDFs. This way,
+# individual tests can use highly customized PDFs and we don't have to check
+# those into version control.
+
+
+# The directory where the PDFs will be generated.
+# NOTE This will frequently be removed, so don't put important data there
+set pdfdir "$srcdir/generated_pdfs"
+
+
+# Delete $pdfdir recursively and create it anew
+proc clear_pdfdir {} {
+    global pdfdir
+    file delete -force -- $pdfdir
+    file mkdir $pdfdir
+}
+
+# The latex template
+set latex_pre {\documentclass{article}
+\usepackage[utf8]{inputenc}
+\begin{document}
+}
+set latex_post {\end{document}}
+
+
+# Create a pdf called $name.pdf in $pdfdir containing $content.
+#
+# THis is done by first creating a .tex file with $content between
+# \begin{document} and \end{document} and then calling pdflatex on it.
+#
+# Returns the name of the newly created PDF file
+proc mkpdf {name content} {
+    global pdfdir latex_pre latex_post
+    set fp [open "$pdfdir/$name.tex" w]
+    puts $fp $latex_pre
+    puts $fp $content
+    puts $fp $latex_post
+    close $fp
+
+    set saved_dir [pwd]
+    cd $pdfdir
+    if {[catch {exec pdflatex -interaction=batchmode "$name.tex"}]} {
+	unsupported "could not execute pdflatex"
+	cd $saved_dir
+	error "pdflatex"
+    }
+    cd $saved_dir
+
+    return "$pdfdir/$name.pdf"
+}
+
+
+########################################
+### Infrastructure #####################
+########################################
+
+# The following functions are called by dejagnu
+
+proc pdfgrep_version {} {
+    note [exec ../src/pdfgrep --version]
+}

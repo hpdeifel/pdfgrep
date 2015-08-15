@@ -1,0 +1,41 @@
+set test "Print filename with -H"
+
+clear_pdfdir
+set pdf [mkpdf foo "foobar"]
+
+pdfgrep_expect -H foo $pdf \
+    "$pdf:foobar"
+
+expect_exit_status 0
+
+########################################
+
+set test "Print filename with multiple files"
+
+set pdf2 [mkpdf bar "barfoo"]
+
+pdfgrep_expect foo $pdf $pdf2 \
+"$pdf:foobar
+$pdf2:barfoo"
+
+expect_exit_status 0
+
+########################################
+
+set test "Print filename with multiple files and -r"
+
+pdfgrep_expect -r foo $pdfdir \
+"($pdf:foobar|$pdf2:barfoo)
+($pdf:foobar|$pdf2:barfoo)"
+
+expect_exit_status 0
+
+########################################
+
+set test "Don't print filename with -h"
+
+pdfgrep_expect -h foo $pdf $pdf2 \
+"foobar
+barfoo"
+
+expect_exit_status 0

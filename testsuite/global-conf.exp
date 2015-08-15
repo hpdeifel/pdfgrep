@@ -1,0 +1,5 @@
+# Increase this to get more diagnostics
+set verbose 0
+
+# Display all test results. Without this, only failed results are printed.
+set all_flag 1

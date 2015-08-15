@@ -1,0 +1,17 @@
+set test "Print page numbers with -n"
+
+clear_pdfdir
+set pdf [mkpdf foo {
+    first page
+    \newpage
+    second page
+    \newpage
+    third page
+}]
+
+pdfgrep_expect -n page $pdf \
+"1:first page
+2:second page
+3:third page"
+
+expect_exit_status 0

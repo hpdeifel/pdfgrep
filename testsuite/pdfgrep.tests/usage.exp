@@ -1,0 +1,19 @@
+set test "Print usage when invoked without options"
+
+pdfgrep
+expect {
+    -re "^Usage: .*" { pass $test }
+    default { fail $test }
+}
+
+expect_exit_status 2
+
+# Also look that nothing is written to stdout
+
+set test "Print nothing to stdout without options"
+
+pdfgrep >/dev/null
+expect {
+    eof { pass $test }
+    default { fail $test }
+}
