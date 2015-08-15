@@ -20,3 +20,20 @@ pdfgrep_expect foo $pdf \
 "foofoo
 foofoo
 foo test"
+
+######################################################################
+
+# This behaviour of repeating the same line over and over again is clearly not
+# optimal, but it's better than an infinite loop!
+
+set test "Empty pattern"
+
+set empty [mkpdf empty {
+    abc
+}]
+
+set timeout 2
+pdfgrep_expect "" $empty \
+    "abc
+abc
+abc"
