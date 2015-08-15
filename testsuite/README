@@ -1,0 +1,12 @@
+This directory contains the testsuite for pdfgrep.
+
+To run the tests, execute `make check` from the toplevel source
+directory.
+
+To get test coverage, first run `make clean` and then
+
+    make check CXXFLAGS="-std=c++11 --coverage"
+
+
+You can then use gvov and lcov to view the results. See the internet
+for more information on how to use those.
