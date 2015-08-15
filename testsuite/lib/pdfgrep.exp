@@ -58,15 +58,12 @@ proc pdfgrep_expect_internal {expected_failure args} {
     # in the output.
     pdfgrep_noerr --color=never {*}$args
     expect {
-	# I don't know why 'close' is needed here, but not elsewhere. Removing
-	# it prevents further tests from executing.
 	-re "^$output\r\n\$" {
 	    if {$expected_failure} {
 		xpass $test
 	    } else {
 		pass $test
 	    }
-	    close
 	}
 	default {
 	    if {$expected_failure} {
