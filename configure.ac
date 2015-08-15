@@ -122,6 +122,13 @@ fi
 AC_SUBST(DEJAGNU)
 
 
-AC_CONFIG_FILES([Makefile src/Makefile completion/Makefile doc/Makefile testsuite/Makefile])
+AC_CONFIG_FILES([Makefile
+	src/Makefile
+	completion/Makefile
+	doc/Makefile
+	testsuite/Makefile
+	testsuite/config/Makefile
+	testsuite/lib/Makefile
+	testsuite/pdfgrep.tests/Makefile])
 AC_OUTPUT
 
