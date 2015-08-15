@@ -7,6 +7,10 @@
 ### Running pdfgrep ####################
 ########################################
 
+# Don't remove null bytes by default. pdfgrep should not have them in the output
+# unless explicitly told so. And then we want to be able to test for them.
+remove_nulls -d 0
+
 
 # Just spawns pdfgrep with the given arguments
 proc pdfgrep args {
