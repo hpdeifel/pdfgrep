@@ -37,3 +37,13 @@ append line2_prefix 1
 pdfgrep_expect --null -Hn foo $pdf1 $pdf2 \
 "$line1_prefix:foobar
 $line2_prefix:barfoo"
+
+######################################################################
+
+set test "only-matching"
+
+clear_pdfdir
+set pdf [mkpdf pdf {this is a long line}]
+
+pdfgrep_expect --only-matching long $pdf \
+    "long"
