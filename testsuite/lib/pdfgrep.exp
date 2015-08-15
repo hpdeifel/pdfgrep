@@ -78,6 +78,17 @@ proc pdfgrep_expect_internal {expected_failure args} {
 }
 
 
+# Expect pdfgrep to print an error message
+proc pdfgrep_expect_error args {
+    global test
+
+    pdfgrep {*}$args
+    expect {
+	-re "pdfgrep: " { pass $test; expect eof }
+	default { fail $test }
+    }
+}
+
 # Compare the exit status of the last spawned program to $expected
 proc expect_exit_status {expected} {
     global test
