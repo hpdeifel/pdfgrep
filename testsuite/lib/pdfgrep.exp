@@ -59,10 +59,12 @@ proc pdfgrep_expect_internal {expected_failure args} {
     pdfgrep_noerr --color=never {*}$args
     expect {
 	-re "^$output\r\n\$" {
-	    if {$expected_failure} {
-		xpass $test
-	    } else {
-		pass $test
+	    expect eof {
+		if {$expected_failure} {
+		    xpass $test
+		} else {
+		    pass $test
+		}
 	    }
 	}
 	default {
