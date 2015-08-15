@@ -597,14 +597,16 @@ int main(int argc, char** argv)
 				count = 1;
 				break;
 			case COLOR_OPTION:
-				if (!optarg)
-					break;
 				if (!strcmp("always", optarg)) {
 					outconf.color = 2;
 				} else if (!strcmp("never", optarg)) {
 					outconf.color = 0;
-				} else {
+				} else if (!strcmp("auto", optarg)) {
 					outconf.color = 1;
+				} else {
+					fprintf(stderr, "pdfgrep: Invalid argument '%s' for --color. "
+						"Candidates are: always, never or auto\n", optarg);
+					exit(EXIT_ERROR);
 				}
 				break;
 			case 'C':
