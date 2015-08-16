@@ -58,7 +58,9 @@ proc pdfgrep_expect_internal {expected_failure args} {
     # in the output.
     pdfgrep_noerr --color=never {*}$args
     expect {
-	-re "^$output\r\n\$" {
+	# The final newline is only optionally matched, because some client code
+	# may include it
+	-re "^[set output](\r\n)?\$" {
 	    expect eof {
 		if {$expected_failure} {
 		    xpass $test
