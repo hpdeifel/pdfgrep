@@ -117,7 +117,12 @@ FixedString::FixedString(char *pattern, bool case_insensitive)
 {
 	// split pattern at newlines
 	const char *token = strtok(pattern, "\n");
-	while (token != NULL) {
+	if (token == NULL) {
+		// special case for the empty pattern. In this case we _do_ want
+		// matches, but strtok returns NULL leaving our patterns array
+		// empty. Thus we add the whole pattern explicitly.
+		patterns.push_back(pattern);
+	} else while (token != NULL) {
 		patterns.push_back(token);
 		token = strtok(NULL, "\n");
 	}
