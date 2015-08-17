@@ -21,6 +21,20 @@ pdfgrep_expect foo $pdf \
 foofoo
 foo test"
 
+set test "Match line after double match -- fixed string"
+
+pdfgrep_expect -F foo $pdf \
+"foofoo
+foofoo
+foo test"
+
+set test "Match line after double match -- PCRE"
+
+pdfgrep_expect -P foo $pdf \
+"foofoo
+foofoo
+foo test"
+
 ######################################################################
 
 # This behaviour of repeating the same line over and over again is clearly not
@@ -34,6 +48,83 @@ set empty [mkpdf empty {
 
 set timeout 2
 pdfgrep_expect "" $empty \
-    "abc
+"abc
 abc
 abc"
+
+set test "Empty pattern -- fixed string"
+
+set timeout 2
+pdfgrep_expect -F "" $empty \
+"abc
+abc
+abc"
+
+set test "Empty pattern -- PCRE"
+
+set timeout 2
+pdfgrep_expect -P "" $empty \
+"abc
+abc
+abc"
+
+######################################################################
+
+set test "Case insensitive search"
+
+clear_pdfdir
+set pdf [mkpdf icase "FoObAr"]
+
+pdfgrep_expect -i "foobar" $pdf \
+    "FoObAr"
+
+
+set test "Case insensitive search -- fixed string"
+
+clear_pdfdir
+set pdf [mkpdf icase "FoObAr"]
+
+pdfgrep_expect -Fi "foobar" $pdf \
+    "FoObAr"
+
+
+set test "Case insensitive search -- PCRE"
+
+clear_pdfdir
+set pdf [mkpdf icase "FoObAr"]
+
+pdfgrep_expect -Pi "foobar" $pdf \
+    "FoObAr"
+
+######################################################################
+
+# These test cases are expected to fail, because pdfgrep currently cannot do
+# this. The pattern is always matched on the whole text of a page instead of
+# line-wise. The question is whether this would be worthwile.
+
+set test "Matching line beginning and end"
+
+clear_pdfdir
+set pdf [mkpdf lines {
+    line one\\
+    line two\\
+    line three
+}]
+
+pdfgrep_expect_x "^line two$" $pdf \
+    "line two"
+
+
+set test "Matching line beginning and end -- PCRE"
+
+pdfgrep_expect_x "^line two$" $pdf \
+    "line two"
+
+######################################################################
+
+set test "Multiple fixed strings"
+
+pdfgrep_expect -F "one\ntwo\nthree" $pdf \
+"line one
+line two
+line three"
