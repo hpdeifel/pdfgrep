@@ -97,8 +97,7 @@ int PCRERegex::exec(const char *str, size_t offset, struct match *m)
 	const size_t len = strlen(str);
 	int ov[3];
 
-	const int ret = pcre_exec(this->regex, NULL, str, len, offset,
-	                          PCRE_NOTEMPTY, ov, 3);
+	const int ret = pcre_exec(this->regex, NULL, str, len, offset, 0, ov, 3);
 
 	// TODO: Print human readable error
 	if(ret < 0)
