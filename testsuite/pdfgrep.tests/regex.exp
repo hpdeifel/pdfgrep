@@ -128,3 +128,20 @@ pdfgrep_expect -F "one\ntwo\nthree" $pdf \
 "line one
 line two
 line three"
+
+######################################################################
+
+# Not sure if this should be the expected behavior.
+#
+# The feature to match multiline strings is often being requested, though
+
+set test "Multiline with PCRE"
+
+set multiline [mkpdf multiline {
+    line one\\
+    line two
+}]
+
+pdfgrep_expect -P "one\nline" $multiline \
+"line one
+line two"
