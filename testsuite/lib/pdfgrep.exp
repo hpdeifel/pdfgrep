@@ -24,7 +24,7 @@ proc pdfgrep_noerr args {
     global spawn_id test
     pdfgrep {*}$args
     expect_before {
-	-re "^pdfgrep:" {fail "$test -- error from pdfgrep"}
+	-re "^pdfgrep:" {pfail "$test -- error from pdfgrep"; expect eof}
     }
 }
 
@@ -32,18 +32,32 @@ proc pdfgrep_noerr args {
 # Format [Major Minor Patchlevel]
 set poppler_version {0 0 0}
 
-# Parse the output of pdfgrep --version, to get the poppler version.
+# Is pdfgrep compiled with pcre support?
+set have_pcre false
+
+# Parse the output of pdfgrep --version, to get the configuration parameters.
 pdfgrep --version
-expect {
-    -re "Using poppler version (.*)\r\n" {
-	set poppler_version [split $expect_out(1,string) "."]
+while {1} {
+    expect {
+        -re "Using poppler version (\[^\r\]+)\r\n" {
+            set poppler_version [split $expect_out(1,string) "."]
+        }
+        -re "Using libpcre version \[^\r\]*\r\n" {
+            set have_pcre true
+        }
+        eof break
     }
-    eof {}
 }
+
+puts "PCRE support: $have_pcre"
 
 # This can be set in test scripts to generate UNSUPPORTED test results, if the
 # actual poppler version is less than the required one.
 set required_poppler_version {0 0 0}
+
+# This can be set in test scripts to generate UNSUPPORTED test results, if
+# pdfgrep is not build with libpcre support.
+set requires_pcre_support false
 
 # Syntax: pdfgrep_expect args pattern
 #
@@ -95,7 +109,7 @@ proc pdfgrep_expect_internal {expected_failure args} {
     }
 
     # reset, so the next test must set it again
-    set required_poppler_version {0 0 0}
+    reset_configuration
 }
 
 
@@ -110,7 +124,7 @@ proc pdfgrep_expect_error args {
     }
 
     # reset, so the next test must set it again
-    set required_poppler_version {0 0 0}
+    reset_configuration
 }
 
 # Compare the exit status of the last spawned program to $expected
@@ -127,7 +141,7 @@ proc expect_exit_status {expected} {
     }
 
     # reset, so the next test must set it again
-    set required_poppler_version {0 0 0}
+    reset_configuration
 }
 
 # Test if the required version is greater than the detected poppler version
@@ -135,7 +149,8 @@ proc expect_exit_status {expected} {
 # @return A boolean depending on the poppler version
 proc poppler_greater {} {
     global poppler_version required_poppler_version
-    lassign $required_poppler_version rmaj rmin rpatch
+    #lassign $required_poppler_version rmaj rmin rpatch
+    lassign {0 0 0} rmaj rmin rpatch
     lassign $poppler_version maj min patch
 
     if {$maj > $rmaj} { return true }
@@ -161,11 +176,19 @@ proc pxfail arg {
 
 proc when_supported {action arg} {
     global poppler_version required_poppler_version
-    if {[poppler_greater]} {
+    global requires_pcre_support have_pcre
+    if {[poppler_greater] && \
+	    (!$requires_pcre_support || $have_pcre)} {
 	$action $arg
     } else {
-	unsupported "$arg -- Poppler version $required_poppler_version requested, but $poppler_version found."
+	unsupported "$arg -- required configuration was not found"
     }
+}
+
+proc reset_configuration {} {
+    global required_poppler_version requires_pcre_support
+    set required_poppler_version {0 0 0}
+    set requires_pcre_support false
 }
 
 ########################################

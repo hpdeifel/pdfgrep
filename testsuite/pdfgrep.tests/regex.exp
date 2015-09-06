@@ -41,6 +41,8 @@ set test "Match line after double match -- PCRE"
 # https://bugs.freedesktop.org/show_bug.cgi?id=91644
 set required_poppler_version {0 36 0}
 
+set requires_pcre_support true
+
 pdfgrep_expect -P foo $pdf \
 "foofoo
 foofoo
@@ -80,6 +82,8 @@ abc
 abc"
 
 set test "Empty pattern -- PCRE"
+
+set requires_pcre_support true
 
 # See poppler bug 91644
 # https://bugs.freedesktop.org/show_bug.cgi?id=91644
@@ -125,6 +129,8 @@ set test "Case insensitive search -- PCRE"
 # https://bugs.freedesktop.org/show_bug.cgi?id=91644
 set required_poppler_version {0 36 0}
 
+set requires_pcre_support true
+
 clear_pdfdir
 set pdf [mkpdf icase "FoObAr"]
 
@@ -151,6 +157,8 @@ pdfgrep_expect_x "^line two$" $pdf \
 
 
 set test "Matching line beginning and end -- PCRE"
+
+set requires_pcre_support true
 
 pdfgrep_expect_x "^line two$" $pdf \
     "line two"
@@ -179,6 +187,8 @@ set test "Multiline with PCRE"
 # See poppler bug 91644
 # https://bugs.freedesktop.org/show_bug.cgi?id=91644
 set required_poppler_version {0 36 0}
+
+set requires_pcre_support true
 
 set multiline [mkpdf multiline {
     line one\\
