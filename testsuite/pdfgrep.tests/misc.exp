@@ -11,6 +11,10 @@ expect_exit_status 1
 
 set test "hash as match-prefix-separator"
 
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
 clear_pdfdir
 set pdf [mkpdf foo {foobar}]
 
@@ -20,6 +24,10 @@ pdfgrep_expect --match-prefix-separator=# -Hn foo $pdf \
 ######################################################################
 
 set test "--null"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
 
 clear_pdfdir
 set pdf1 [mkpdf one {foobar}]

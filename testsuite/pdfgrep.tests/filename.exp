@@ -1,5 +1,9 @@
 set test "Print filename with -H"
 
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
 clear_pdfdir
 set pdf [mkpdf foo "foobar"]
 
@@ -11,6 +15,10 @@ expect_exit_status 0
 ########################################
 
 set test "Print filename with multiple files"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
 
 set pdf2 [mkpdf bar "barfoo"]
 
@@ -24,6 +32,10 @@ expect_exit_status 0
 
 set test "Print filename with multiple files and -r"
 
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
 pdfgrep_expect -r foo $pdfdir \
 "($pdf:foobar|$pdf2:barfoo)
 ($pdf:foobar|$pdf2:barfoo)"
@@ -33,6 +45,10 @@ expect_exit_status 0
 ########################################
 
 set test "Don't print filename with -h"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
 
 pdfgrep_expect -h foo $pdf $pdf2 \
 "foobar

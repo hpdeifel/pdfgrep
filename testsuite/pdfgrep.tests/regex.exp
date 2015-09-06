@@ -9,6 +9,10 @@ set test "Match line after double match"
 # This case tests specifically for a bug where a line after a double match would
 # not be printed.
 
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
 clear_pdfdir
 set pdf [mkpdf regex {
     foofoo\\
@@ -22,12 +26,20 @@ foo test"
 
 set test "Match line after double match -- fixed string"
 
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
 pdfgrep_expect -F foo $pdf \
 "foofoo
 foofoo
 foo test"
 
 set test "Match line after double match -- PCRE"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
 
 pdfgrep_expect -P foo $pdf \
 "foofoo
@@ -41,6 +53,10 @@ foo test"
 
 set test "Empty pattern"
 
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
 set empty [mkpdf empty {
     abc
 }]
@@ -53,6 +69,10 @@ abc"
 
 set test "Empty pattern -- fixed string"
 
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
 set timeout 2
 pdfgrep_expect -F "" $empty \
 "abc
@@ -60,6 +80,10 @@ abc
 abc"
 
 set test "Empty pattern -- PCRE"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
 
 set timeout 2
 pdfgrep_expect -P "" $empty \
@@ -71,6 +95,10 @@ abc"
 
 set test "Case insensitive search"
 
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
 clear_pdfdir
 set pdf [mkpdf icase "FoObAr"]
 
@@ -80,6 +108,10 @@ pdfgrep_expect -i "foobar" $pdf \
 
 set test "Case insensitive search -- fixed string"
 
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
 clear_pdfdir
 set pdf [mkpdf icase "FoObAr"]
 
@@ -88,6 +120,10 @@ pdfgrep_expect -Fi "foobar" $pdf \
 
 
 set test "Case insensitive search -- PCRE"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
 
 clear_pdfdir
 set pdf [mkpdf icase "FoObAr"]
@@ -123,6 +159,10 @@ pdfgrep_expect_x "^line two$" $pdf \
 
 set test "Multiple fixed strings"
 
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
 pdfgrep_expect -F "one\ntwo\nthree" $pdf \
 "line one
 line two
@@ -135,6 +175,10 @@ line three"
 # The feature to match multiline strings is often being requested, though
 
 set test "Multiline with PCRE"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
 
 set multiline [mkpdf multiline {
     line one\\

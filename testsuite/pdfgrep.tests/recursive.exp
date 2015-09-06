@@ -30,6 +30,10 @@ set link_match "$pdfdir/link.pdf:foobar"
 
 set test "recursive without include/exclude"
 
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
 # Important: The order of the files is not specified
 
 pdfgrep_expect -r "foobar" \
@@ -39,12 +43,20 @@ pdfgrep_expect -r "foobar" \
 
 set test "recursive with include"
 
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
 pdfgrep_expect -r --include "b*pdf" "foobar" \
     "(($bca_match|$bac_match)(\n)?){2}"
 
 ######################################################################
 
 set test "recursive with exclude"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
 
 pdfgrep_expect -r --exclude "b*" "foobar" \
     "(($abc_match|$acb_match)(\n)?){2}"
@@ -53,12 +65,20 @@ pdfgrep_expect -r --exclude "b*" "foobar" \
 
 set test "recursive with include/exclude"
 
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
 pdfgrep_expect -r --exclude "a*" --include "*.notpdf" "foobar" \
     "$bac_match"
 
 ######################################################################
 
 set test "dereference-recursive"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
 
 pdfgrep_expect -R "foobar" \
     "(($abc_match|$acb_match|$bca_match|$link_match)(\n)?){4}"
