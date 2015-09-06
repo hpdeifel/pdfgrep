@@ -36,6 +36,7 @@ set poppler_version {0 0 0}
 set have_pcre false
 
 # Parse the output of pdfgrep --version, to get the configuration parameters.
+log_user 0
 pdfgrep --version
 while {1} {
     expect {
@@ -48,8 +49,7 @@ while {1} {
         eof break
     }
 }
-
-puts "PCRE support: $have_pcre"
+log_user 1
 
 # This can be set in test scripts to generate UNSUPPORTED test results, if the
 # actual poppler version is less than the required one.
@@ -255,5 +255,7 @@ proc mkpdf {name content} {
 # The following functions are called by dejagnu
 
 proc pdfgrep_version {} {
+    puts ""
     note [exec ../src/pdfgrep --version]
+    puts ""
 }
