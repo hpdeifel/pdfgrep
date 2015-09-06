@@ -15,7 +15,6 @@ set pdf [mkpdf regex {
     foo test
 }]
 
-
 pdfgrep_expect foo $pdf \
 "foofoo
 foofoo

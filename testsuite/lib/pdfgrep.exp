@@ -28,6 +28,22 @@ proc pdfgrep_noerr args {
     }
 }
 
+# The version of poppler, that this pdfgrep is built against.
+# Format [Major Minor Patchlevel]
+set poppler_version {0 0 0}
+
+# Parse the output of pdfgrep --version, to get the poppler version.
+pdfgrep --version
+expect {
+    -re "Using poppler version (.*)\r\n" {
+	set poppler_version [split $expect_out(1,string) "."]
+    }
+    eof {}
+}
+
+# This can be set in test scripts to generate UNSUPPORTED test results, if the
+# actual poppler version is less than the required one.
+set required_poppler_version {0 0 0}
 
 # Syntax: pdfgrep_expect args pattern
 #
@@ -45,7 +61,7 @@ proc pdfgrep_expect_x args {
 }
 
 proc pdfgrep_expect_internal {expected_failure args} {
-    global spawn_id test
+    global spawn_id test required_poppler_version
 
     set output [lindex $args end]
     set args [lreplace $args end end]
@@ -63,45 +79,92 @@ proc pdfgrep_expect_internal {expected_failure args} {
 	-re "^[set output](\r\n)?\$" {
 	    expect eof {
 		if {$expected_failure} {
-		    xpass $test
+		    pxpass $test
 		} else {
-		    pass $test
+		    ppass $test
 		}
 	    }
 	}
 	default {
 	    if {$expected_failure} {
-		xfail $test
+		pxfail $test
 	    } else {
-		fail $test
+		pfail $test
 	    }
 	}
     }
+
+    # reset, so the next test must set it again
+    set required_poppler_version {0 0 0}
 }
 
 
 # Expect pdfgrep to print an error message
 proc pdfgrep_expect_error args {
-    global test
+    global test required_poppler_version
 
     pdfgrep {*}$args
     expect {
-	-re "pdfgrep: " { pass $test; expect eof }
-	default { fail $test }
+	-re "pdfgrep: " { ppass $test; expect eof }
+	default { pfail $test }
     }
+
+    # reset, so the next test must set it again
+    set required_poppler_version {0 0 0}
 }
 
 # Compare the exit status of the last spawned program to $expected
 proc expect_exit_status {expected} {
-    global test
+    global test required_poppler_version
 
     set wait_status [wait]
 
     if {[lindex $wait_status 3] != $expected} {
 	send_user "Exit status is [lindex $wait_status 3], but expected $expected\n"
-	fail "$test \[exit status\]"
+	pfail "$test \[exit status\]"
     } else {
-	pass "$test \[exit status\]"
+	ppass "$test \[exit status\]"
+    }
+
+    # reset, so the next test must set it again
+    set required_poppler_version {0 0 0}
+}
+
+# Test if the required version is greater than the detected poppler version
+#
+# @return A boolean depending on the poppler version
+proc poppler_greater {} {
+    global poppler_version required_poppler_version
+    lassign $required_poppler_version rmaj rmin rpatch
+    lassign $poppler_version maj min patch
+
+    if {$maj > $rmaj} { return true }
+    if {$maj == $rmaj && $min > $rmin } {return true}
+    if {$maj == $rmaj && $min == $rmin && $patch >= $rpatch} {return true}
+    return false
+}
+
+# The following four procedures are like pass, fail, xpass and xfail but call
+# unsupported, if the poppler version is not the requested one.
+proc ppass arg {
+    when_supported pass $arg
+}
+proc pfail arg {
+    when_supported fail $arg
+}
+proc pxpass arg {
+    when_supported xpass $arg
+}
+proc pxfail arg {
+    when_supported xfail $arg
+}
+
+proc when_supported {action arg} {
+    global poppler_version required_poppler_version
+    if {[poppler_greater]} {
+	$action $arg
+    } else {
+	unsupported "$arg -- Poppler version $required_poppler_version requested, but $poppler_version found."
     }
 }
 
