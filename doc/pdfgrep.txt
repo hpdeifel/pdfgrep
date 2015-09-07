@@ -83,9 +83,9 @@ pages and not on lines.
   the output of 'ps'(1). So please do not use this if the security of
   'PASSWORD' is important.
 
-*-m*, *--max-count* 'NUM' :: Stop reading a file after 'NUM' matching
-  lines. When the -c or --count option is also used, pdfgrep does not output a
-  count greater than 'NUM'.
+*-m*, *--max-count* 'NUM' :: Stop reading a file after 'NUM' matches.
+  When the -c or --count option is also used, pdfgrep does not output
+  a count greater than 'NUM'.
 
 *-Z*, *--null* :: Output a null byte (called 'NUL' in ASCII and \'\0'
   in C) instead of the colon that usually separates a filename from
