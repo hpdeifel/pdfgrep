@@ -1,0 +1,200 @@
+set test "Match line after double match"
+
+# pdfgrep currently prints a line with two matches twice. This is of course not
+# grep compatible and should be changed in the future.
+
+# Nevertheless, right now it's the documented behaviour and should be tested
+# for.
+
+# This case tests specifically for a bug where a line after a double match would
+# not be printed.
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+clear_pdfdir
+set pdf [mkpdf regex {
+    foofoo\\
+    foo test
+}]
+
+pdfgrep_expect foo $pdf \
+"foofoo
+foofoo
+foo test"
+
+set test "Match line after double match -- fixed string"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+pdfgrep_expect -F foo $pdf \
+"foofoo
+foofoo
+foo test"
+
+set test "Match line after double match -- PCRE"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+set requires_pcre_support true
+
+pdfgrep_expect -P foo $pdf \
+"foofoo
+foofoo
+foo test"
+
+######################################################################
+
+# This behaviour of repeating the same line over and over again is clearly not
+# optimal, but it's better than an infinite loop!
+
+set test "Empty pattern"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+set empty [mkpdf empty {
+    abc
+}]
+
+set timeout 2
+pdfgrep_expect "" $empty \
+"abc
+abc
+abc"
+
+set test "Empty pattern -- fixed string"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+set timeout 2
+pdfgrep_expect -F "" $empty \
+"abc
+abc
+abc"
+
+set test "Empty pattern -- PCRE"
+
+set requires_pcre_support true
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+set timeout 2
+pdfgrep_expect -P "" $empty \
+"abc
+abc
+abc"
+
+######################################################################
+
+set test "Case insensitive search"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+clear_pdfdir
+set pdf [mkpdf icase "FoObAr"]
+
+pdfgrep_expect -i "foobar" $pdf \
+    "FoObAr"
+
+
+set test "Case insensitive search -- fixed string"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+clear_pdfdir
+set pdf [mkpdf icase "FoObAr"]
+
+pdfgrep_expect -Fi "foobar" $pdf \
+    "FoObAr"
+
+
+set test "Case insensitive search -- PCRE"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+set requires_pcre_support true
+
+clear_pdfdir
+set pdf [mkpdf icase "FoObAr"]
+
+pdfgrep_expect -Pi "foobar" $pdf \
+    "FoObAr"
+
+######################################################################
+
+# These test cases are expected to fail, because pdfgrep currently cannot do
+# this. The pattern is always matched on the whole text of a page instead of
+# line-wise. The question is whether this would be worthwile.
+
+set test "Matching line beginning and end"
+
+clear_pdfdir
+set pdf [mkpdf lines {
+    line one\\
+    line two\\
+    line three
+}]
+
+pdfgrep_expect_x "^line two$" $pdf \
+    "line two"
+
+
+set test "Matching line beginning and end -- PCRE"
+
+set requires_pcre_support true
+
+pdfgrep_expect_x "^line two$" $pdf \
+    "line two"
+
+######################################################################
+
+set test "Multiple fixed strings"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+pdfgrep_expect -F "one\ntwo\nthree" $pdf \
+"line one
+line two
+line three"
+
+######################################################################
+
+# Not sure if this should be the expected behavior.
+#
+# The feature to match multiline strings is often being requested, though
+
+set test "Multiline with PCRE"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+set requires_pcre_support true
+
+set multiline [mkpdf multiline {
+    line one\\
+    line two
+}]
+
+pdfgrep_expect -P "one\nline" $multiline \
+"line one
+line two"

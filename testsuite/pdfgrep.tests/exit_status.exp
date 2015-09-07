@@ -1,0 +1,44 @@
+set test "Exit status is 0 when something is found"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+clear_pdfdir
+set pdf [mkpdf exit-status "foobar"]
+
+pdfgrep foobar $pdf
+
+expect_exit_status 0
+
+########################################
+
+set test "Exit status is 0 when something is found, also with --quiet"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+pdfgrep --quiet foobar $pdf
+
+expect_exit_status 0
+
+
+########################################
+
+set test "Exit status is 1 when nothing is found"
+
+pdfgrep not-there $pdf
+
+expect_exit_status 1
+
+########################################
+
+set test "Exit status is 2 on error"
+
+clear_pdfdir
+
+# $pdf doesn't exist anymore
+pdfgrep foobar $pdf
+
+expect_exit_status 2

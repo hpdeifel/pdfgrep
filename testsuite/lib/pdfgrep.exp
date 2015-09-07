@@ -1,0 +1,261 @@
+# This file contains functions that can be used by all test scripts in
+# pdfgrep.tests.
+#
+# It is only loaded once for all tests.
+
+########################################
+### Running pdfgrep ####################
+########################################
+
+# Don't remove null bytes by default. pdfgrep should not have them in the output
+# unless explicitly told so. And then we want to be able to test for them.
+remove_nulls -d 0
+
+
+# Just spawns pdfgrep with the given arguments
+proc pdfgrep args {
+    global spawn_id
+    spawn ../src/pdfgrep {*}$args
+}
+
+
+# Spawns pdfgrep and fail is pdfgrep prints something on stderr.
+proc pdfgrep_noerr args {
+    global spawn_id test
+    pdfgrep {*}$args
+    expect_before {
+	-re "^pdfgrep:" {pfail "$test -- error from pdfgrep"; expect eof}
+    }
+}
+
+# The version of poppler, that this pdfgrep is built against.
+# Format [Major Minor Patchlevel]
+set poppler_version {0 0 0}
+
+# Is pdfgrep compiled with pcre support?
+set have_pcre false
+
+# Parse the output of pdfgrep --version, to get the configuration parameters.
+log_user 0
+pdfgrep --version
+while {1} {
+    expect {
+        -re "Using poppler version (\[^\r\]+)\r\n" {
+            set poppler_version [split $expect_out(1,string) "."]
+        }
+        -re "Using libpcre version \[^\r\]*\r\n" {
+            set have_pcre true
+        }
+        eof break
+    }
+}
+log_user 1
+
+# This can be set in test scripts to generate UNSUPPORTED test results, if the
+# actual poppler version is less than the required one.
+set required_poppler_version {0 0 0}
+
+# This can be set in test scripts to generate UNSUPPORTED test results, if
+# pdfgrep is not build with libpcre support.
+set requires_pcre_support false
+
+# Syntax: pdfgrep_expect args pattern
+#
+# Spawns pdfgrep with args, fail on stderr and compares the output with pattern.
+#
+# pattern is a regular expression that _completely_ matches the output. I.e it
+# pdfgrep_expect encloses it int ^$.
+proc pdfgrep_expect args {
+    pdfgrep_expect_internal 0 {*}$args
+}
+
+# Same as above, but expect the test to fail
+proc pdfgrep_expect_x args {
+    pdfgrep_expect_internal 1 {*}$args
+}
+
+proc pdfgrep_expect_internal {expected_failure args} {
+    global spawn_id test required_poppler_version
+
+    set output [lindex $args end]
+    set args [lreplace $args end end]
+
+    # expect configures the terminal to use \r\n for newlines, but since we
+    # don't want to sprinkle our source code with \r, we convert newlines.
+    set output [string map {\n \r\n} $output]
+
+    # --color=never is necessary because we dont want to have escape sequences
+    # in the output.
+    pdfgrep_noerr --color=never {*}$args
+    expect {
+	# The final newline is only optionally matched, because some client code
+	# may include it
+	-re "^[set output](\r\n)?\$" {
+	    expect eof {
+		if {$expected_failure} {
+		    pxpass $test
+		} else {
+		    ppass $test
+		}
+	    }
+	}
+	default {
+	    if {$expected_failure} {
+		pxfail $test
+	    } else {
+		pfail $test
+	    }
+	}
+    }
+
+    # reset, so the next test must set it again
+    reset_configuration
+}
+
+
+# Expect pdfgrep to print an error message
+proc pdfgrep_expect_error args {
+    global test required_poppler_version
+
+    pdfgrep {*}$args
+    expect {
+	-re "pdfgrep: " { ppass $test; expect eof }
+	default { pfail $test }
+    }
+
+    # reset, so the next test must set it again
+    reset_configuration
+}
+
+# Compare the exit status of the last spawned program to $expected
+proc expect_exit_status {expected} {
+    global test required_poppler_version
+
+    set wait_status [wait]
+
+    if {[lindex $wait_status 3] != $expected} {
+	send_user "Exit status is [lindex $wait_status 3], but expected $expected\n"
+	pfail "$test \[exit status\]"
+    } else {
+	ppass "$test \[exit status\]"
+    }
+
+    # reset, so the next test must set it again
+    reset_configuration
+}
+
+# Test if the required version is greater than the detected poppler version
+#
+# @return A boolean depending on the poppler version
+proc poppler_greater {} {
+    global poppler_version required_poppler_version
+    #lassign $required_poppler_version rmaj rmin rpatch
+    lassign {0 0 0} rmaj rmin rpatch
+    lassign $poppler_version maj min patch
+
+    if {$maj > $rmaj} { return true }
+    if {$maj == $rmaj && $min > $rmin } {return true}
+    if {$maj == $rmaj && $min == $rmin && $patch >= $rpatch} {return true}
+    return false
+}
+
+# The following four procedures are like pass, fail, xpass and xfail but call
+# unsupported, if the poppler version is not the requested one.
+proc ppass arg {
+    when_supported pass $arg
+}
+proc pfail arg {
+    when_supported fail $arg
+}
+proc pxpass arg {
+    when_supported xpass $arg
+}
+proc pxfail arg {
+    when_supported xfail $arg
+}
+
+proc when_supported {action arg} {
+    global poppler_version required_poppler_version
+    global requires_pcre_support have_pcre
+    if {[poppler_greater] && \
+	    (!$requires_pcre_support || $have_pcre)} {
+	$action $arg
+    } else {
+	unsupported "$arg -- required configuration was not found"
+    }
+}
+
+proc reset_configuration {} {
+    global required_poppler_version requires_pcre_support
+    set required_poppler_version {0 0 0}
+    set requires_pcre_support false
+}
+
+########################################
+### PDF generation ####################
+########################################
+
+# The following code supports on the fly generation of PDFs. This way,
+# individual tests can use highly customized PDFs and we don't have to check
+# those into version control.
+
+
+# The directory where the PDFs will be generated.
+# NOTE This will frequently be removed, so don't put important data there
+set pdfdir "$srcdir/generated_pdfs"
+
+
+# Delete $pdfdir recursively and create it anew
+proc clear_pdfdir {} {
+    global pdfdir
+    file delete -force -- $pdfdir
+    file mkdir $pdfdir
+}
+
+# The latex template
+set latex_pre {\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[parfill]{parskip}
+\pagestyle{empty}
+\begin{document}}
+set latex_post {\end{document}}
+
+
+# Create a pdf called $name.pdf in $pdfdir containing $content.
+#
+# THis is done by first creating a .tex file with $content between
+# \begin{document} and \end{document} and then calling pdflatex on it.
+#
+# Returns the name of the newly created PDF file
+proc mkpdf {name content} {
+    global pdfdir latex_pre latex_post
+    set fp [open "$pdfdir/$name.tex" w]
+    puts $fp $latex_pre
+    puts $fp $content
+    puts $fp $latex_post
+    close $fp
+
+    set saved_dir [pwd]
+    cd $pdfdir
+    if {[catch {exec pdflatex -interaction=batchmode "$name.tex"}]} {
+	unsupported "could not execute pdflatex"
+	cd $saved_dir
+	error "pdflatex"
+    }
+    cd $saved_dir
+
+    return "$pdfdir/$name.pdf"
+}
+
+
+########################################
+### Infrastructure #####################
+########################################
+
+# The following functions are called by dejagnu
+
+proc pdfgrep_version {} {
+    puts ""
+    note [exec ../src/pdfgrep --version]
+    puts ""
+}

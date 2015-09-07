@@ -112,6 +112,23 @@ AS_IF([test "x$enable_doc" != "xno"], [
 
 AM_CONDITIONAL([BUILD_DOCUMENTATION], [test "x$enable_doc" != "xno"])
 
-AC_CONFIG_FILES([Makefile src/Makefile completion/Makefile doc/Makefile])
+dnl Set global config file for DEJAGNU
+
+if test x"$DEJAGNU" = x
+then
+	DEJAGNU="\$(top_srcdir)/testsuite/global-conf.exp"
+fi
+
+AC_SUBST(DEJAGNU)
+
+
+AC_CONFIG_FILES([Makefile
+	src/Makefile
+	completion/Makefile
+	doc/Makefile
+	testsuite/Makefile
+	testsuite/config/Makefile
+	testsuite/lib/Makefile
+	testsuite/pdfgrep.tests/Makefile])
 AC_OUTPUT
 

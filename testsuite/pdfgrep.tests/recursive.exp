@@ -1,0 +1,84 @@
+clear_pdfdir
+
+mkpdf abc "foobar"
+mkpdf acb "foobar"
+mkpdf bca "foobar"
+mkpdf bac "foobar"
+
+file mkdir $pdfdir/subdir
+file rename $pdfdir/acb.pdf $pdfdir/subdir/acb.pdf
+# does not end with .pdf
+file rename $pdfdir/bac.pdf $pdfdir/bac.notpdf
+
+file link $pdfdir/link.pdf abc.pdf
+
+# We should no have the following directory structure:
+#
+# - abc.pdf
+# - bca.pdf
+# - bac.notpdf
+# - foobar/
+#   `- acb.pdf
+
+set abc_match "$pdfdir/abc.pdf:foobar"
+set acb_match "$pdfdir/subdir/acb.pdf:foobar"
+set bca_match "$pdfdir/bca.pdf:foobar"
+set bac_match "$pdfdir/bac.notpdf:foobar"
+set link_match "$pdfdir/link.pdf:foobar"
+
+######################################################################
+
+set test "recursive without include/exclude"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+# Important: The order of the files is not specified
+
+pdfgrep_expect -r "foobar" \
+    "(($abc_match|$acb_match|$bca_match)(\n)?){3}"
+
+######################################################################
+
+set test "recursive with include"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+pdfgrep_expect -r --include "b*pdf" "foobar" \
+    "(($bca_match|$bac_match)(\n)?){2}"
+
+######################################################################
+
+set test "recursive with exclude"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+pdfgrep_expect -r --exclude "b*" "foobar" \
+    "(($abc_match|$acb_match)(\n)?){2}"
+
+######################################################################
+
+set test "recursive with include/exclude"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+pdfgrep_expect -r --exclude "a*" --include "*.notpdf" "foobar" \
+    "$bac_match"
+
+######################################################################
+
+set test "dereference-recursive"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+pdfgrep_expect -R "foobar" \
+    "(($abc_match|$acb_match|$bca_match|$link_match)(\n)?){4}"

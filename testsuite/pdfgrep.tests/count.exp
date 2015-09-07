@@ -1,0 +1,99 @@
+set test "count with one file"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+clear_pdfdir
+set count1 [mkpdf count1 {
+    foofoo\\
+    foo
+    \newpage
+    foo
+}]
+pdfgrep_expect --count foo $count1 \
+    "4"
+
+expect_exit_status 0
+
+######################################################################
+
+set test "count 0 with one file"
+
+pdfgrep_expect --count not-there $count1 \
+    "0"
+
+expect_exit_status 1
+
+######################################################################
+
+set test "count with multiple files"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+set count2 [mkpdf count2 {
+    foofoo\\
+    foo
+    \newpage
+    foo
+}]
+
+pdfgrep_expect --count foo $count1 $count2 \
+"$count1:4
+$count2:4"
+
+expect_exit_status 0
+
+######################################################################
+
+set test "count 0 with multiple files"
+
+pdfgrep_expect --count not-there $count1 $count2 \
+"$count1:0
+$count2:0"
+
+expect_exit_status 1
+
+######################################################################
+
+set test "page count"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+pdfgrep_expect --page-count foo $count1 \
+"1:3
+2:1"
+
+######################################################################
+
+set test "page count 0"
+
+pdfgrep_noerr --page-count not-there $count1
+expect {
+    eof { pass $test }
+    -re ".+" { fail $test
+	expect eof
+    }
+    default { fail $test }
+}
+
+######################################################################
+
+set test "max-count 1"
+
+pdfgrep_expect --max-count 1 foo $count1 \
+    "foofoo"
+
+expect_exit_status 0
+
+######################################################################
+
+set test "max-count 0"
+
+pdfgrep_expect_error --max-count 0 foo $count1
+
+expect_exit_status 2

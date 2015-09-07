@@ -1,0 +1,57 @@
+set test "warn-empty"
+
+clear_pdfdir
+set pdf [mkpdf empty {\rule{1cm}{1cm}}]
+
+pdfgrep_expect_error --warn-empty "foo" $pdf
+
+expect_exit_status 1
+
+######################################################################
+
+set test "hash as match-prefix-separator"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+clear_pdfdir
+set pdf [mkpdf foo {foobar}]
+
+pdfgrep_expect --match-prefix-separator=# -Hn foo $pdf \
+    "$pdf#1#foobar"
+
+######################################################################
+
+set test "--null"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+clear_pdfdir
+set pdf1 [mkpdf one {foobar}]
+set pdf2 [mkpdf two {barfoo}]
+
+set line1_prefix $pdf1
+set line2_prefix $pdf2
+
+append line1_prefix "\0"
+append line1_prefix 1
+
+append line2_prefix "\0"
+append line2_prefix 1
+
+pdfgrep_expect --null -Hn foo $pdf1 $pdf2 \
+"$line1_prefix:foobar
+$line2_prefix:barfoo"
+
+######################################################################
+
+set test "only-matching"
+
+clear_pdfdir
+set pdf [mkpdf pdf {this is a long line}]
+
+pdfgrep_expect --only-matching long $pdf \
+    "long"

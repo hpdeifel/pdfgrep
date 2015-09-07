@@ -1,0 +1,25 @@
+set test "Print page numbers with -n"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+clear_pdfdir
+set pdf [mkpdf foo {
+    first page
+    \newpage
+    second page
+    \newpage
+    third page
+}]
+
+pdfgrep_expect -n page $pdf \
+"1:first page
+2:second page
+3:third page"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+expect_exit_status 0
