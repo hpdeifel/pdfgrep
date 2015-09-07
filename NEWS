@@ -1,9 +1,14 @@
 NEXT RELEASE
 ---------------------------
 
+	- Test suite added
 	- Bugfix: The tarball contains HACKING and README again
 	- Bugfix: The zsh completion completes options as first
 	  argument correctly
+	- Bugfix: Exit status is set as advertised
+	- Bugfix: Spurious null bytes removed from output
+	- Bugfix: Skipping of some matches in certain conditions fixed.
+	- Bugfix: Empty matches don't trigger a loop
 
 Version 1.4.0  [2015-08-14]
 ---------------------------
