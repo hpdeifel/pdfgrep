@@ -132,7 +132,7 @@ variable.
   like *GREP_COLORS* of *grep*. See 'grep'(1) for more details.
   Currently only the capabilities *mt*, *ms*, *mc*, *fn*, *ln* and
   *se* are used by *pdfgrep*, where *mt*, *ms* and *mc* have the same
-  effect on *pdfgrep*.
+  effect.
 
 == Examples
 *Print the first ten lines matching 'pattern' and print their page number* ::
