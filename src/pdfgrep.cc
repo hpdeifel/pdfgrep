@@ -307,8 +307,8 @@ void parse_env_color_pair(char* pair, char** name, char** value)
 
 
 /* set colors of output according to content of environment-varaible env_var.
-    the content of env_var has to be like the GREP_COLORS variable for grep
-    see man 1 grep for further details of GREP_COLORS */
+   the content of env_var has to be like the GREP_COLORS variable for grep
+   see man 1 grep for further details of GREP_COLORS */
 void read_colors_from_env(const char* env_var)
 {
 	/* create a copy of var to edit it with strtok */
@@ -334,9 +334,9 @@ void read_colors_from_env(const char* env_var)
 		parse_env_color_pair(cur_color_pair, &cur_name, &cur_value);
 #define PARSE_COLOR(GREP_NAME, GLOBAL_VAR) \
 	if (!strcmp(cur_name, GREP_NAME)) { \
-        free(GLOBAL_VAR); /* free old value */ \
+		free(GLOBAL_VAR); /* free old value */ \
 		GLOBAL_VAR = strdup(cur_value); /* set to new color */ \
-    }
+	}
 		/* now check for known settings and set global colors */
 		PARSE_COLOR("mt", outconf.colors.highlight)
 		else PARSE_COLOR("ms", outconf.colors.highlight)
