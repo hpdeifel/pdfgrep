@@ -12,13 +12,15 @@ The tests depend on the following packages:
 To run the tests, execute `make check` from the toplevel source
 directory.
 
+## Coverage
+
 To get test coverage, reconfigure with `--enable-coverage` and run:
 
     make clean
     make check
 
-You can then use gcov and lcov to view the results. See the internet
-for more information on how to use those.
+This will write a coverage report as HTML to the new directory
+`coverage_report`.
 
 ## Configuration
 
