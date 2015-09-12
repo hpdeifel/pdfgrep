@@ -808,6 +808,9 @@ int main(int argc, char** argv)
 		do_search_in_directory(".", *re);
 	}
 
+	// Free up some stuff
+	delete re;
+
 	if (error) {
 		exit(EXIT_ERROR);
 	} else if (found_something) {
