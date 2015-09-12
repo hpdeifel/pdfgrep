@@ -123,7 +123,7 @@ AC_SUBST(DEJAGNU)
 
 # Coverage ssupport
 AC_ARG_ENABLE([coverage],
-	AS_HELP_STRING([--enable-coverage], [compile for coverage reports. For testing only. (default=no)])
+	AS_HELP_STRING([--enable-coverage], [compile for coverage reports with gcov. For testing only. (default=no)])
 )
 AS_IF([test "x$enable_coverage" = "xyes"], [
 	COV_FLAGS="--coverage"
@@ -131,7 +131,23 @@ AS_IF([test "x$enable_coverage" = "xyes"], [
 	cov_LDFLAGS=${COV_FLAGS}
 	AC_SUBST(cov_CFLAGS)
 	AC_SUBST(cov_LDFLAGS)
+
+	# check for coverage programs
+	AC_CHECK_PROG(HAVE_GCOV, [gcov], [yes], [no])
+	AS_IF([test "x$HAVE_GCOV" = "xno"], [
+		AC_MSG_ERROR([gcov not found, but configured with --enable-coverage])
+	])
+	AC_CHECK_PROG(HAVE_LCOV, [lcov], [yes], [no])
+	AS_IF([test "x$HAVE_LCOV" = "xno"], [
+		AC_MSG_ERROR([lcov not found, but configured with --enable-coverage])
+	])
+	AC_CHECK_PROG(HAVE_GENHTML, [genhtml], [yes], [no])
+	AS_IF([test "x$HAVE_GENHTML" = "xno"], [
+		AC_MSG_ERROR([genhtml not found, but configured with --enable-coverage])
+	])
 ])
+
+AM_CONDITIONAL([ENABLE_COV], test "x$enable_coverage" = "xyes")
 
 AC_CONFIG_FILES([Makefile
 	src/Makefile
