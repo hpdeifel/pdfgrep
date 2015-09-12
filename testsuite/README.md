@@ -14,7 +14,11 @@ directory.
 
 ## Coverage
 
-To get test coverage, reconfigure with `--enable-coverage` and run:
+To get test coverage, run configure with the following arguments:
+
+    ./configure CXXFLAGS="-O0" --enable-coverage
+
+and then run:
 
     make clean
     make check
