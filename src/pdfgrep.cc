@@ -332,11 +332,13 @@ void read_colors_from_env(const char* env_var)
 		i += 1; /* skip delemiter */
 		/* get name and value of color pair */
 		parse_env_color_pair(cur_color_pair, &cur_name, &cur_value);
+
 #define PARSE_COLOR(GREP_NAME, GLOBAL_VAR) \
 	if (!strcmp(cur_name, GREP_NAME)) { \
 		free(GLOBAL_VAR); /* free old value */ \
 		GLOBAL_VAR = strdup(cur_value); /* set to new color */ \
 	}
+
 		/* now check for known settings and set global colors */
 		PARSE_COLOR("mt", outconf.colors.highlight)
 		else PARSE_COLOR("ms", outconf.colors.highlight)
@@ -344,7 +346,9 @@ void read_colors_from_env(const char* env_var)
 		else PARSE_COLOR("fn", outconf.colors.filename)
 		else PARSE_COLOR("ln", outconf.colors.pagenum)
 		else PARSE_COLOR("se", outconf.colors.separator)
+
 #undef PARSE_COLOR
+
 	}
 	/* free our copy of the environment var */
 	free(colors_list);
@@ -352,6 +356,10 @@ void read_colors_from_env(const char* env_var)
 
 void set_default_colors()
 {
+	// The grep(1) manpage documents the default value of GREP_COLORS to be
+	// ms=01;31:mc=01;31:sl=:cx=:fn=35:ln=32:bn=32:se=36
+	// which corresponds to these values below:
+
 	outconf.colors.filename = strdup("35");
 	outconf.colors.pagenum = strdup("32");
 	outconf.colors.highlight = strdup("01;31");
