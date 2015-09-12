@@ -9,3 +9,40 @@ expect {
 }
 
 expect_exit_status 2
+
+
+######################################################################
+
+set test "GREP_COLORS default values"
+
+clear_pdfdir
+set pdf [mkpdf pdf {one two three}]
+
+set env(GREP_COLORS) ""
+
+set fn "\33\\\[35m\33\\\[K"
+set ln "\33\\\[32m\33\\\[K"
+set se "\33\\\[36m\33\\\[K"
+set ms "\33\\\[01;31m\33\\\[K"
+set end "\33\\\[m\33\\\[K"
+
+pdfgrep_expect --color=always --with-filename --page-number two $pdf \
+    "$fn$pdf$end$se:$end[set ln]1$end$se:[set end]one [set ms]two$end three"
+
+######################################################################
+
+set test "GREP_COLORS with custom values"
+
+clear_pdfdir
+set pdf [mkpdf pdf {one two three}]
+
+set env(GREP_COLORS) "fn=32:ln=36:se=35:ms=01;34"
+
+set fn "\33\\\[32m\33\\\[K"
+set ln "\33\\\[36m\33\\\[K"
+set se "\33\\\[35m\33\\\[K"
+set ms "\33\\\[01;34m\33\\\[K"
+set end "\33\\\[m\33\\\[K"
+
+pdfgrep_expect --color=always --with-filename --page-number two $pdf \
+    "$fn$pdf$end$se:$end[set ln]1$end$se:[set end]one [set ms]two$end three"
