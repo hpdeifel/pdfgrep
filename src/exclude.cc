@@ -33,7 +33,7 @@ bool is_excluded(const ExcludeList &list, const char *name)
 {
 	ExcludeList::const_iterator iter = list.begin();
 
-	for (; iter != list.end(); iter++) {
+	for (; iter != list.end(); ++iter) {
 		if (!fnmatch(*iter, name, FNM_PATHNAME | FNM_PERIOD))
 			return true;
 

@@ -496,7 +496,6 @@ int do_search_in_document(const std::string &path, const std::string &filename,
 int do_search_in_directory(const std::string &filename, Regengine &re)
 {
 	DIR *ptrDir = NULL;
-	struct dirent *ptrDirent = NULL;
 
 	ptrDir = opendir(filename.c_str());
 	if (!ptrDir) {
@@ -508,7 +507,7 @@ int do_search_in_directory(const std::string &filename, Regengine &re)
 	while(1) {
 		std::string path(filename);
 		errno = 0;
-		ptrDirent = readdir(ptrDir);    //not sorted, in order as `ls -f`
+		struct dirent *ptrDirent = ptrDirent = readdir(ptrDir);    //not sorted, in order as `ls -f`
 		if (!ptrDirent)
 			break;
 
