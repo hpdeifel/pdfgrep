@@ -149,8 +149,7 @@ proc expect_exit_status {expected} {
 # @return A boolean depending on the poppler version
 proc poppler_greater {} {
     global poppler_version required_poppler_version
-    #lassign $required_poppler_version rmaj rmin rpatch
-    lassign {0 0 0} rmaj rmin rpatch
+    lassign $required_poppler_version rmaj rmin rpatch
     lassign $poppler_version maj min patch
 
     if {$maj > $rmaj} { return true }
