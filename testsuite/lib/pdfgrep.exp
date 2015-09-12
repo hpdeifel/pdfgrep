@@ -30,6 +30,10 @@ proc pdfgrep_noerr args {
 
 # The version of poppler, that this pdfgrep is built against.
 # Format [Major Minor Patchlevel]
+#
+# You can disable all poppler version checks (for example, if you have a patched
+# poppler installed) by setting the variable $disable_poppler_version_check to
+# true.
 set poppler_version {0 0 0}
 
 # Is pdfgrep compiled with pcre support?
@@ -41,8 +45,8 @@ pdfgrep --version
 while {1} {
     expect {
         -re "Using poppler version (\[^\r\]+)\r\n" {
-            set poppler_version [split $expect_out(1,string) "."]
-        }
+	    set poppler_version [split $expect_out(1,string) "."]
+	}
         -re "Using libpcre version \[^\r\]*\r\n" {
             set have_pcre true
         }
@@ -148,9 +152,17 @@ proc expect_exit_status {expected} {
 #
 # @return A boolean depending on the poppler version
 proc poppler_greater {} {
-    global poppler_version required_poppler_version
+    global poppler_version required_poppler_version disable_poppler_version_check
     lassign $required_poppler_version rmaj rmin rpatch
     lassign $poppler_version maj min patch
+
+
+    # Always return true if the check is disabled
+    if {[info exists disable_poppler_version_check]
+	&& $disable_poppler_version_check} {
+
+	return true
+    }
 
     if {$maj > $rmaj} { return true }
     if {$maj == $rmaj && $min > $rmin } {return true}

@@ -19,6 +19,15 @@ To get test coverage, first run `make clean` and then
 You can then use gvov and lcov to view the results. See the internet
 for more information on how to use those.
 
+## Configuration
+
+The test runs can be configured by editing `testsuite/site.exp`. The
+following variables can be set:
+
+- `disable_poppler_version_check`: Don't mark tests as unsupported if
+  the poppler version is not recent enought. (This is useful, if you
+  have backported a patch from a later version to your current one).
+
 ## Writing new tests
 
 See the existing tests in `testsuite/pdfgrep.tests/` as example on how
