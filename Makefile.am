@@ -27,8 +27,6 @@ clean-local:
 
 .PHONY: coverage
 coverage:
+	@make check
 	@make cov-report
-
-check:
-	@make coverage
 endif

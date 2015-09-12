@@ -21,7 +21,7 @@ To get test coverage, run configure with the following arguments:
 and then run:
 
     make clean
-    make check
+    make coverage
 
 This will write a coverage report as HTML to the new directory
 `coverage_report`.
