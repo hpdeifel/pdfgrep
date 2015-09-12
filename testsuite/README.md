@@ -12,11 +12,12 @@ The tests depend on the following packages:
 To run the tests, execute `make check` from the toplevel source
 directory.
 
-To get test coverage, first run `make clean` and then
+To get test coverage, reconfigure with `--enable-coverage` and run:
 
-    make check CXXFLAGS="-std=c++11 --coverage"
+    make clean
+    make check
 
-You can then use gvov and lcov to view the results. See the internet
+You can then use gcov and lcov to view the results. See the internet
 for more information on how to use those.
 
 ## Configuration

@@ -121,6 +121,18 @@ fi
 
 AC_SUBST(DEJAGNU)
 
+# Coverage ssupport
+AC_ARG_ENABLE([coverage],
+	AS_HELP_STRING([--enable-coverage], [compile for coverage reports. For testing only. (default=no)])
+)
+AS_IF([test "x$enable_coverage" = "xyes"], [
+	COV_FLAGS="--coverage"
+	cov_CFLAGS=${COV_FLAGS}
+	cov_LDFLAGS=${COV_FLAGS}
+	AC_SUBST(cov_CFLAGS)
+	AC_SUBST(cov_LDFLAGS)
+	echo "CFLAGS: $cov_CFLAGS, LDFLAGS: $cov_LDFLAGS"
+])
 
 AC_CONFIG_FILES([Makefile
 	src/Makefile
