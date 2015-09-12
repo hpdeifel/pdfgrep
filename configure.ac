@@ -131,7 +131,6 @@ AS_IF([test "x$enable_coverage" = "xyes"], [
 	cov_LDFLAGS=${COV_FLAGS}
 	AC_SUBST(cov_CFLAGS)
 	AC_SUBST(cov_LDFLAGS)
-	echo "CFLAGS: $cov_CFLAGS, LDFLAGS: $cov_LDFLAGS"
 ])
 
 AC_CONFIG_FILES([Makefile
