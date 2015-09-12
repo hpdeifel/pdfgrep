@@ -27,3 +27,8 @@ doc/pdfgrep.html
 /testsuite/pdfgrep.log
 /testsuite/generated_pdfs
 /testsuite/site.bak
+
+# coverage files
+/coverage_report
+/src/*.gcda
+/src/*.gcno
