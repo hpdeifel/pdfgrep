@@ -178,7 +178,7 @@ int search_in_document(poppler::document *doc, const std::string &filename, Rege
 	bool document_empty = true;
 
 	for (int i = 1; i <= doc->pages() && !max_count_reached; i++) {
-		std::auto_ptr<poppler::page> doc_page(doc->create_page(i - 1));
+		std::unique_ptr<poppler::page> doc_page(doc->create_page(i - 1));
 		if (!doc_page.get()) {
 			if (!quiet) {
 				fprintf(stderr, "pdfgrep: Could not search in page %d of %s\n", i, filename.c_str());
