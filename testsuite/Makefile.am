@@ -5,6 +5,6 @@ export DEJAGNU
 
 DEJATOOL = pdfgrep
 
-EXTRA_DIST = global-conf.exp README
+EXTRA_DIST = global-conf.exp README.md
 
 SUBDIRS = config lib pdfgrep.tests
