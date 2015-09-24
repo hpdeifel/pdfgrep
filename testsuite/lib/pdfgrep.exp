@@ -213,7 +213,7 @@ proc reset_configuration {} {
 
 # The directory where the PDFs will be generated.
 # NOTE This will frequently be removed, so don't put important data there
-set pdfdir "$srcdir/generated_pdfs"
+set pdfdir [exec mktemp --tmpdir -d pdfgrep_tests.XXXXXXXXXX]
 
 
 # Delete $pdfdir recursively and create it anew
