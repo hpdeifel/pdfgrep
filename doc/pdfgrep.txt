@@ -123,6 +123,12 @@ compiled with unac support.*
 
 *-V*, *--version* Show version information.
 
+== EXIT STATUS
+Normally, the exit status is 0 if at least one match is found, 1 if no
+match is found and 2 if an error occurred. But if the *--quiet* or
+*-q* option is used and a match was found, *pdfgrep* will return 0
+regardless of errors.
+
 == ENVIRONMENT VARIABLES
 The behavior of *pdfgrep* is affected by the following environment
 variable.
@@ -158,14 +164,27 @@ solved with pdfgrep alone, but the Unix tools *find(1)* and *xargs(1)*
 had to be used. That's because pdfgrep itself doesn't include options
 to exclude files by their size. But as you see, it doesn't have to!
 
-== EXIT STATUS
-Normally, the exit status is 0 if at least one match is found, 1 if no
-match is found and 2 if an error occurred. But if the *--quiet* or
-*-q* option is used and a match was found, *pdfgrep* will return 0
-regardless of errors.
+== BUGS
+=== Reporting Bugs
+Bugs can either be reportet to the mailing list
+(pdfgrep-users@pdfgrep.org) or to the bugtracker on gitlab
+(https://gitlab.com/pdfgrep/pdfgrep/issues).
 
-== AUTHOR
-Hans-Peter Deifel <hpd at hpdeifel.de>
+=== Known Bugs
+*pdfgrep* prints a single line multiple times, if there is more than
+one match in that line. That doesn't mirror to the behavior of *grep*.
+
+Also, the current context options don't have the same semantics as the
+*grep* ones.
+
+== AUTHORS
+*pdfgrep* is maintained by Hans-Peter Deifel.
+
+See the 'AUTHORS' file in the source for a full list of contributors.
+
 
 == SEE ALSO
 grep(1), pcre(3), regex(7)
+
+See pdfgrep's website https://pdfgrep.org for more information,
+downloads, git repository and more.
