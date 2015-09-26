@@ -43,7 +43,7 @@ PosixRegex::PosixRegex(const char *pattern, bool case_insensitive)
 	}
 }
 
-int PosixRegex::exec(const char *str, size_t offset, struct match *m)
+int PosixRegex::exec(const char *str, size_t offset, struct match *m) const
 {
 	regmatch_t match[] = {{0, 0}};
 	const int nmatch = 1;
@@ -92,7 +92,7 @@ PCRERegex::~PCRERegex()
 	pcre_free(this->regex);
 }
 
-int PCRERegex::exec(const char *str, size_t offset, struct match *m)
+int PCRERegex::exec(const char *str, size_t offset, struct match *m) const
 {
 	const size_t len = strlen(str);
 	int ov[3];
@@ -127,7 +127,7 @@ FixedString::FixedString(char *pattern, bool case_insensitive)
 	}
 }
 
-int FixedString::exec(const char *str, size_t offset, struct match *m)
+int FixedString::exec(const char *str, size_t offset, struct match *m) const
 {
 	for (const char* pattern : patterns) {
 		const char *result;
