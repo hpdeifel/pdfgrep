@@ -449,14 +449,11 @@ void print_version()
 #endif
 }
 
-int is_dir(const std::string &filename)
+bool is_dir(const std::string &filename)
 {
 	struct stat st;
 
-	if (stat(filename.c_str(), &st) == 0 && S_ISDIR(st.st_mode))
-		return 1;
-	else
-		return 0;
+	return stat(filename.c_str(), &st) == 0 && S_ISDIR(st.st_mode);
 }
 
 int do_search_in_document(const std::string &path, const std::string &filename,
