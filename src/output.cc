@@ -49,7 +49,7 @@ void end_color(bool use_colors, const char *colorcode)
 		end_color(use_colors, color);	\
 	} while (0);
 
-void print_line_prefix(const struct outconf *conf, const char *filename, const int pagenum)
+void print_line_prefix(const Outconf *conf, const char *filename, const int pagenum)
 {
 	if (filename && conf->filename) {
 		with_color(conf->color, conf->colors.filename,

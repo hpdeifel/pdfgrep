@@ -21,6 +21,12 @@
 #ifndef PDFGREP_H
 #define PDFGREP_H
 
+#include "config.h"
+#include "exclude.h"
+
+#include <vector>
+#include <string>
+
 /* Exit codes. */
 enum {
 	/* EXIT_SUCCESS = 0 */
@@ -29,6 +35,62 @@ enum {
 	EXIT_NOT_FOUND = 1,
 	// an error occured
 	EXIT_ERROR = 2,
+};
+
+enum class Recursion {
+	NONE,
+	FOLLOW_SYMLINKS,
+	DONT_FOLLOW_SYMLINKS
+};
+
+enum class ContextMode {
+	WHOLE_LINE,
+	TERMINAL_WIDTH,
+        // Meh, sum types would be so good
+	FIXED
+};
+
+struct Colorconf {
+	char *filename;
+	char *pagenum;
+	char *highlight;
+	char *separator;
+};
+
+// Controls, what to print
+struct Outconf {
+	bool filename = false;
+	bool pagenum = false;
+	bool color = false;
+	bool only_matching = false;
+	bool null_byte_sep = false;
+	std::string prefix_sep = ":";
+
+	Colorconf colors;
+};
+
+
+struct Options {
+	bool ignore_case = false;
+	Recursion recursive = Recursion::NONE;
+	ContextMode context_mode = ContextMode::TERMINAL_WIDTH;
+	// Only used when context_mode is ContextMode::FIXED
+	int context_chars = 0;
+	int line_width = 80;
+	bool count = false;
+	bool pagecount = false;
+	bool quiet = false;
+	// vector of all passwords to try on any pdf
+	std::vector<std::string> passwords;
+	int max_count = 0;
+	bool debug = 0;
+	bool warn_empty = false;
+#ifdef HAVE_UNAC
+	bool use_unac = false;
+#endif
+	Outconf outconf;
+	ExcludeList excludes;
+	ExcludeList includes;
 };
 
 #endif /* PDFGREP_H */

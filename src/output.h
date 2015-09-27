@@ -23,32 +23,7 @@
 
 #include <sys/types.h>
 #include <string>
-
-
-struct colorconf {
-	char *filename;
-	char *pagenum;
-	char *highlight;
-	char *separator;
-};
-
-
-struct outconf {
-	int filename;
-	int pagenum;
-	/* FIXME this distinction doesn't belong here */
-	/* controls output of color escape sequences
-	 *  0: no color
-	 *  1: color if stdout is a tty
-	 *  2: color (regardless of stdout)
-	 */
-	int color;
-	bool only_matching;
-	bool null_byte_sep;
-	std::string prefix_sep;
-
-	struct colorconf colors;
-};
+#include "pdfgrep.h"
 
 struct context {
 	int before;
@@ -57,7 +32,7 @@ struct context {
 	char *filename;
 	int pagenum;
 
-	struct outconf *out;
+	const Outconf *out;
 };
 
 struct match {
@@ -70,10 +45,9 @@ struct match {
 /* print filename:pagenum:
  *
  * depending on `conf', filename and/or pagenum can be omitted.
- * `filename' is also omitted if it is NULL
- * `pagenum' is also omitted if it is < 0
  */
-void print_line_prefix(const struct outconf *conf, const char *filename, const int pagenum);
+// TODO Use references everywhere
+void print_line_prefix(const Outconf *conf, const char *filename, const int pagenum);
 void print_context_chars(const struct context *context, const struct match *match);
 void print_context_line(const struct context *context, const struct match *match);
 

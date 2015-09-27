@@ -62,37 +62,8 @@
 /* set this to 1 if any match was found. Used for the exit status */
 int found_something = 0;
 
-/* default options */
 
-int ignore_case = 0;
-int f_recursive_search = 0;
-int follow_symlinks = 1;
-/* characters of context to put around each match.
- * -1 means: print whole line
- * -2 means: try to fit context into terminal */
-int context = -2;
-int line_width = 80;
-int count = 0;
-int pagecount = 0;
-int quiet = 0;
-// vector of all passwords to try on any pdf
-std::vector<std::string> passwords;
-int max_count = 0;
-int debug = 0;
-bool warn_empty = false;
-
-#ifdef HAVE_UNAC
-int use_unac = 0;
-#endif
-
-struct outconf outconf = {
-	-1,                     /* filename */
-	0,                      /* pagenum */
-	1,                      /* color */
-	false,                  /* only_matching */
-	false,                  /* null byte separator */
-	":",                    /* prefix separator */
-};
+// Options
 
 enum {
 	HELP_OPTION,
@@ -136,9 +107,6 @@ struct option long_options[] =
 	{0, 0, 0, 0}
 };
 
-ExcludeList excludes;
-ExcludeList includes;
-
 #ifdef HAVE_UNAC
 /* convenience layer over libunac. The result has to be freed with
  * simple_unac_free */
@@ -165,12 +133,12 @@ void simple_unac_free(char *string)
 }
 #endif
 
-int search_in_document(poppler::document *doc, const std::string &filename, Regengine &re)
+int search_in_document(const Options &opts, poppler::document *doc, const std::string &filename, Regengine &re)
 {
 	int count_matches = 0;
 	int page_matches = 0;
 	int length = 0;
-	struct context cntxt = {context, 0, (char*)filename.c_str(), 0, &outconf};
+	struct context cntxt = {opts.context_chars, 0, (char*)filename.c_str(), 0, &opts.outconf};
 
 	bool max_count_reached = false;
 
@@ -180,7 +148,7 @@ int search_in_document(poppler::document *doc, const std::string &filename, Rege
 	for (int i = 1; i <= doc->pages() && !max_count_reached; i++) {
 		std::unique_ptr<poppler::page> doc_page(doc->create_page(i - 1));
 		if (!doc_page.get()) {
-			if (!quiet) {
+			if (!opts.quiet) {
 				fprintf(stderr, "pdfgrep: Could not search in page %d of %s\n", i, filename.c_str());
 			}
 			continue;
@@ -208,42 +176,41 @@ int search_in_document(poppler::document *doc, const std::string &filename, Rege
 
 		while (!max_count_reached && !re.exec(str_start, index, &mt)) {
 			count_matches++;
-			if (max_count > 0 && count_matches >= max_count)
+			if (opts.max_count > 0 && count_matches >= opts.max_count)
 			{
 				max_count_reached = true;
 			}
-			if (quiet) {
+			if (opts.quiet) {
 #ifdef HAVE_UNAC
 				simple_unac_free(unac_str);
 #endif
 				goto clean;
-			} else if (!count && !pagecount && outconf.only_matching) {
+			} else if (!opts.count && !opts.pagecount && opts.outconf.only_matching) {
 				print_only_match(&cntxt, &mt);
-			} else if (!count && !pagecount) {
-				switch (context) {
-				/* print whole line */
-				case -1:
+			} else if (!opts.count && !opts.pagecount) {
+				switch (opts.context_mode) {
+				case ContextMode::WHOLE_LINE:
 					print_context_line(&cntxt, &mt);
 					break;
-				/* try to guess the terminal width */
-				case -2:
+
+				case ContextMode::TERMINAL_WIDTH:
 					/* Calculate the length of the line prefix:
 					 * filename:linenumber: */
 					length = 0;
 
-					if (outconf.filename)
+					if (opts.outconf.filename)
 						length += 1 + filename.size();
-					if (outconf.pagenum)
+					if (opts.outconf.pagenum)
 						length += 1 + (int)log10((double)i);
 
 					length += mt.end - mt.start;
 
-					cntxt.before = line_width - length;
+					cntxt.before = opts.line_width - length;
 
 					print_context_chars(&cntxt, &mt);
 					break;
-				/* print a fixed context */
-				default:
+
+				case ContextMode::FIXED:
 					print_context_chars(&cntxt, &mt);
 					break;
 				}
@@ -265,19 +232,19 @@ int search_in_document(poppler::document *doc, const std::string &filename, Rege
 #ifdef HAVE_UNAC
 		simple_unac_free(unac_str);
 #endif
-		if(!quiet && pagecount && count_matches > page_matches) {
-			print_line_prefix(&outconf, filename.c_str(), i);
+		if(!opts.quiet && opts.pagecount && count_matches > page_matches) {
+			print_line_prefix(&opts.outconf, filename.c_str(), i);
 			printf("%d\n", count_matches-page_matches);
 			page_matches = count_matches;
 		}
 	}
 
-	if (count && !quiet) {
-		print_line_prefix(&outconf, filename.c_str(), -1);
+	if (opts.count && !opts.quiet) {
+		print_line_prefix(&opts.outconf, filename.c_str(), -1);
 		printf("%d\n", count_matches);
 	}
 
-	if (warn_empty && document_empty) {
+	if (opts.warn_empty && document_empty) {
 		fprintf(stderr, "pdfgrep: File does not contain text: %s\n",
 		        filename.c_str());
 	}
@@ -309,7 +276,7 @@ void parse_env_color_pair(char* pair, char** name, char** value)
 /* set colors of output according to content of environment-varaible env_var.
    the content of env_var has to be like the GREP_COLORS variable for grep
    see man 1 grep for further details of GREP_COLORS */
-void read_colors_from_env(const char* env_var)
+void read_colors_from_env(Colorconf &colors, const char* env_var)
 {
 	/* create a copy of var to edit it with strtok */
 	if (!getenv(env_var)) {
@@ -340,12 +307,12 @@ void read_colors_from_env(const char* env_var)
 	}
 
 		/* now check for known settings and set global colors */
-		PARSE_COLOR("mt", outconf.colors.highlight)
-		else PARSE_COLOR("ms", outconf.colors.highlight)
-		else PARSE_COLOR("mc", outconf.colors.highlight)
-		else PARSE_COLOR("fn", outconf.colors.filename)
-		else PARSE_COLOR("ln", outconf.colors.pagenum)
-		else PARSE_COLOR("se", outconf.colors.separator)
+		PARSE_COLOR("mt", colors.highlight)
+		else PARSE_COLOR("ms", colors.highlight)
+		else PARSE_COLOR("mc", colors.highlight)
+		else PARSE_COLOR("fn", colors.filename)
+		else PARSE_COLOR("ln", colors.pagenum)
+		else PARSE_COLOR("se", colors.separator)
 
 #undef PARSE_COLOR
 
@@ -354,39 +321,38 @@ void read_colors_from_env(const char* env_var)
 	free(colors_list);
 }
 
-void set_default_colors()
+void set_default_colors(Colorconf &colors)
 {
 	// The grep(1) manpage documents the default value of GREP_COLORS to be
 	// ms=01;31:mc=01;31:sl=:cx=:fn=35:ln=32:bn=32:se=36
 	// which corresponds to these values below:
 
-	outconf.colors.filename = strdup("35");
-	outconf.colors.pagenum = strdup("32");
-	outconf.colors.highlight = strdup("01;31");
-	outconf.colors.separator = strdup("36");
+	colors.filename = strdup("35");
+	colors.pagenum = strdup("32");
+	colors.highlight = strdup("01;31");
+	colors.separator = strdup("36");
 }
 
-void free_colors()
+void free_colors(Colorconf &colors)
 {
-	free(outconf.colors.filename);
-	free(outconf.colors.pagenum);
-	free(outconf.colors.highlight);
-	free(outconf.colors.separator);
+	free(colors.filename);
+	free(colors.pagenum);
+	free(colors.highlight);
+	free(colors.separator);
 }
 
-void init_colors()
+void init_colors(Colorconf &colors)
 {
-	set_default_colors();
-	/* free colors, when programm exits */
-	atexit(free_colors);
+	set_default_colors(colors);
+	// TODO Free colors on exit
 }
 
 /* return the terminal line width or line_width
  * if the former is not available */
-int get_line_width()
+int get_line_width(int default_width)
 {
 	const char *v = getenv("COLUMNS");
-	int width = line_width;
+	int width = default_width;
 
 	if (v && *v)
 		width = atoi(v);
@@ -400,7 +366,7 @@ int get_line_width()
 		return width;
 
 
-	return line_width;
+	return default_width;
 }
 
 void print_usage(char *self)
@@ -456,21 +422,21 @@ bool is_dir(const std::string &filename)
 	return stat(filename.c_str(), &st) == 0 && S_ISDIR(st.st_mode);
 }
 
-int do_search_in_document(const std::string &path, const std::string &filename,
+int do_search_in_document(const Options &opts, const std::string &path, const std::string &filename,
                           Regengine &re, bool check_excludes = true)
 {
 	if (check_excludes &&
-	    (!is_excluded(includes, filename) || is_excluded(excludes, filename)))
+	    (!is_excluded(opts.includes, filename) || is_excluded(opts.excludes, filename)))
 		return 0;
 
 	std::shared_ptr<poppler::document> doc;
 
-	if (passwords.empty()) {
+	if (opts.passwords.empty()) {
 		fprintf(stderr, "pdfgrep: Internal error, password vector empty!\n");
 		abort();
 	}
 
-	for (std::string password : passwords) {
+	for (std::string password : opts.passwords) {
 		doc = std::shared_ptr<poppler::document>(
 			poppler::document::load_from_file(path, std::string(password),
 							  std::string(password))
@@ -483,14 +449,14 @@ int do_search_in_document(const std::string &path, const std::string &filename,
 		return 1;
 	}
 
-	if (search_in_document(doc.get(), path, re) && quiet) {
+	if (search_in_document(opts, doc.get(), path, re) && opts.quiet) {
 		exit(EXIT_SUCCESS);
 	}
 
 	return 0;
 }
 
-int do_search_in_directory(const std::string &filename, Regengine &re)
+int do_search_in_directory(const Options &opts, const std::string &filename, Regengine &re)
 {
 	DIR *ptrDir = NULL;
 
@@ -517,8 +483,10 @@ int do_search_in_directory(const std::string &filename, Regengine &re)
 		struct stat st;
 		int statret;
 
-		if (follow_symlinks) statret = stat(path.c_str(), &st);
-		else                 statret = lstat(path.c_str(), &st);
+		if (opts.recursive == Recursion::FOLLOW_SYMLINKS)
+			statret = stat(path.c_str(), &st);
+		else
+			statret = lstat(path.c_str(), &st);
 
 		if (statret) {
 			fprintf(stderr, "pdfgrep: %s: %s\n", filename.c_str(),
@@ -530,9 +498,9 @@ int do_search_in_directory(const std::string &filename, Regengine &re)
 			continue;
 
 		if (S_ISDIR(st.st_mode)) {
-			do_search_in_directory(path, re);
+			do_search_in_directory(opts, path, re);
 		} else {
-			do_search_in_document(path, ptrDirent->d_name, re);
+			do_search_in_document(opts, path, ptrDirent->d_name, re);
 		}
 	}
 
@@ -556,9 +524,10 @@ bool parse_int(const char *str, int *i)
 }
 
 #if POPPLER_VERSION_MAJOR > 0 || POPPLER_VERSION_MINOR >= 29
-void handle_poppler_errors(const std::string &msg, void *)
+void handle_poppler_errors(const std::string &msg, void *_opts)
 {
-	if (debug) {
+	Options *opts = static_cast<Options*>(_opts);
+	if (opts->debug) {
 		fprintf(stderr, "pdfgrep: %s\n", msg.c_str());
 	}
 }
@@ -566,7 +535,8 @@ void handle_poppler_errors(const std::string &msg, void *)
 
 int main(int argc, char** argv)
 {
-	init_colors();
+	Options options;
+	init_colors(options.outconf.colors);
 
 	enum re_engine_type {
 		RE_POSIX = 0,
@@ -575,6 +545,15 @@ int main(int argc, char** argv)
 	};
 
 	int re_engine = RE_POSIX;
+
+	// either -H or -h was set
+	bool explicit_filename_option = false;
+
+	enum {
+		COLOR_ALWAYS,
+		COLOR_AUTO,
+		COLOR_NEVER
+	} use_colors = COLOR_AUTO;
 
 	while (1) {
 		int c = getopt_long(argc, argv, "icC:nrRhHVPpqm:FoZ",
@@ -591,57 +570,63 @@ int main(int argc, char** argv)
 				print_version();
 				exit(EXIT_SUCCESS);
 			case 'n':
-				outconf.pagenum = 1;
+				options.outconf.pagenum = true;
 				break;
 			case 'r':
-				follow_symlinks = 0;
+				options.recursive = Recursion::DONT_FOLLOW_SYMLINKS;
+				break;
 			case 'R':
-				f_recursive_search = 1;
+				options.recursive = Recursion::FOLLOW_SYMLINKS;
 				break;
 			case 'h':
-				outconf.filename = 0;
+				options.outconf.filename = false;
+				explicit_filename_option = true;
 				break;
 			case 'H':
-				outconf.filename = 1;
+				options.outconf.filename = true;
+				explicit_filename_option = true;
 				break;
 			case 'i':
-				ignore_case = 1;
+				options.ignore_case = true;
 				break;
 			case 'c':
-				count = 1;
+				options.count = true;
 				break;
 			case COLOR_OPTION:
 				if (!strcmp("always", optarg)) {
-					outconf.color = 2;
+					use_colors = COLOR_ALWAYS;
 				} else if (!strcmp("never", optarg)) {
-					outconf.color = 0;
+					use_colors = COLOR_NEVER;
 				} else if (!strcmp("auto", optarg)) {
-					outconf.color = 1;
+					use_colors = COLOR_AUTO;
 				} else {
 					fprintf(stderr, "pdfgrep: Invalid argument '%s' for --color. "
 						"Candidates are: always, never or auto\n", optarg);
 					exit(EXIT_ERROR);
 				}
 				break;
-			case 'C':
+			case 'C': {
 				if (!strcmp(optarg, "line")) {
-					context = -1;
+					options.context_mode = ContextMode::WHOLE_LINE;
 					break;
 				}
-				if (!parse_int(optarg, &context)) {
+				int context_chars;
+				if (!parse_int(optarg, &context_chars)) {
 					fprintf(stderr, "pdfgrep: Could not parse number: %s.\n",
 						optarg);
 					exit(EXIT_ERROR);
-				} else if (context <= 0) {
+				} else if (context_chars <= 0) {
 					fprintf(stderr, "pdfgrep: --context must be positive.\n");
 					exit(EXIT_ERROR);
 				}
+				options.context_chars = context_chars;
 				break;
+			}
 			case EXCLUDE_OPTION:
-				exclude_add(excludes, optarg);
+				exclude_add(options.excludes, optarg);
 				break;
 			case INCLUDE_OPTION:
-				exclude_add(includes, optarg);
+				exclude_add(options.includes, optarg);
 				break;
 			case 'P':
 #ifndef HAVE_LIBPCRE
@@ -652,30 +637,30 @@ int main(int argc, char** argv)
 #endif
 				break;
 			case 'p':
-				pagecount = 1;
-				outconf.pagenum = 1;
+				options.pagecount = true;
+				options.outconf.pagenum = true;
 				break;
 
 			case 'q':
-				quiet = 1;
+				options.quiet = true;
 				break;
 
 			case PASSWORD:
-				passwords.push_back(std::string(optarg));
+				options.passwords.push_back(std::string(optarg));
 				break;
 
 			case 'm':
-				if (!parse_int(optarg, &max_count)) {
+				if (!parse_int(optarg, &options.max_count)) {
 					fprintf(stderr, "pdfgrep: Could not parse number: %s.\n",
 						optarg);
 					exit(EXIT_ERROR);
-				} else if (max_count <= 0) {
+				} else if (options.max_count <= 0) {
 					fprintf(stderr, "pdfgrep: --max-count must be positive.\n");
 					exit(EXIT_ERROR);
 				}
 				break;
 			case DEBUG_OPTION:
-				debug = 1;
+				options.debug = true;
 				break;
 
 			case UNAC_OPTION:
@@ -683,7 +668,7 @@ int main(int argc, char** argv)
 				fprintf(stderr, "pdfgrep: UNAC support disabled at compile time!\n");
 				exit(EXIT_ERROR);
 #else
-				use_unac = 1;
+				options.use_unac = true;
 #endif
 				break;
 			case 'F':
@@ -691,20 +676,19 @@ int main(int argc, char** argv)
 				break;
 
 			case 'o':
-				outconf.only_matching = true;
+				options.outconf.only_matching = true;
 				break;
 
-			case 'Z':
-				// --null
-				outconf.null_byte_sep = true;
+			case 'Z': // --null
+				options.outconf.null_byte_sep = true;
 				break;
 
 			case PREFIX_SEP_OPTION:
-				outconf.prefix_sep = std::string(optarg);
+				options.outconf.prefix_sep = std::string(optarg);
 				break;
 
 			case WARN_EMPTY_OPTION:
-				warn_empty = true;
+				options.warn_empty = true;
 				break;
 
 			/* In these two cases, getopt already prints an
@@ -719,7 +703,7 @@ int main(int argc, char** argv)
 		}
 	}
 
-	if (argc == optind || (argc - optind < 2 && !f_recursive_search)) {
+	if (argc == optind || (argc - optind < 2 && options.recursive != Recursion::NONE)) {
 		print_usage(argv[0]);
 		exit(EXIT_ERROR);
 	}
@@ -729,6 +713,7 @@ int main(int argc, char** argv)
 	pattern = simple_unac(pattern);
 #endif
 
+	// TODO: Use unique_ptr
 	Regengine *re = NULL;
 	if (re_engine == (RE_FIXED | RE_PCRE)) {
 		fprintf(stderr, "pdfgrep: --pcre and --fixed cannot be used together\n");
@@ -736,49 +721,52 @@ int main(int argc, char** argv)
 	}
 #ifdef HAVE_LIBPCRE
 	if (re_engine == RE_PCRE) {
-		re = new PCRERegex(pattern, ignore_case);
+		re = new PCRERegex(pattern, options.ignore_case);
 	} else
 #endif // HAVE_LIBPCRE
 	if (re_engine == RE_FIXED) {
-		re = new FixedString(pattern, ignore_case);
+		re = new FixedString(pattern, options.ignore_case);
 	} else {
-		re = new PosixRegex(pattern, ignore_case);
+		re = new PosixRegex(pattern, options.ignore_case);
 	}
 
 #if POPPLER_VERSION_MAJOR > 0 || POPPLER_VERSION_MINOR >= 29
 	// set poppler error output function
-	poppler::set_debug_error_function(handle_poppler_errors, NULL);
+	poppler::set_debug_error_function(handle_poppler_errors, &options);
 #endif
 
+	// FIXME Fix race with calling getenv twice
 	bool color_tty = isatty(STDOUT_FILENO) && getenv("TERM") &&
 		strcmp(getenv("TERM"), "dumb");
-	if (outconf.color == 1 && !color_tty) {
-		outconf.color = 0;
-	}
 
-	if (outconf.color) read_colors_from_env("GREP_COLORS");
+	options.outconf.color =
+		use_colors == COLOR_ALWAYS
+		|| (use_colors == COLOR_AUTO && color_tty);
 
-	if (outconf.filename < 0) {
+	if (options.outconf.color)
+		read_colors_from_env(options.outconf.colors, "GREP_COLORS");
+
+	if (explicit_filename_option == false) {
 		if ((argc - optind) == 1 && !is_dir(argv[optind])) {
-			outconf.filename = 0;
+			options.outconf.filename = false;
 		} else
-			outconf.filename = 1;
+			options.outconf.filename = true;
 	}
 
 	if (isatty(STDOUT_FILENO)) {
-		line_width = get_line_width();
-	} else if (context == -2) {
+		options.line_width = get_line_width(options.line_width);
+	} else if (options.context_mode == ContextMode::TERMINAL_WIDTH) {
 		// on non-terminals, always print the whole line
-		context = -1;
+		options.context_mode = ContextMode::WHOLE_LINE;
 	}
 
-	if (excludes_empty(includes))
-		exclude_add(includes, "*.pdf");
+	if (excludes_empty(options.includes))
+		exclude_add(options.includes, "*.pdf");
 
 	// If no password has been specified on the command line, insert the
 	// empty string aka "no password" into the passwords array.
-	if (passwords.empty()) {
-		passwords.push_back("");
+	if (options.passwords.empty()) {
+		options.passwords.push_back("");
 	}
 
 	int error = 0;
@@ -787,11 +775,11 @@ int main(int argc, char** argv)
 		const std::string filename(argv[i]);
 
 		if (!is_dir(filename)) {
-			if (do_search_in_document(filename, filename, *re, false)) {
+			if (do_search_in_document(options, filename, filename, *re, false)) {
 				error = 1;
 			}
-		} else if (f_recursive_search) {
-			if (do_search_in_directory(filename, *re)) {
+		} else if (options.recursive != Recursion::NONE) {
+			if (do_search_in_directory(options, filename, *re)) {
 				error = 1;
 			}
 		} else {
@@ -800,8 +788,8 @@ int main(int argc, char** argv)
 		}
 	}
 
-	if (argc == optind && f_recursive_search) {
-		do_search_in_directory(".", *re);
+	if (argc == optind && options.recursive != Recursion::NONE) {
+		do_search_in_directory(options, ".", *re);
 	}
 
 	// Free up some stuff
