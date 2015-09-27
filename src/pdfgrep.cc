@@ -58,6 +58,7 @@
 #include "exclude.h"
 #include "regengine.h"
 
+using namespace std;
 
 /* set this to 1 if any match was found. Used for the exit status */
 int found_something = 0;
@@ -450,7 +451,7 @@ int do_search_in_document(const Options &opts, const std::string &path, const st
 	}
 
 	if (search_in_document(opts, doc.get(), path, re) && opts.quiet) {
-		exit(EXIT_SUCCESS);
+		exit(EXIT_SUCCESS); // FIXME: Handle this with return value
 	}
 
 	return 0;
@@ -713,21 +714,20 @@ int main(int argc, char** argv)
 	pattern = simple_unac(pattern);
 #endif
 
-	// TODO: Use unique_ptr
-	Regengine *re = NULL;
+	unique_ptr<Regengine> re;
 	if (re_engine == (RE_FIXED | RE_PCRE)) {
 		fprintf(stderr, "pdfgrep: --pcre and --fixed cannot be used together\n");
 		exit(EXIT_ERROR);
 	}
 #ifdef HAVE_LIBPCRE
 	if (re_engine == RE_PCRE) {
-		re = new PCRERegex(pattern, options.ignore_case);
+		re.reset(new PCRERegex(pattern, options.ignore_case));
 	} else
 #endif // HAVE_LIBPCRE
 	if (re_engine == RE_FIXED) {
-		re = new FixedString(pattern, options.ignore_case);
+		re.reset(new FixedString(pattern, options.ignore_case));
 	} else {
-		re = new PosixRegex(pattern, options.ignore_case);
+		re.reset(new PosixRegex(pattern, options.ignore_case));
 	}
 
 #if POPPLER_VERSION_MAJOR > 0 || POPPLER_VERSION_MINOR >= 29
@@ -735,7 +735,6 @@ int main(int argc, char** argv)
 	poppler::set_debug_error_function(handle_poppler_errors, &options);
 #endif
 
-	// FIXME Fix race with calling getenv twice
 	bool color_tty = isatty(STDOUT_FILENO) && getenv("TERM") &&
 		strcmp(getenv("TERM"), "dumb");
 
@@ -791,9 +790,6 @@ int main(int argc, char** argv)
 	if (argc == optind && options.recursive != Recursion::NONE) {
 		do_search_in_directory(options, ".", *re);
 	}
-
-	// Free up some stuff
-	delete re;
 
 	if (error) {
 		exit(EXIT_ERROR);
