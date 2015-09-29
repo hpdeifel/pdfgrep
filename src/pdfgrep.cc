@@ -134,7 +134,7 @@ void simple_unac_free(char *string)
 }
 #endif
 
-int search_in_document(const Options &opts, poppler::document *doc, const std::string &filename, Regengine &re)
+int search_in_document(const Options &opts, poppler::document *doc, const string &filename, Regengine &re)
 {
 	int count_matches = 0;
 	int page_matches = 0;
@@ -147,7 +147,7 @@ int search_in_document(const Options &opts, poppler::document *doc, const std::s
 	bool document_empty = true;
 
 	for (int i = 1; i <= doc->pages() && !max_count_reached; i++) {
-		std::unique_ptr<poppler::page> doc_page(doc->create_page(i - 1));
+		unique_ptr<poppler::page> doc_page(doc->create_page(i - 1));
 		if (!doc_page.get()) {
 			if (!opts.quiet) {
 				fprintf(stderr, "pdfgrep: Could not search in page %d of %s\n", i, filename.c_str());
@@ -416,31 +416,31 @@ void print_version()
 #endif
 }
 
-bool is_dir(const std::string &filename)
+bool is_dir(const string &filename)
 {
 	struct stat st;
 
 	return stat(filename.c_str(), &st) == 0 && S_ISDIR(st.st_mode);
 }
 
-int do_search_in_document(const Options &opts, const std::string &path, const std::string &filename,
+int do_search_in_document(const Options &opts, const string &path, const string &filename,
                           Regengine &re, bool check_excludes = true)
 {
 	if (check_excludes &&
 	    (!is_excluded(opts.includes, filename) || is_excluded(opts.excludes, filename)))
 		return 0;
 
-	std::shared_ptr<poppler::document> doc;
+	shared_ptr<poppler::document> doc;
 
 	if (opts.passwords.empty()) {
 		fprintf(stderr, "pdfgrep: Internal error, password vector empty!\n");
 		abort();
 	}
 
-	for (std::string password : opts.passwords) {
-		doc = std::shared_ptr<poppler::document>(
-			poppler::document::load_from_file(path, std::string(password),
-							  std::string(password))
+	for (string password : opts.passwords) {
+		doc = shared_ptr<poppler::document>(
+			poppler::document::load_from_file(path, string(password),
+							  string(password))
 			);
 	}
 
@@ -457,7 +457,7 @@ int do_search_in_document(const Options &opts, const std::string &path, const st
 	return 0;
 }
 
-int do_search_in_directory(const Options &opts, const std::string &filename, Regengine &re)
+int do_search_in_directory(const Options &opts, const string &filename, Regengine &re)
 {
 	DIR *ptrDir = NULL;
 
@@ -469,7 +469,7 @@ int do_search_in_directory(const Options &opts, const std::string &filename, Reg
 	}
 
 	while(1) {
-		std::string path(filename);
+		string path(filename);
 		errno = 0;
 		struct dirent *ptrDirent = ptrDirent = readdir(ptrDir);    //not sorted, in order as `ls -f`
 		if (!ptrDirent)
@@ -525,7 +525,7 @@ bool parse_int(const char *str, int *i)
 }
 
 #if POPPLER_VERSION_MAJOR > 0 || POPPLER_VERSION_MINOR >= 29
-void handle_poppler_errors(const std::string &msg, void *_opts)
+void handle_poppler_errors(const string &msg, void *_opts)
 {
 	Options *opts = static_cast<Options*>(_opts);
 	if (opts->debug) {
@@ -647,7 +647,7 @@ int main(int argc, char** argv)
 				break;
 
 			case PASSWORD:
-				options.passwords.push_back(std::string(optarg));
+				options.passwords.push_back(string(optarg));
 				break;
 
 			case 'm':
@@ -685,7 +685,7 @@ int main(int argc, char** argv)
 				break;
 
 			case PREFIX_SEP_OPTION:
-				options.outconf.prefix_sep = std::string(optarg);
+				options.outconf.prefix_sep = string(optarg);
 				break;
 
 			case WARN_EMPTY_OPTION:
@@ -771,7 +771,7 @@ int main(int argc, char** argv)
 	int error = 0;
 
 	for (int i = optind; i < argc; i++) {
-		const std::string filename(argv[i]);
+		const string filename(argv[i]);
 
 		if (!is_dir(filename)) {
 			if (do_search_in_document(options, filename, filename, *re, false)) {

@@ -24,6 +24,8 @@
 
 #include <fnmatch.h>
 
+using namespace std;
+
 void exclude_add(ExcludeList &list, const char *name)
 {
 	list.push_front(name);
@@ -42,7 +44,7 @@ bool is_excluded(const ExcludeList &list, const char *name)
 	return false;
 }
 
-bool is_excluded(const ExcludeList &list, const std::string &name)
+bool is_excluded(const ExcludeList &list, const string &name)
 {
 	return is_excluded(list, name.c_str());
 }
