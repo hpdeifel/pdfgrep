@@ -111,9 +111,9 @@ struct option long_options[] =
 #ifdef HAVE_UNAC
 /* convenience layer over libunac. The result has to be freed with
  * simple_unac_free */
-char *simple_unac(char *string)
+char *simple_unac(const Options &opts, char *string)
 {
-	if (!use_unac)
+	if (!opts.use_unac)
 		return string;
 
 	char *res = NULL;
@@ -127,9 +127,9 @@ char *simple_unac(char *string)
 	return res;
 }
 
-void simple_unac_free(char *string)
+void simple_unac_free(const Options &opts, char *string)
 {
-	if (use_unac)
+	if (opts.use_unac)
 		free(string);
 }
 #endif
@@ -167,7 +167,7 @@ int search_in_document(const Options &opts, poppler::document *doc, const string
 		str.resize(str.size() + 1, '\0');
 		size_t str_len = str.size() - 1;
 #ifdef HAVE_UNAC
-		char *unac_str = simple_unac(&str[0]);
+		char *unac_str = simple_unac(opts, &str[0]);
 		char *str_start = unac_str;
 #else
 		char *str_start = &str[0];
@@ -183,7 +183,7 @@ int search_in_document(const Options &opts, poppler::document *doc, const string
 			}
 			if (opts.quiet) {
 #ifdef HAVE_UNAC
-				simple_unac_free(unac_str);
+				simple_unac_free(opts, unac_str);
 #endif
 				goto clean;
 			} else if (!opts.count && !opts.pagecount && opts.outconf.only_matching) {
@@ -231,7 +231,7 @@ int search_in_document(const Options &opts, poppler::document *doc, const string
 		}
 
 #ifdef HAVE_UNAC
-		simple_unac_free(unac_str);
+		simple_unac_free(opts, unac_str);
 #endif
 		if(!opts.quiet && opts.pagecount && count_matches > page_matches) {
 			print_line_prefix(&opts.outconf, filename.c_str(), i);
@@ -711,7 +711,7 @@ int main(int argc, char** argv)
 
 	char *pattern = argv[optind++];
 #ifdef HAVE_UNAC
-	pattern = simple_unac(pattern);
+	pattern = simple_unac(options, pattern);
 #endif
 
 	unique_ptr<Regengine> re;
