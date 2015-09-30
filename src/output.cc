@@ -52,10 +52,10 @@ static void end_color(bool use_colors, const char *colorcode)
 		end_color(use_colors, color);	\
 	} while (0);
 
-static void putsn(const char *string, int from, int to)
+static void putsn(const string str, int from, int to)
 {
 	for (; from < to; from++)
-		cout << (string[from]);
+		cout << (str[from]);
 }
 
 void print_context_line(const struct context *context, const struct match *match)
@@ -67,7 +67,7 @@ void print_context_line(const struct context *context, const struct match *match
 		a--;
 	a++;
 
-	while (b < match->strlen && match->string[b] != '\n')
+	while (b < match->string.size() && match->string[b] != '\n')
 		b++;
 
 	line_prefix(context->out, context->filename, context->pagenum);

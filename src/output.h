@@ -33,10 +33,9 @@ struct context {
 };
 
 struct match {
-	const char *string;
-	size_t   strlen;
-	int   start;
-	int   end;
+	const std::string string;
+	size_t start;
+	size_t end;
 };
 
 void print_context_line(const struct context *context, const struct match *match);
