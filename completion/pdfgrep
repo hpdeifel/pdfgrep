@@ -32,7 +32,6 @@ _pdfgrep()
 	  -c --count \
 	  -p --page-count \
 	  --color \
-	  -C --context \
 	  -r -R --recursive \
 	  --exclude \
 	  --include \
@@ -51,9 +50,6 @@ _pdfgrep()
     case "${prev}" in
 	--color)
 	    COMPREPLY=( $(compgen -W "always never auto" -- ${cur}) )
-	    ;;
-	--context)
-	    COMPREPLY=( $(compgen -W "line" -- ${cur}) )
 	    ;;
 	--exclude|--include|--password|-m|--max-count|--match-prefix-separator)
 	    COMPREPLY=( )

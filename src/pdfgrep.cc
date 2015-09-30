@@ -29,7 +29,6 @@
 #include <stdarg.h>
 #include <unistd.h>
 #include <math.h>
-#include <sys/ioctl.h>
 #include <fnmatch.h>
 #include <errno.h>
 #include <dirent.h>
@@ -45,11 +44,6 @@
 
 #ifdef HAVE_UNAC
 #include <unac.h>
-#endif
-
-#ifdef HAVE_TERMIOS_H
-/* for TIOCGWINSZ on some platforms */
-#include <termios.h>
 #endif
 
 #include <memory>
@@ -89,7 +83,6 @@ struct option long_options[] =
 	{"no-filename", 0, 0, 'h'},
 	{"count", 0, 0, 'c'},
 	{"color", 1, 0, COLOR_OPTION},
-	{"context", 1, 0, 'C'},
 	{"recursive", 0, 0, 'r'},
 	{"dereference-recursive", 0, 0, 'R'},
 	{"exclude", 1, 0, EXCLUDE_OPTION},
@@ -230,28 +223,6 @@ void init_colors(Colorconf &colors)
 	// TODO Free colors on exit
 }
 
-/* return the terminal line width or line_width
- * if the former is not available */
-int get_line_width(int default_width)
-{
-	const char *v = getenv("COLUMNS");
-	int width = default_width;
-
-	if (v && *v)
-		width = atoi(v);
-
-	struct winsize ws;
-
-	if (ioctl (STDOUT_FILENO, TIOCGWINSZ, &ws) != -1 && 0 < ws.ws_col)
-		width = ws.ws_col;
-
-	if (width > 0)
-		return width;
-
-
-	return default_width;
-}
-
 void print_usage(char *self)
 {
 	cout << "Usage: " << self << " [OPTION]... PATTERN FILE..." << endl;
@@ -271,7 +242,6 @@ void print_help(char *self)
 	     << " -h, --no-filename\t\tSuppress the prefixing of file name on output" << endl
 	     << " -n, --page-number\t\tPrint page number with output lines" << endl
 	     << " -c, --count\t\t\tPrint only a count of matches per file" << endl
-	     << " -C, --context NUM\t\tPrint at most NUM chars of context" << endl
 	     << "     --color WHEN\t\tUse colors for highlighting;" << endl
 	     << "\t\t\t\tWHEN can be `always', `never' or `auto'" << endl
 	     << " -p, --page-count\t\tPrint only a count of matches per page" << endl
@@ -491,22 +461,6 @@ int main(int argc, char** argv)
 					exit(EXIT_ERROR);
 				}
 				break;
-			case 'C': {
-				if (!strcmp(optarg, "line")) {
-					options.context_mode = ContextMode::WHOLE_LINE;
-					break;
-				}
-				int context_chars;
-				if (!parse_int(optarg, &context_chars)) {
-					cout << "Could not parse number: " << optarg << "." << endl;
-					exit(EXIT_ERROR);
-				} else if (context_chars <= 0) {
-					cout << "--context must be positive." << endl;
-					exit(EXIT_ERROR);
-				}
-				options.context_chars = context_chars;
-				break;
-			}
 			case EXCLUDE_OPTION:
 				exclude_add(options.excludes, optarg);
 				break;
@@ -633,13 +587,6 @@ int main(int argc, char** argv)
 			options.outconf.filename = false;
 		} else
 			options.outconf.filename = true;
-	}
-
-	if (isatty(STDOUT_FILENO)) {
-		options.line_width = get_line_width(options.line_width);
-	} else if (options.context_mode == ContextMode::TERMINAL_WIDTH) {
-		// on non-terminals, always print the whole line
-		options.context_mode = ContextMode::WHOLE_LINE;
 	}
 
 	if (excludes_empty(options.includes))

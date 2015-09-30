@@ -9,7 +9,7 @@ AC_PROG_CC
 dnl check for c++11 std
 AX_CXX_COMPILE_STDCXX_11([noext], [mandatory])
 
-AC_CHECK_HEADERS([stdlib.h string.h unistd.h sys/ioctl.h getopt.h termios.h])
+AC_CHECK_HEADERS([stdlib.h string.h unistd.h getopt.h])
 
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC

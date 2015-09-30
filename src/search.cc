@@ -145,7 +145,7 @@ static int search_page(const Options &opts, unique_ptr<poppler::page> page, size
 }
 
 static void print_match(const Options &opts, const string &filename, size_t page, struct match &mt) {
-	struct context cntxt = {opts.context_chars, 0, (char*)filename.c_str(), (int)page, &opts.outconf};
+	struct context cntxt = {0, 0, (char*)filename.c_str(), (int)page, &opts.outconf};
 
 	if (opts.count || opts.pagecount)
 		return;
@@ -155,33 +155,7 @@ static void print_match(const Options &opts, const string &filename, size_t page
 		return;
 	}
 
-	switch (opts.context_mode) {
-	case ContextMode::WHOLE_LINE:
-		print_context_line(&cntxt, &mt);
-		break;
-
-	case ContextMode::TERMINAL_WIDTH: {
-		/* Calculate the length of the line prefix:
-		 * filename:linenumber: */
-		int length = 0;
-
-		if (opts.outconf.filename)
-			length += 1 + filename.size();
-		if (opts.outconf.pagenum)
-			length += 1 + to_string(page).length();
-
-		length += mt.end - mt.start;
-
-		cntxt.before = opts.line_width - length;
-
-		print_context_chars(&cntxt, &mt);
-		break;
-	}
-
-	case ContextMode::FIXED:
-		print_context_chars(&cntxt, &mt);
-		break;
-	}
+	print_context_line(&cntxt, &mt);
 }
 
 #ifdef HAVE_UNAC
@@ -206,6 +180,7 @@ static string maybe_unac(const Options &opts, string str) {
 #ifdef HAVE_UNAC
 	return simple_unac(opts, str);
 #else
+	(void) opts;
 	return str;
 #endif
 }

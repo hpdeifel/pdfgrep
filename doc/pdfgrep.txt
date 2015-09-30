@@ -44,12 +44,6 @@ pages and not on lines.
 *-p*, *--page-count* :: Like *-c*, but prints the number of matches
   per page.
 
-*-C*, *--context* 'NUM' :: Print at most 'INUM' characters of context
-  around each match. The exact number will vary, because pdfgrep tries
-  to respect word boundaries. If 'NUM' is "*line*", the whole line
-  will be printed. If this option is not set, pdfgrep tries to print
-  lines that are not longer than the terminal width.
-
 *--color* 'WHEN' :: Surround file names, page numbers and matched text
   with escape sequences to display them in color on the terminal. (The
   default setting is *auto*). 'WHEN' can be:

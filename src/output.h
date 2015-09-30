@@ -42,13 +42,6 @@ struct match {
 	int   end;
 };
 
-/* print filename:pagenum:
- *
- * depending on `conf', filename and/or pagenum can be omitted.
- */
-// TODO Use references everywhere
-void print_line_prefix(const Outconf& conf, const char *filename, int pagenum);
-void print_context_chars(const struct context *context, const struct match *match);
 void print_context_line(const struct context *context, const struct match *match);
 
 /* print the line prefix followed only by the match */

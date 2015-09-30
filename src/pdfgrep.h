@@ -43,13 +43,6 @@ enum class Recursion {
 	DONT_FOLLOW_SYMLINKS
 };
 
-enum class ContextMode {
-	WHOLE_LINE,
-	TERMINAL_WIDTH,
-        // Meh, sum types would be so good
-	FIXED
-};
-
 struct Colorconf {
 	char *filename;
 	char *pagenum;
@@ -73,10 +66,6 @@ struct Outconf {
 struct Options {
 	bool ignore_case = false;
 	Recursion recursive = Recursion::NONE;
-	ContextMode context_mode = ContextMode::TERMINAL_WIDTH;
-	// Only used when context_mode is ContextMode::FIXED
-	int context_chars = 0;
-	int line_width = 80;
 	bool count = false;
 	bool pagecount = false;
 	bool quiet = false;

@@ -33,7 +33,6 @@ _arguments -s -S \
     "(-c --count)"{-c,--count}"[Print only a count of matches per file]" \
     "(-p --page-count)"{-p,--page-count}"[Count matches per page]" \
     "(--color)--color=[Use colors for highlighting]:Color:(always never auto)" \
-    "(-C --context)"{-C,--context=}"[Limit output]:Context:" \
     "(-r -R --recursive)"{-r,-R,--recursive}"[Search directories recursively]" \
     "*--exclude=[Skip files]:Exclude:" \
     "*--include=[Opposite of exclude]:Include:" \
