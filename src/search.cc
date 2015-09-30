@@ -145,7 +145,7 @@ static int search_page(const Options &opts, unique_ptr<poppler::page> page, size
 }
 
 static void print_match(const Options &opts, const string &filename, size_t page, struct match &mt) {
-	struct context cntxt = {(char*)filename.c_str(), (int)page, &opts.outconf};
+	struct context cntxt = {(char*)filename.c_str(), (int)page, opts.outconf};
 
 	if (opts.count || opts.pagecount)
 		return;

@@ -26,10 +26,10 @@
 #include "pdfgrep.h"
 
 struct context {
-	char *filename;
+	const std::string &filename;
 	int pagenum;
 
-	const Outconf *out;
+	const Outconf &out;
 };
 
 struct match {

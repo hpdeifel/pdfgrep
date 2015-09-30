@@ -70,11 +70,11 @@ void print_context_line(const struct context *context, const struct match *match
 	while (b < match->strlen && match->string[b] != '\n')
 		b++;
 
-	line_prefix(*context->out, context->filename, context->pagenum);
+	line_prefix(context->out, context->filename, context->pagenum);
 
 	putsn(match->string, a, match->start);
 
-	with_color(context->out->color, context->out->colors.highlight,
+	with_color(context->out.color, context->out.colors.highlight,
 		putsn(match->string, match->start, match->end);
 	);
 
@@ -85,9 +85,9 @@ void print_context_line(const struct context *context, const struct match *match
 
 void print_only_match(const struct context *context, const struct match *match)
 {
-	line_prefix(*context->out, context->filename, context->pagenum);
+	line_prefix(context->out, context->filename, context->pagenum);
 
-	with_color(context->out->color, context->out->colors.highlight,
+	with_color(context->out.color, context->out.colors.highlight,
 		putsn(match->string, match->start, match->end);
 	);
 
