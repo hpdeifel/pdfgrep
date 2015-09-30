@@ -23,7 +23,11 @@
 
 #include <iostream>
 #include <math.h>
+#include <string.h>
 
+#ifdef HAVE_UNAC
+#include <unac.h>
+#endif
 #include <cpp/poppler-page.h>
 
 
@@ -43,9 +47,9 @@ static void print_match(const Options &opts, const string &filename, size_t page
 
 #ifdef HAVE_UNAC
 /* convenience layer over libunac */
-string simple_unac(string str);
+static string simple_unac(const Options &opts, string str);
 #endif
-static string maybe_unac(string std);
+static string maybe_unac(const Options &opts, string std);
 
 int search_document(const Options &opts, unique_ptr<poppler::document> doc,
                     const string &filename, const Regengine &re) {
@@ -107,7 +111,7 @@ static int search_page(const Options &opts, unique_ptr<poppler::page> page, size
 	// there is text on this page, document can't be empty
 	state.document_empty = false;
 
-	string text = maybe_unac(page_text(*page));
+	string text = maybe_unac(opts, page_text(*page));
 
 	size_t index = 0;
 	struct match mt = { text.c_str(), text.size(), 0, 0 };
@@ -181,26 +185,26 @@ static void print_match(const Options &opts, const string &filename, size_t page
 }
 
 #ifdef HAVE_UNAC
-string simple_unac(string str)
+static string simple_unac(const Options &opts, string str)
 {
-	if (!use_unac)
-		return string;
+	if (!opts.use_unac)
+		return str;
 
 	char *res = NULL;
 	size_t reslen = 0;
 
-	if (unac_string("UTF-8", string, strlen(string), &res, &reslen)) {
+	if (unac_string("UTF-8", str.c_str(), str.size(), &res, &reslen)) {
 		perror("pdfgrep: Failed to remove accents: ");
-		return strdup(string);
+		return str;
 	}
 
 	return res;
 }
 #endif
 
-static string maybe_unac(string str) {
+static string maybe_unac(const Options &opts, string str) {
 #ifdef HAVE_UNAC
-	return simple_unac(str);
+	return simple_unac(opts, str);
 #else
 	return str;
 #endif
