@@ -30,6 +30,7 @@
 #include <pcre.h>
 #endif
 #include <vector>
+#include <string>
 
 
 struct match;
@@ -37,16 +38,17 @@ struct match;
 class Regengine
 {
 public:
-	virtual int exec(const char *str, size_t offset, struct match *m) const = 0;
+	// writes the match data to m. Returns true on success and false on failure
+	virtual bool exec(const std::string &str, size_t offset, struct match &m) const = 0;
 	virtual ~Regengine() {}
 };
 
 class PosixRegex : public Regengine
 {
 public:
-	PosixRegex(const char *pattern, bool case_insensitive);
+	PosixRegex(const std::string &pattern, bool case_insensitive);
 	~PosixRegex();
-	int exec(const char *str, size_t offset, struct match *m) const override;
+	bool exec(const std::string &str, size_t offset, struct match &m) const override;
 private:
 	regex_t regex;
 };
@@ -55,9 +57,9 @@ private:
 class PCRERegex : public Regengine
 {
 public:
-	PCRERegex(const char *pattern, bool case_insensitive);
+	PCRERegex(const std::string &pattern, bool case_insensitive);
 	~PCRERegex();
-	int exec(const char *str, size_t offset, struct match *m) const override;
+	bool exec(const std::string &str, size_t offset, struct match &m) const override;
 private:
 	pcre *regex;
 };
@@ -66,10 +68,10 @@ private:
 class FixedString : public Regengine
 {
 public:
-	FixedString(char *pattern, bool case_insensitive);
-	int exec(const char *str, size_t offset, struct match *m) const override;
+	FixedString(const std::string &pattern, bool case_insensitive);
+	bool exec(const std::string &str, size_t offset, struct match &m) const override;
 private:
-	std::vector<const char*> patterns;
+	std::vector<std::string> patterns;
 	bool case_insensitive;
 };
 

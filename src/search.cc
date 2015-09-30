@@ -116,7 +116,7 @@ static int search_page(const Options &opts, unique_ptr<poppler::page> page, size
 	size_t index = 0;
 	struct match mt = { text, 0, 0 };
 
-	while (!re.exec(text.c_str(), index, &mt)) {
+	while (re.exec(text.c_str(), index, mt)) {
 		state.total_count++;
 		page_count++;
 

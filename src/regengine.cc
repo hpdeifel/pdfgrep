@@ -26,6 +26,8 @@
 #include <string.h>
 #include <iostream>
 #include <iomanip>
+#include <string>
+#include <sstream>
 
 #include "output.h"
 #include "pdfgrep.h"
@@ -34,11 +36,11 @@
 
 using namespace std;
 
-PosixRegex::PosixRegex(const char *pattern, bool case_insensitive)
+PosixRegex::PosixRegex(const string &pattern, bool case_insensitive)
 {
 	int regex_flags = REG_EXTENDED | (case_insensitive ? REG_ICASE : 0);
 
-	int err = regcomp(&this->regex, pattern, regex_flags);
+	int err = regcomp(&this->regex, pattern.c_str(), regex_flags);
 	if(err) {
 		char err_msg[256];
 		regerror(err, &this->regex, err_msg, 256);
@@ -47,21 +49,21 @@ PosixRegex::PosixRegex(const char *pattern, bool case_insensitive)
 	}
 }
 
-int PosixRegex::exec(const char *str, size_t offset, struct match *m) const
+bool PosixRegex::exec(const string &str, size_t offset, struct match &m) const
 {
 	regmatch_t match[] = {{0, 0}};
 	const int nmatch = 1;
 
-	int ret = regexec(&this->regex, str + offset, nmatch, match, 0);
+	int ret = regexec(&this->regex, &str[offset], nmatch, match, 0);
 
 	if(ret) {
-		return ret;
+		return false;
 	}
 
-	m->start = offset + match[0].rm_so;
-	m->end = offset + match[0].rm_eo;
+	m.start = offset + match[0].rm_so;
+	m.end = offset + match[0].rm_eo;
 
-	return 0;
+	return true;
 }
 
 PosixRegex::~PosixRegex()
@@ -74,13 +76,13 @@ PosixRegex::~PosixRegex()
 
 #ifdef HAVE_LIBPCRE
 
-PCRERegex::PCRERegex(const char *pattern, bool case_insensitive)
+PCRERegex::PCRERegex(const string &pattern, bool case_insensitive)
 {
 	const char *pcre_err;
 	int pcre_err_ofs;
 	const int pcre_options = case_insensitive ? PCRE_CASELESS : 0;
 
-	this->regex = pcre_compile(pattern, pcre_options,
+	this->regex = pcre_compile(pattern.c_str(), pcre_options,
 	                           &pcre_err, &pcre_err_ofs, NULL);
 
 	if (this->regex == NULL) {
@@ -96,59 +98,66 @@ PCRERegex::~PCRERegex()
 	pcre_free(this->regex);
 }
 
-int PCRERegex::exec(const char *str, size_t offset, struct match *m) const
+bool PCRERegex::exec(const string &str, size_t offset, struct match &m) const
 {
-	const size_t len = strlen(str);
+	const size_t len = str.size();
 	int ov[3];
 
-	const int ret = pcre_exec(this->regex, NULL, str, len, offset, 0, ov, 3);
+	const int ret = pcre_exec(this->regex, NULL, str.c_str(), len, offset, 0, ov, 3);
 
 	// TODO: Print human readable error
 	if(ret < 0)
-		return 1;
+		return false;
 
-	m->start = ov[0];
-	m->end = ov[1];
+	m.start = ov[0];
+	m.end = ov[1];
 
-	return 0;
+	return true;
 }
 
 #endif // HAVE_LIBPCRE
 
-FixedString::FixedString(char *pattern, bool case_insensitive)
+FixedString::FixedString(const string &pattern, bool case_insensitive)
 	: case_insensitive(case_insensitive)
 {
-	// split pattern at newlines
-	const char *token = strtok(pattern, "\n");
-	if (token == NULL) {
+	istringstream str { pattern };
+	string line;
+
+	if (pattern.empty()) {
 		// special case for the empty pattern. In this case we _do_ want
-		// matches, but strtok returns NULL leaving our patterns array
+		// matches, but getline returns false leaving our patterns array
 		// empty. Thus we add the whole pattern explicitly.
 		patterns.push_back(pattern);
-	} else while (token != NULL) {
-		patterns.push_back(token);
-		token = strtok(NULL, "\n");
+		return;
+	}
+
+	// split pattern at newlines
+	while (getline(str, line)) {
+		patterns.push_back(line);
 	}
 }
 
-int FixedString::exec(const char *str, size_t offset, struct match *m) const
+bool FixedString::exec(const string &str, size_t offset, struct match &m) const
 {
-	for (const char* pattern : patterns) {
+	// We use C-style strings here, because of strcasestr
+	const char *str_begin = &str[offset];
+
+	for (const string pattern : patterns) {
 		const char *result;
 		if (this->case_insensitive) {
-			result = strcasestr(str+offset, pattern);
+			result = strcasestr(str_begin, pattern.c_str());
 		} else {
-			result = strstr(str+offset, pattern);
+			result = strstr(str_begin, pattern.c_str());
 		}
 
 		if (result == NULL) {
 			continue;
 		}
 
-		m->start = offset + (result - (str + offset));
-		m->end = m->start + strlen(pattern);
-		return 0;
+		m.start = offset + (result - str_begin);
+		m.end = m.start + pattern.size();
+		return true;
 	}
 
-	return 1;
+	return false;
 }
