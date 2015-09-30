@@ -26,9 +26,6 @@
 #include "pdfgrep.h"
 
 struct context {
-	int before;
-	int after;
-
 	char *filename;
 	int pagenum;
 
