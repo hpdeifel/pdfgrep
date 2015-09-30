@@ -52,15 +52,7 @@ static void end_color(bool use_colors, const char *colorcode)
 		end_color(use_colors, color);	\
 	} while (0);
 
-static void print_line_prefix(const Outconf &conf, const char *filename, int pagenum)
-{
-	if (pagenum >= 0)
-		line_prefix(conf, string(filename), (size_t)pagenum);
-	else
-		line_prefix(conf, string(filename));
-}
-
-static  void putsn(const char *string, int from, int to)
+static void putsn(const char *string, int from, int to)
 {
 	for (; from < to; from++)
 		cout << (string[from]);
@@ -78,7 +70,7 @@ void print_context_line(const struct context *context, const struct match *match
 	while (b < match->strlen && match->string[b] != '\n')
 		b++;
 
-	print_line_prefix(*context->out, context->filename, context->pagenum);
+	line_prefix(*context->out, context->filename, context->pagenum);
 
 	putsn(match->string, a, match->start);
 
@@ -93,7 +85,7 @@ void print_context_line(const struct context *context, const struct match *match
 
 void print_only_match(const struct context *context, const struct match *match)
 {
-	print_line_prefix(*context->out, context->filename, context->pagenum);
+	line_prefix(*context->out, context->filename, context->pagenum);
 
 	with_color(context->out->color, context->out->colors.highlight,
 		putsn(match->string, match->start, match->end);
