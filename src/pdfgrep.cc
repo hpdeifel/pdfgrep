@@ -57,6 +57,7 @@
 #include "output.h"
 #include "exclude.h"
 #include "regengine.h"
+#include "search.h"
 
 using namespace std;
 
@@ -133,126 +134,6 @@ void simple_unac_free(const Options &opts, char *string)
 		free(string);
 }
 #endif
-
-int search_in_document(const Options &opts, poppler::document *doc, const string &filename, Regengine &re)
-{
-	int count_matches = 0;
-	int page_matches = 0;
-	int length = 0;
-	struct context cntxt = {opts.context_chars, 0, (char*)filename.c_str(), 0, &opts.outconf};
-
-	bool max_count_reached = false;
-
-	// Tracks if there is text on any of the pages
-	bool document_empty = true;
-
-	for (int i = 1; i <= doc->pages() && !max_count_reached; i++) {
-		unique_ptr<poppler::page> doc_page(doc->create_page(i - 1));
-		if (!doc_page.get()) {
-			if (!opts.quiet) {
-				fprintf(stderr, "pdfgrep: Could not search in page %d of %s\n", i, filename.c_str());
-			}
-			continue;
-		}
-
-		cntxt.pagenum = i;
-
-		// page not empty, set document_empty to false
-		if (doc_page->text().empty() == false) {
-			document_empty = false;
-		}
-
-
-		poppler::byte_array str = doc_page->text().to_utf8();
-		str.resize(str.size() + 1, '\0');
-		size_t str_len = str.size() - 1;
-#ifdef HAVE_UNAC
-		char *unac_str = simple_unac(opts, &str[0]);
-		char *str_start = unac_str;
-#else
-		char *str_start = &str[0];
-#endif
-		size_t index = 0;
-		struct match mt = { .string = str_start, .strlen = str_len };
-
-		while (!max_count_reached && !re.exec(str_start, index, &mt)) {
-			count_matches++;
-			if (opts.max_count > 0 && count_matches >= opts.max_count)
-			{
-				max_count_reached = true;
-			}
-			if (opts.quiet) {
-#ifdef HAVE_UNAC
-				simple_unac_free(opts, unac_str);
-#endif
-				goto clean;
-			} else if (!opts.count && !opts.pagecount && opts.outconf.only_matching) {
-				print_only_match(&cntxt, &mt);
-			} else if (!opts.count && !opts.pagecount) {
-				switch (opts.context_mode) {
-				case ContextMode::WHOLE_LINE:
-					print_context_line(&cntxt, &mt);
-					break;
-
-				case ContextMode::TERMINAL_WIDTH:
-					/* Calculate the length of the line prefix:
-					 * filename:linenumber: */
-					length = 0;
-
-					if (opts.outconf.filename)
-						length += 1 + filename.size();
-					if (opts.outconf.pagenum)
-						length += 1 + (int)log10((double)i);
-
-					length += mt.end - mt.start;
-
-					cntxt.before = opts.line_width - length;
-
-					print_context_chars(&cntxt, &mt);
-					break;
-
-				case ContextMode::FIXED:
-					print_context_chars(&cntxt, &mt);
-					break;
-				}
-			}
-
-			found_something = 1;
-
-			index = mt.end;
-
-			// prevent loop if match is empty
-			if (mt.start == mt.end) {
-				index++;
-			}
-
-			if(index >= str_len)
-				break;
-		}
-
-#ifdef HAVE_UNAC
-		simple_unac_free(opts, unac_str);
-#endif
-		if(!opts.quiet && opts.pagecount && count_matches > page_matches) {
-			print_line_prefix(&opts.outconf, filename.c_str(), i);
-			printf("%d\n", count_matches-page_matches);
-			page_matches = count_matches;
-		}
-	}
-
-	if (opts.count && !opts.quiet) {
-		print_line_prefix(&opts.outconf, filename.c_str(), -1);
-		printf("%d\n", count_matches);
-	}
-
-	if (opts.warn_empty && document_empty) {
-		fprintf(stderr, "pdfgrep: File does not contain text: %s\n",
-		        filename.c_str());
-	}
-
-clean:
-	return count_matches;
-}
 
 /* parses a color pair like "foo=bar" to "foo" and "bar" */
 void parse_env_color_pair(char* pair, char** name, char** value)
@@ -430,7 +311,7 @@ int do_search_in_document(const Options &opts, const string &path, const string 
 	    (!is_excluded(opts.includes, filename) || is_excluded(opts.excludes, filename)))
 		return 0;
 
-	shared_ptr<poppler::document> doc;
+	unique_ptr<poppler::document> doc;
 
 	if (opts.passwords.empty()) {
 		fprintf(stderr, "pdfgrep: Internal error, password vector empty!\n");
@@ -438,7 +319,9 @@ int do_search_in_document(const Options &opts, const string &path, const string 
 	}
 
 	for (string password : opts.passwords) {
-		doc = shared_ptr<poppler::document>(
+		// FIXME This logic doesn't seem to make sens. What if only the
+		// first password is correct?
+		doc = unique_ptr<poppler::document>(
 			poppler::document::load_from_file(path, string(password),
 							  string(password))
 			);
@@ -450,8 +333,12 @@ int do_search_in_document(const Options &opts, const string &path, const string 
 		return 1;
 	}
 
-	if (search_in_document(opts, doc.get(), path, re) && opts.quiet) {
-		exit(EXIT_SUCCESS); // FIXME: Handle this with return value
+	int matches = search_document(opts, move(doc), path, re);
+	if (matches > 0) {
+		found_something = 1;
+		if (opts.quiet) {
+			exit(EXIT_SUCCESS); // FIXME: Handle this with return value
+		}
 	}
 
 	return 0;

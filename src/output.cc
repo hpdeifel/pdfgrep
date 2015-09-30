@@ -23,6 +23,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <iostream>
+
+using namespace std;
 
 bool is_valid_color(const char* colorcode) {
 	return colorcode && strcmp(colorcode, "");
@@ -31,13 +34,13 @@ bool is_valid_color(const char* colorcode) {
 void start_color(bool use_colors, const char *colorcode)
 {
 	if (use_colors && is_valid_color(colorcode))
-		printf("\33[%sm\33[K", colorcode);
+		cout << "\33[" << colorcode << "m\33[K";
 }
 
 void end_color(bool use_colors, const char *colorcode)
 {
 	if (use_colors && is_valid_color(colorcode))
-		printf("\33[m\33[K");
+		cout << "\33[m\33[K";
 }
 
 #define with_color(use_colors, color, code)	\
@@ -49,37 +52,22 @@ void end_color(bool use_colors, const char *colorcode)
 		end_color(use_colors, color);	\
 	} while (0);
 
-void print_line_prefix(const Outconf *conf, const char *filename, const int pagenum)
+void print_line_prefix(const Outconf &conf, const char *filename, int pagenum)
 {
-	if (filename && conf->filename) {
-		with_color(conf->color, conf->colors.filename,
-			printf("%s", filename););
-		// Here, --null takes precedence over --match-prefix-separator
-		// in the sense, that if --null is given, the null byte is
-		// always printed after the filename instead of the separator.
-		if (conf->null_byte_sep) {
-			putchar('\0');
-		} else {
-			with_color(conf->color, conf->colors.separator,
-				printf("%s", conf->prefix_sep.c_str()););
-		}
-	}
-	if (pagenum >= 0 && conf->pagenum) {
-		with_color(conf->color, conf->colors.pagenum,
-			printf("%d", pagenum););
-		with_color(conf->color, conf->colors.separator,
-			printf("%s", conf->prefix_sep.c_str()););
-	}
+	if (pagenum >= 0)
+		line_prefix(conf, string(filename), (size_t)pagenum);
+	else
+		line_prefix(conf, string(filename));
 }
 
-void putsn(char *string, int from, int to)
+void putsn(const char *string, int from, int to)
 {
 	for (; from < to; from++)
-		putchar(string[from]);
+		cout << (string[from]);
 }
 
 
-int next_word_left(char *string, int index)
+int next_word_left(const char *string, int index)
 {
 	int i = 0;
 	int in_whitespace;
@@ -103,7 +91,7 @@ int next_word_left(char *string, int index)
 	return i;
 }
 
-int next_word_right(char *string, int index, int buflen)
+int next_word_right(const char *string, int index, int buflen)
 {
 	int i = 0;
 	int in_whitespace;
@@ -155,7 +143,7 @@ void print_context_chars(const struct context *context, const struct match *matc
 		}
 	}
 
-	print_line_prefix(context->out, context->filename, context->pagenum);
+	print_line_prefix(*context->out, context->filename, context->pagenum);
 
 	putsn(match->string, a, match->start);
 
@@ -165,7 +153,7 @@ void print_context_chars(const struct context *context, const struct match *matc
 
 	putsn(match->string, match->end, b);
 
-	printf("\n");
+	cout << endl;
 }
 
 void print_context_line(const struct context *context, const struct match *match)
@@ -180,7 +168,7 @@ void print_context_line(const struct context *context, const struct match *match
 	while (b < match->strlen && match->string[b] != '\n')
 		b++;
 
-	print_line_prefix(context->out, context->filename, context->pagenum);
+	print_line_prefix(*context->out, context->filename, context->pagenum);
 
 	putsn(match->string, a, match->start);
 
@@ -190,16 +178,52 @@ void print_context_line(const struct context *context, const struct match *match
 
 	putsn(match->string, match->end, b);
 
-	printf("\n");
+	cout << endl;
 }
 
 void print_only_match(const struct context *context, const struct match *match)
 {
-	print_line_prefix(context->out, context->filename, context->pagenum);
+	print_line_prefix(*context->out, context->filename, context->pagenum);
 
 	with_color(context->out->color, context->out->colors.highlight,
 		putsn(match->string, match->start, match->end);
 	);
 
-	printf("\n");
+	cout << endl;
+}
+
+ostream& err() {
+	return cerr << "pdfgrep: ";
+}
+
+std::ostream& line_prefix(const Outconf& outconf, const std::string& filename,
+                          size_t page) {
+	line_prefix(outconf, filename);
+
+	if (outconf.pagenum) {
+		with_color(outconf.color, outconf.colors.pagenum,
+			cout << page;);
+		with_color(outconf.color, outconf.colors.separator,
+			cout << outconf.prefix_sep;);
+	}
+
+	return cout;
+}
+
+std::ostream& line_prefix(const Outconf& outconf, const std::string& filename) {
+	if (outconf.filename) {
+		with_color(outconf.color, outconf.colors.filename,
+			cout << filename;);
+		// Here, --null takes precedence over --match-prefix-separator
+		// in the sense, that if --null is given, the null byte is
+		// always printed after the filename instead of the separator.
+		if (outconf.null_byte_sep) {
+			cout << '\0';
+		} else {
+			with_color(outconf.color, outconf.colors.separator,
+				cout << outconf.prefix_sep;);
+		}
+	}
+
+	return cout;
 }

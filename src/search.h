@@ -18,49 +18,18 @@
  *   Boston, MA 02110-1301 USA.                                            *
  ***************************************************************************/
 
-#ifndef OUTPUT_H
-#define OUTPUT_H
+#ifndef SEARCH_H
+#define SEARCH_H
 
-#include <sys/types.h>
-#include <string>
+#include <memory>
+#include <cpp/poppler-document.h>
+
 #include "pdfgrep.h"
+#include "regengine.h"
 
-struct context {
-	int before;
-	int after;
+// Returns the number of matches found in this document
+int search_document(const Options &opts, std::unique_ptr<poppler::document> doc,
+                    const std::string &filename, const Regengine &re);
 
-	char *filename;
-	int pagenum;
 
-	const Outconf *out;
-};
-
-struct match {
-	const char *string;
-	size_t   strlen;
-	int   start;
-	int   end;
-};
-
-/* print filename:pagenum:
- *
- * depending on `conf', filename and/or pagenum can be omitted.
- */
-// TODO Use references everywhere
-void print_line_prefix(const Outconf& conf, const char *filename, int pagenum);
-void print_context_chars(const struct context *context, const struct match *match);
-void print_context_line(const struct context *context, const struct match *match);
-
-/* print the line prefix followed only by the match */
-void print_only_match(const struct context *context, const struct match *match);
-
-// C++ interface:
-
-// Print to stderr, with "pdfgrep: " as prefix;
-std::ostream& err();
-
-std::ostream& line_prefix(const Outconf& outconf, const std::string& filename,
-                          size_t page);
-std::ostream& line_prefix(const Outconf& outconf, const std::string& filename);
-
-#endif
+#endif /* SEARCH_H */
