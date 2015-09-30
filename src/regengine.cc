@@ -24,11 +24,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <iostream>
+#include <iomanip>
 
 #include "output.h"
 #include "pdfgrep.h"
 
 // regex(3)
+
+using namespace std;
 
 PosixRegex::PosixRegex(const char *pattern, bool case_insensitive)
 {
@@ -38,7 +42,7 @@ PosixRegex::PosixRegex(const char *pattern, bool case_insensitive)
 	if(err) {
 		char err_msg[256];
 		regerror(err, &this->regex, err_msg, 256);
-		fprintf(stderr, "pdfgrep: %s\n", err_msg);
+		::err() << err_msg << endl;
 		exit(EXIT_ERROR);
 	}
 }
@@ -80,9 +84,9 @@ PCRERegex::PCRERegex(const char *pattern, bool case_insensitive)
 	                           &pcre_err, &pcre_err_ofs, NULL);
 
 	if (this->regex == NULL) {
-		fprintf(stderr, "pdfgrep: %s\n", pattern);
-		fprintf(stderr, "pdfgrep: %*s\n", pcre_err_ofs + 1, "^");
-		fprintf(stderr, "pdfgrep: Error compiling PCRE pattern: %s\n", pcre_err);
+		err() << pattern << endl;
+		err() << setw(pcre_err_ofs+1) << "^" << endl;
+		err() << "Error compiling PCRE pattern: " << pcre_err << endl;
 		exit(EXIT_ERROR);
 	}
 }

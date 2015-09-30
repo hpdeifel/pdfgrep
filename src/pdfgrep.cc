@@ -36,6 +36,7 @@
 #include <sys/stat.h>
 #include <limits.h>
 #include <vector>
+#include <iostream>
 
 #include <cpp/poppler-document.h>
 #include <cpp/poppler-page.h>
@@ -253,47 +254,47 @@ int get_line_width(int default_width)
 
 void print_usage(char *self)
 {
-	printf("Usage: %s [OPTION]... PATTERN FILE...\n", self);
-	printf("\nSee '%s --help' for more information\n", self);
+	cout << "Usage: " << self << " [OPTION]... PATTERN FILE..." << endl;
+	cout << endl << "See '" << self << " --help' for more information" << endl;
 }
 
 void print_help(char *self)
 {
-	printf("Usage: %s [OPTION]... PATTERN FILE...\n"
-"\nSearch for PATTERN in each FILE.\n"
-"PATTERN is, by default, an extended regular expression.\n\n"
-
-"Options:\n"
-" -i, --ignore-case\t\tIgnore case distinctions\n"
-" -P, --pcre\t\t\tUse Perl compatible regular expressions (PCRE)\n"
-" -H, --with-filename\t\tPrint the file name for each match\n"
-" -h, --no-filename\t\tSuppress the prefixing of file name on output\n"
-" -n, --page-number\t\tPrint page number with output lines\n"
-" -c, --count\t\t\tPrint only a count of matches per file\n"
-" -C, --context NUM\t\tPrint at most NUM chars of context\n"
-"     --color WHEN\t\tUse colors for highlighting;\n"
-"\t\t\t\tWHEN can be `always', `never' or `auto'\n"
-" -p, --page-count\t\tPrint only a count of matches per page\n"
-" -m, --max-count NUM\t\tStop reading after NUM matching lines (per file)\n"
-" -q, --quiet\t\t\tSuppress normal output\n"
-" -r, --recursive\t\tSearch directories recursively\n"
-" -R, --dereference-recursive\tLikewise, but follow all symlinks\n"
-"     --help\t\t\tPrint this help\n"
-" -V, --version\t\t\tShow version information\n", self);
+	cout << "Usage: " << self << " [OPTION]... PATTERN FILE..." << endl << endl
+	     << "Search for PATTERN in each FILE." << endl
+	     << "PATTERN is, by default, an extended regular expression." << endl
+	     << endl
+	     << "Options:" << endl
+	     << " -i, --ignore-case\t\tIgnore case distinctions" << endl
+	     << " -P, --pcre\t\t\tUse Perl compatible regular expressions (PCRE)" << endl
+	     << " -H, --with-filename\t\tPrint the file name for each match" << endl
+	     << " -h, --no-filename\t\tSuppress the prefixing of file name on output" << endl
+	     << " -n, --page-number\t\tPrint page number with output lines" << endl
+	     << " -c, --count\t\t\tPrint only a count of matches per file" << endl
+	     << " -C, --context NUM\t\tPrint at most NUM chars of context" << endl
+	     << "     --color WHEN\t\tUse colors for highlighting;" << endl
+	     << "\t\t\t\tWHEN can be `always', `never' or `auto'" << endl
+	     << " -p, --page-count\t\tPrint only a count of matches per page" << endl
+	     << " -m, --max-count NUM\t\tStop reading after NUM matching lines (per file)" << endl
+	     << " -q, --quiet\t\t\tSuppress normal output" << endl
+	     << " -r, --recursive\t\tSearch directories recursively" << endl
+	     << " -R, --dereference-recursive\tLikewise, but follow all symlinks" << endl
+	     << "     --help\t\t\tPrint this help" << endl
+	     << " -V, --version\t\t\tShow version information" << endl;
 }
 
 void print_version()
 {
-	printf("This is %s version %s.\n", PACKAGE, VERSION);
-	printf("\nUsing poppler version %s\n", poppler::version_string().c_str());
+	cout << "This is " << PACKAGE << " version " << VERSION << "." << endl << endl;
+	cout << "Using poppler version " << poppler::version_string().c_str() << endl;
 #ifdef HAVE_UNAC
-	printf("Using unac version %s\n", unac_version());
+	cout << "Using unac version " << unac_version() << endl;
 #endif
 #ifdef HAVE_LIBPCRE
-	printf("Using libpcre version %s\n", pcre_version());
+	cout << "Using libpcre version " << pcre_version() << endl;
 #endif
 #ifdef PDFGREP_GIT_HEAD
-	printf("Built from git-commit %s\n", PDFGREP_GIT_HEAD);
+	cout << "Built from git-commit " << PDFGREP_GIT_HEAD << endl;
 #endif
 }
 
@@ -314,7 +315,7 @@ int do_search_in_document(const Options &opts, const string &path, const string 
 	unique_ptr<poppler::document> doc;
 
 	if (opts.passwords.empty()) {
-		fprintf(stderr, "pdfgrep: Internal error, password vector empty!\n");
+		err() << "Internal error, password vector empty!" << endl;
 		abort();
 	}
 
@@ -328,8 +329,7 @@ int do_search_in_document(const Options &opts, const string &path, const string 
 	}
 
 	if (!doc.get() || doc->is_locked()) {
-		fprintf(stderr, "pdfgrep: Could not open %s\n",
-			path.c_str());
+		err() << "Could not open " << path.c_str() << endl;
 		return 1;
 	}
 
@@ -350,8 +350,7 @@ int do_search_in_directory(const Options &opts, const string &filename, Regengin
 
 	ptrDir = opendir(filename.c_str());
 	if (!ptrDir) {
-		fprintf(stderr, "pdfgrep: %s: %s\n", filename.c_str(),
-			strerror(errno));
+		err() << filename.c_str() << ": " << strerror(errno) << endl;
 		return 1;
 	}
 
@@ -377,8 +376,7 @@ int do_search_in_directory(const Options &opts, const string &filename, Regengin
 			statret = lstat(path.c_str(), &st);
 
 		if (statret) {
-			fprintf(stderr, "pdfgrep: %s: %s\n", filename.c_str(),
-				strerror(errno));
+			err() << filename.c_str() << ": " << strerror(errno) << endl;
 			continue;
 		}
 
@@ -416,7 +414,7 @@ void handle_poppler_errors(const string &msg, void *_opts)
 {
 	Options *opts = static_cast<Options*>(_opts);
 	if (opts->debug) {
-		fprintf(stderr, "pdfgrep: %s\n", msg.c_str());
+		err() << msg << endl;
 	}
 }
 #endif
@@ -488,8 +486,8 @@ int main(int argc, char** argv)
 				} else if (!strcmp("auto", optarg)) {
 					use_colors = COLOR_AUTO;
 				} else {
-					fprintf(stderr, "pdfgrep: Invalid argument '%s' for --color. "
-						"Candidates are: always, never or auto\n", optarg);
+					err() << "Invalid argument '" << optarg << "' for --color. "
+					      << "Candidates are: always, never or auto" << endl;
 					exit(EXIT_ERROR);
 				}
 				break;
@@ -500,11 +498,10 @@ int main(int argc, char** argv)
 				}
 				int context_chars;
 				if (!parse_int(optarg, &context_chars)) {
-					fprintf(stderr, "pdfgrep: Could not parse number: %s.\n",
-						optarg);
+					cout << "Could not parse number: " << optarg << "." << endl;
 					exit(EXIT_ERROR);
 				} else if (context_chars <= 0) {
-					fprintf(stderr, "pdfgrep: --context must be positive.\n");
+					cout << "--context must be positive." << endl;
 					exit(EXIT_ERROR);
 				}
 				options.context_chars = context_chars;
@@ -518,7 +515,7 @@ int main(int argc, char** argv)
 				break;
 			case 'P':
 #ifndef HAVE_LIBPCRE
-				fprintf(stderr, "pdfgrep: PCRE support disabled at compile time!\n");
+				err() << "PCRE support disabled at compile time!" << endl;
 				exit(EXIT_ERROR);
 #else
 				re_engine |= RE_PCRE;
@@ -539,11 +536,10 @@ int main(int argc, char** argv)
 
 			case 'm':
 				if (!parse_int(optarg, &options.max_count)) {
-					fprintf(stderr, "pdfgrep: Could not parse number: %s.\n",
-						optarg);
+					err() << "Could not parse number: " << optarg << "." << endl;
 					exit(EXIT_ERROR);
 				} else if (options.max_count <= 0) {
-					fprintf(stderr, "pdfgrep: --max-count must be positive.\n");
+					err() << "--max-count must be positive." << endl;
 					exit(EXIT_ERROR);
 				}
 				break;
@@ -553,7 +549,7 @@ int main(int argc, char** argv)
 
 			case UNAC_OPTION:
 #ifndef HAVE_UNAC
-				fprintf(stderr, "pdfgrep: UNAC support disabled at compile time!\n");
+				err() << "UNAC support disabled at compile time!" << endl;
 				exit(EXIT_ERROR);
 #else
 				options.use_unac = true;
@@ -603,7 +599,7 @@ int main(int argc, char** argv)
 
 	unique_ptr<Regengine> re;
 	if (re_engine == (RE_FIXED | RE_PCRE)) {
-		fprintf(stderr, "pdfgrep: --pcre and --fixed cannot be used together\n");
+		err() << "--pcre and --fixed cannot be used together" << endl;
 		exit(EXIT_ERROR);
 	}
 #ifdef HAVE_LIBPCRE
@@ -669,7 +665,7 @@ int main(int argc, char** argv)
 				error = 1;
 			}
 		} else {
-			fprintf(stderr, "pdfgrep: %s is a directory\n", filename.c_str());
+			err() << filename << " is a directory" << endl;
 			error = 1;
 		}
 	}
