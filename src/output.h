@@ -38,10 +38,10 @@ struct match {
 	size_t end;
 };
 
-void print_context_line(const struct context *context, const struct match *match);
+void print_context_line(const struct context &context, const struct match &match);
 
 /* print the line prefix followed only by the match */
-void print_only_match(const struct context *context, const struct match *match);
+void print_only_match(const struct context &context, const struct match &match);
 
 // C++ interface:
 

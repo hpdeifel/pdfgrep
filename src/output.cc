@@ -58,35 +58,35 @@ static void putsn(const string str, int from, int to)
 		cout << (str[from]);
 }
 
-void print_context_line(const struct context *context, const struct match *match)
+void print_context_line(const struct context &context, const struct match &match)
 {
-	auto a = match->string.rfind('\n', match->start);
-	auto b = match->string.find('\n', match->end);
+	auto a = match.string.rfind('\n', match.start);
+	auto b = match.string.find('\n', match.end);
 
 	a++;
 
 	if (b == string::npos)
-		b = match->string.size();
+		b = match.string.size();
 
-	line_prefix(context->out, context->filename, context->pagenum);
+	line_prefix(context.out, context.filename, context.pagenum);
 
-	putsn(match->string, a, match->start);
+	putsn(match.string, a, match.start);
 
-	with_color(context->out.color, context->out.colors.highlight,
-		putsn(match->string, match->start, match->end);
+	with_color(context.out.color, context.out.colors.highlight,
+		putsn(match.string, match.start, match.end);
 	);
 
-	putsn(match->string, match->end, b);
+	putsn(match.string, match.end, b);
 
 	cout << endl;
 }
 
-void print_only_match(const struct context *context, const struct match *match)
+void print_only_match(const struct context &context, const struct match &match)
 {
-	line_prefix(context->out, context->filename, context->pagenum);
+	line_prefix(context.out, context.filename, context.pagenum);
 
-	with_color(context->out.color, context->out.colors.highlight,
-		putsn(match->string, match->start, match->end);
+	with_color(context.out.color, context.out.colors.highlight,
+		putsn(match.string, match.start, match.end);
 	);
 
 	cout << endl;
