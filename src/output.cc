@@ -27,17 +27,17 @@
 
 using namespace std;
 
-bool is_valid_color(const char* colorcode) {
+static bool is_valid_color(const char* colorcode) {
 	return colorcode && strcmp(colorcode, "");
 }
 
-void start_color(bool use_colors, const char *colorcode)
+static void start_color(bool use_colors, const char *colorcode)
 {
 	if (use_colors && is_valid_color(colorcode))
 		cout << "\33[" << colorcode << "m\33[K";
 }
 
-void end_color(bool use_colors, const char *colorcode)
+static void end_color(bool use_colors, const char *colorcode)
 {
 	if (use_colors && is_valid_color(colorcode))
 		cout << "\33[m\33[K";
@@ -52,7 +52,7 @@ void end_color(bool use_colors, const char *colorcode)
 		end_color(use_colors, color);	\
 	} while (0);
 
-void print_line_prefix(const Outconf &conf, const char *filename, int pagenum)
+static void print_line_prefix(const Outconf &conf, const char *filename, int pagenum)
 {
 	if (pagenum >= 0)
 		line_prefix(conf, string(filename), (size_t)pagenum);
@@ -60,7 +60,7 @@ void print_line_prefix(const Outconf &conf, const char *filename, int pagenum)
 		line_prefix(conf, string(filename));
 }
 
-void putsn(const char *string, int from, int to)
+static  void putsn(const char *string, int from, int to)
 {
 	for (; from < to; from++)
 		cout << (string[from]);

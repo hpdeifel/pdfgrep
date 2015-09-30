@@ -106,7 +106,7 @@ struct option long_options[] =
 #ifdef HAVE_UNAC
 /* convenience layer over libunac. The result has to be freed with
  * simple_unac_free */
-char *simple_unac(const Options &opts, char *string)
+static char *simple_unac(const Options &opts, char *string)
 {
 	if (!opts.use_unac)
 		return string;
@@ -122,7 +122,7 @@ char *simple_unac(const Options &opts, char *string)
 	return res;
 }
 
-void simple_unac_free(const Options &opts, char *string)
+static void simple_unac_free(const Options &opts, char *string)
 {
 	if (opts.use_unac)
 		free(string);
@@ -130,7 +130,7 @@ void simple_unac_free(const Options &opts, char *string)
 #endif
 
 /* parses a color pair like "foo=bar" to "foo" and "bar" */
-void parse_env_color_pair(char* pair, char** name, char** value)
+static void parse_env_color_pair(char* pair, char** name, char** value)
 {
 	*name = pair;
 	int i = 0;
@@ -152,7 +152,7 @@ void parse_env_color_pair(char* pair, char** name, char** value)
 /* set colors of output according to content of environment-varaible env_var.
    the content of env_var has to be like the GREP_COLORS variable for grep
    see man 1 grep for further details of GREP_COLORS */
-void read_colors_from_env(Colorconf &colors, const char* env_var)
+static void read_colors_from_env(Colorconf &colors, const char* env_var)
 {
 	/* create a copy of var to edit it with strtok */
 	if (!getenv(env_var)) {
@@ -197,7 +197,7 @@ void read_colors_from_env(Colorconf &colors, const char* env_var)
 	free(colors_list);
 }
 
-void set_default_colors(Colorconf &colors)
+static void set_default_colors(Colorconf &colors)
 {
 	// The grep(1) manpage documents the default value of GREP_COLORS to be
 	// ms=01;31:mc=01;31:sl=:cx=:fn=35:ln=32:bn=32:se=36
@@ -209,27 +209,18 @@ void set_default_colors(Colorconf &colors)
 	colors.separator = strdup("36");
 }
 
-void free_colors(Colorconf &colors)
-{
-	free(colors.filename);
-	free(colors.pagenum);
-	free(colors.highlight);
-	free(colors.separator);
-}
-
-void init_colors(Colorconf &colors)
+static void init_colors(Colorconf &colors)
 {
 	set_default_colors(colors);
-	// TODO Free colors on exit
 }
 
-void print_usage(char *self)
+static void print_usage(char *self)
 {
 	cout << "Usage: " << self << " [OPTION]... PATTERN FILE..." << endl;
 	cout << endl << "See '" << self << " --help' for more information" << endl;
 }
 
-void print_help(char *self)
+static void print_help(char *self)
 {
 	cout << "Usage: " << self << " [OPTION]... PATTERN FILE..." << endl << endl
 	     << "Search for PATTERN in each FILE." << endl
@@ -253,7 +244,7 @@ void print_help(char *self)
 	     << " -V, --version\t\t\tShow version information" << endl;
 }
 
-void print_version()
+static void print_version()
 {
 	cout << "This is " << PACKAGE << " version " << VERSION << "." << endl << endl;
 	cout << "Using poppler version " << poppler::version_string().c_str() << endl;
@@ -268,15 +259,15 @@ void print_version()
 #endif
 }
 
-bool is_dir(const string &filename)
+static bool is_dir(const string &filename)
 {
 	struct stat st;
 
 	return stat(filename.c_str(), &st) == 0 && S_ISDIR(st.st_mode);
 }
 
-int do_search_in_document(const Options &opts, const string &path, const string &filename,
-                          Regengine &re, bool check_excludes = true)
+static int do_search_in_document(const Options &opts, const string &path, const string &filename,
+                                 Regengine &re, bool check_excludes = true)
 {
 	if (check_excludes &&
 	    (!is_excluded(opts.includes, filename) || is_excluded(opts.excludes, filename)))
@@ -314,7 +305,7 @@ int do_search_in_document(const Options &opts, const string &path, const string 
 	return 0;
 }
 
-int do_search_in_directory(const Options &opts, const string &filename, Regengine &re)
+static int do_search_in_directory(const Options &opts, const string &filename, Regengine &re)
 {
 	DIR *ptrDir = NULL;
 
@@ -365,7 +356,7 @@ int do_search_in_directory(const Options &opts, const string &filename, Regengin
 	return 0;
 }
 
-bool parse_int(const char *str, int *i)
+static bool parse_int(const char *str, int *i)
 {
 	char *endptr;
 	errno = 0;
@@ -380,7 +371,7 @@ bool parse_int(const char *str, int *i)
 }
 
 #if POPPLER_VERSION_MAJOR > 0 || POPPLER_VERSION_MINOR >= 29
-void handle_poppler_errors(const string &msg, void *_opts)
+static void handle_poppler_errors(const string &msg, void *_opts)
 {
 	Options *opts = static_cast<Options*>(_opts);
 	if (opts->debug) {
