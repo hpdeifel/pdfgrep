@@ -151,11 +151,11 @@ static void print_match(const Options &opts, const string &filename, size_t page
 		return;
 
 	if (opts.outconf.only_matching) {
-		print_only_match(&cntxt, &mt);
+		print_only_match(cntxt, mt);
 		return;
 	}
 
-	print_context_line(&cntxt, &mt);
+	print_context_line(cntxt, mt);
 }
 
 #ifdef HAVE_UNAC
