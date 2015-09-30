@@ -60,15 +60,13 @@ static void putsn(const string str, int from, int to)
 
 void print_context_line(const struct context *context, const struct match *match)
 {
-	int a = match->start;
-	int b = match->end;
+	auto a = match->string.rfind('\n', match->start);
+	auto b = match->string.find('\n', match->end);
 
-	while (a >= 0 && match->string[a] != '\n')
-		a--;
 	a++;
 
-	while (b < match->string.size() && match->string[b] != '\n')
-		b++;
+	if (b == string::npos)
+		b = match->string.size();
 
 	line_prefix(context->out, context->filename, context->pagenum);
 
