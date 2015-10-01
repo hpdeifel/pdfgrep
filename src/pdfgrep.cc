@@ -318,7 +318,7 @@ static int do_search_in_directory(const Options &opts, const string &filename, R
 	while(1) {
 		string path(filename);
 		errno = 0;
-		struct dirent *ptrDirent = ptrDirent = readdir(ptrDir);    //not sorted, in order as `ls -f`
+		struct dirent *ptrDirent = readdir(ptrDir);    //not sorted, in order as `ls -f`
 		if (!ptrDirent)
 			break;
 
