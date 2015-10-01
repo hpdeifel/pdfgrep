@@ -43,13 +43,15 @@ struct SearchState {
 static int search_page(const Options &opts, unique_ptr<poppler::page> page, size_t pagenum,
                         const string &filename, const Regengine &re, SearchState &state);
 
-static void print_match(const Options &opts, const string &filename, size_t page, struct match &mt);
-
 #ifdef HAVE_UNAC
 /* convenience layer over libunac */
 static string simple_unac(const Options &opts, string str);
 #endif
 static string maybe_unac(const Options &opts, string std);
+static void handle_match(const Options &opts, const string &filename, size_t page,
+                         vector<match> &line, const match &mt);
+static void flush_line_matches(const Options &opts, const string &filename, size_t page,
+                               vector<match> &line);
 
 int search_document(const Options &opts, unique_ptr<poppler::document> doc,
                     const string &filename, const Regengine &re) {
@@ -116,6 +118,9 @@ static int search_page(const Options &opts, unique_ptr<poppler::page> page, size
 	size_t index = 0;
 	struct match mt = { text, 0, 0 };
 
+	// matches found in current line
+	vector<match> current;
+
 	while (re.exec(text.c_str(), index, mt)) {
 		state.total_count++;
 		page_count++;
@@ -124,9 +129,10 @@ static int search_page(const Options &opts, unique_ptr<poppler::page> page, size
 			return page_count;
 		}
 
-		print_match(opts, filename, pagenum, mt);
+		handle_match(opts, filename, pagenum, current, mt);
 
 		if (opts.max_count > 0 && state.total_count >= opts.max_count) {
+			flush_line_matches(opts, filename, pagenum, current);
 			return page_count;
 		}
 
@@ -137,25 +143,50 @@ static int search_page(const Options &opts, unique_ptr<poppler::page> page, size
 			index++;
 		}
 
-		if(index >= text.size())
+		if(index >= text.size()) {
 			break;
+		}
 	}
+
+	flush_line_matches(opts, filename, pagenum, current);
 
 	return page_count;
 }
 
-static void print_match(const Options &opts, const string &filename, size_t page, struct match &mt) {
-	struct context cntxt = {(char*)filename.c_str(), (int)page, opts.outconf};
+static void flush_line_matches(const Options &opts, const string &filename, size_t page,
+                               vector<match> &line){
 
-	if (opts.count || opts.pagecount)
+	struct context cntxt = {filename, page, opts.outconf};
+
+	if (line.empty() || opts.count || opts.pagecount)
 		return;
 
 	if (opts.outconf.only_matching) {
-		print_only_match(cntxt, mt);
+		for (auto mt : line) {
+			print_only_match(cntxt, mt);
+		}
 		return;
 	}
 
-	print_context_line(cntxt, mt);
+	print_matches(cntxt, line);
+}
+
+static void handle_match(const Options &opts, const string &filename, size_t page,
+                         vector<match> &line, const match &mt) {
+	if (line.empty()) {
+		line.push_back(mt);
+		return;
+	}
+	size_t end_last = line.back().end;
+	// TODO: Don't search whole string, just up to mt.start
+	auto next_newline = mt.string.find('\n', end_last);
+	if (next_newline == string::npos || next_newline > mt.start) {
+		line.push_back(mt);
+	} else {
+		flush_line_matches(opts, filename, page, line);
+		line.clear();
+		line.push_back(mt);
+	}
 }
 
 #ifdef HAVE_UNAC

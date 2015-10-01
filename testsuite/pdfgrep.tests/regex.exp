@@ -1,14 +1,5 @@
 set test "Match line after double match"
 
-# pdfgrep currently prints a line with two matches twice. This is of course not
-# grep compatible and should be changed in the future.
-
-# Nevertheless, right now it's the documented behaviour and should be tested
-# for.
-
-# This case tests specifically for a bug where a line after a double match would
-# not be printed.
-
 # See poppler bug 91644
 # https://bugs.freedesktop.org/show_bug.cgi?id=91644
 set required_poppler_version {0 36 0}
@@ -21,7 +12,6 @@ set pdf [mkpdf regex {
 
 pdfgrep_expect foo $pdf \
 "foofoo
-foofoo
 foo test"
 
 set test "Match line after double match -- fixed string"
@@ -32,7 +22,6 @@ set required_poppler_version {0 36 0}
 
 pdfgrep_expect -F foo $pdf \
 "foofoo
-foofoo
 foo test"
 
 set test "Match line after double match -- PCRE"
@@ -45,7 +34,6 @@ set requires_pcre_support true
 
 pdfgrep_expect -P foo $pdf \
 "foofoo
-foofoo
 foo test"
 
 ######################################################################
@@ -65,9 +53,7 @@ set empty [mkpdf empty {
 
 set timeout 2
 pdfgrep_expect "" $empty \
-"abc
-abc
-abc"
+"abc"
 
 set test "Empty pattern -- fixed string"
 
@@ -77,9 +63,7 @@ set required_poppler_version {0 36 0}
 
 set timeout 2
 pdfgrep_expect -F "" $empty \
-"abc
-abc
-abc"
+"abc"
 
 set test "Empty pattern -- PCRE"
 
@@ -91,9 +75,7 @@ set required_poppler_version {0 36 0}
 
 set timeout 2
 pdfgrep_expect -P "" $empty \
-"abc
-abc
-abc"
+"abc"
 
 ######################################################################
 

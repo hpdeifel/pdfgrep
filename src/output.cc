@@ -58,29 +58,6 @@ static void putsn(const string str, int from, int to)
 		cout << (str[from]);
 }
 
-void print_context_line(const struct context &context, const struct match &match)
-{
-	auto a = match.string.rfind('\n', match.start);
-	auto b = match.string.find('\n', match.end);
-
-	a++;
-
-	if (b == string::npos)
-		b = match.string.size();
-
-	line_prefix(context.out, context.filename, context.pagenum);
-
-	putsn(match.string, a, match.start);
-
-	with_color(context.out.color, context.out.colors.highlight,
-		putsn(match.string, match.start, match.end);
-	);
-
-	putsn(match.string, match.end, b);
-
-	cout << endl;
-}
-
 void print_only_match(const struct context &context, const struct match &match)
 {
 	line_prefix(context.out, context.filename, context.pagenum);
@@ -126,4 +103,39 @@ std::ostream& line_prefix(const Outconf& outconf, const std::string& filename) {
 	}
 
 	return cout;
+}
+
+// Invariant: matches can't be empty
+void print_matches(const context& context, const std::vector<match>& matches) {
+	const match& first_match = matches.front();
+	const match& last_match = matches.back();
+
+	auto str = first_match.string;
+
+	auto a = str.rfind('\n', first_match.start);
+	auto b = str.find('\n', last_match.end);
+
+	// If a == -1, a gets 0 (beginning of string) and if it's a valid index
+	// to a newline, it now points to the character after that.
+	a++;
+
+	if (b == string::npos)
+		b = str.size();
+
+	line_prefix(context.out, context.filename, context.pagenum);
+
+	int previous_end = a;
+	for (auto match : matches) {
+		putsn(str, previous_end, match.start);
+
+		with_color(context.out.color, context.out.colors.highlight,
+			putsn(str, match.start, match.end);
+		);
+
+		previous_end = match.end;
+	}
+
+	putsn(str, previous_end, b);
+
+	cout << endl;
 }

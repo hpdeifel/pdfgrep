@@ -27,7 +27,7 @@
 
 struct context {
 	const std::string &filename;
-	int pagenum;
+	size_t pagenum;
 
 	const Outconf &out;
 };
@@ -38,10 +38,15 @@ struct match {
 	size_t end;
 };
 
-void print_context_line(const struct context &context, const struct match &match);
-
 /* print the line prefix followed only by the match */
 void print_only_match(const struct context &context, const struct match &match);
+
+/** print a line with prefix and highlighting for matches.
+ *
+ * 'matches' must not be empty and all entries must begin and end in the same
+ * line.
+ */
+void print_matches(const context& context, const std::vector<match>& matches);
 
 // C++ interface:
 
