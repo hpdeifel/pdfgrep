@@ -40,11 +40,11 @@ PosixRegex::PosixRegex(const string &pattern, bool case_insensitive)
 {
 	int regex_flags = REG_EXTENDED | (case_insensitive ? REG_ICASE : 0);
 
-	int err = regcomp(&this->regex, pattern.c_str(), regex_flags);
-	if(err) {
+	int ret = regcomp(&this->regex, pattern.c_str(), regex_flags);
+	if(ret) {
 		char err_msg[256];
-		regerror(err, &this->regex, err_msg, 256);
-		::err() << err_msg << endl;
+		regerror(ret, &this->regex, err_msg, 256);
+		err() << err_msg << endl;
 		exit(EXIT_ERROR);
 	}
 }
