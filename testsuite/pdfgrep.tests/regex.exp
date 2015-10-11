@@ -160,6 +160,22 @@ line three"
 
 ######################################################################
 
+set test "Multiple fixed strings in wrong order"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+set multifixed [mkpdf multifixed {
+    one two
+}]
+
+pdfgrep_expect_x -o -F "two\none" $multifixed \
+"one
+two"
+
+######################################################################
+
 # Not sure if this should be the expected behavior.
 #
 # The feature to match multiline strings is often being requested, though
