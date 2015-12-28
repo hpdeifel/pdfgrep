@@ -142,6 +142,13 @@ bool FixedString::exec(const string &str, size_t offset, struct match &m) const
 	// We use C-style strings here, because of strcasestr
 	const char *str_begin = &str[offset];
 
+	// FIXME Searching for multiple patterns is very inefficient, because we
+	// search the same thing over and over, until it becomes the next match.
+	// We should introduce some kind of caching here
+
+	const char *min_result = NULL;
+	const string *min_pattern;
+
 	for (const string pattern : patterns) {
 		const char *result;
 		if (this->case_insensitive) {
@@ -150,12 +157,17 @@ bool FixedString::exec(const string &str, size_t offset, struct match &m) const
 			result = strstr(str_begin, pattern.c_str());
 		}
 
-		if (result == NULL) {
-			continue;
+		if (result != NULL) {
+			if (min_result == NULL || result < min_result) {
+				min_result = result;
+				min_pattern = &pattern;
+			}
 		}
+	}
 
-		m.start = offset + (result - str_begin);
-		m.end = m.start + pattern.size();
+	if (min_result != NULL) {
+		m.start = offset + (min_result - str_begin);
+		m.end = m.start + (*min_pattern).size();
 		return true;
 	}
 
