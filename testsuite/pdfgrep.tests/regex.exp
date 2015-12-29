@@ -170,7 +170,7 @@ set multifixed [mkpdf multifixed {
     one two
 }]
 
-pdfgrep_expect_x -o -F "two\none" $multifixed \
+pdfgrep_expect -o -F "two\none" $multifixed \
 "one
 two"
 
