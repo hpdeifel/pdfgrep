@@ -138,7 +138,7 @@ proc expect_exit_status {expected} {
     set wait_status [wait]
 
     if {[lindex $wait_status 3] != $expected} {
-	send_user "Exit status is [lindex $wait_status 3], but expected $expected\n"
+	send_log "Exit status is [lindex $wait_status 3], but expected $expected\n"
 	pfail "$test \[exit status\]"
     } else {
 	ppass "$test \[exit status\]"
