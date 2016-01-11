@@ -6,5 +6,6 @@ EXTRA_DIST =color.exp \
 	page_numbers.exp \
 	recursive.exp \
 	regex.exp \
-	usage.exp
+	usage.exp \
+	context.exp
 

@@ -1,0 +1,71 @@
+# These are tests for the context system (i.e the options -A, -B and -C).
+
+# This feature is currently not implemented and so all tests are marked as
+# failing.
+
+
+set test "Context after"
+
+clear_pdfdir
+set pdf [mkpdf lines {
+    line one\\
+    line two\\
+    line three\\
+    line four\\
+    line five\\
+    line six
+}]
+
+pdfgrep_expect_x -A1 "one\|five" $pdf \
+"line one
+line two
+--
+line five
+line six"
+
+######################################################################
+
+set test "Context after -- edge case"
+
+pdfgrep_expect_x -A1 "six" $pdf \
+"line six"
+
+######################################################################
+
+set test "Context after -- continuous"
+
+pdfgrep_expect_x -A1 "one\|two" $pdf \
+"line one
+line two
+line three"
+
+######################################################################
+
+set test "Context after -- line numbers"
+
+pdfgrep_expect_x -nA1 "one\|five" $pdf \
+"1:line one
+2-line two
+--
+5:line five
+6-line six"
+
+######################################################################
+
+set test "Context after -- line numbers and filename"
+
+pdfgrep_expect_x -nHA1 "one\|five" $pdf \
+"$pdf:1:line one
+$pdf-2-line two
+--
+$pdf:5:line five
+$pdf-6-line six"
+
+######################################################################
+
+set test "Context after -- zero context lines"
+
+pdfgrep_expect_x -nHA1 "one\|five" $pdf \
+"$pdf:1:line one
+--
+$pdf:5:line five"
