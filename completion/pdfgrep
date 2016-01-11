@@ -24,46 +24,46 @@ _pdfgrep()
 
     local opts
     opts=(-n --page-number \
-	  -i --ignore-case \
-	  -F --fixed-strings \
-	  -P --perl-regexp \
-	  -H --with-filename \
-	  -h --no-filename \
-	  -c --count \
-	  -p --page-count \
-	  --color \
-	  -r -R --recursive \
-	  --exclude \
-	  --include \
-	  --help \
-	  -V --version \
-	  -q --quiet \
-	  -Z --null\
-	  --match-prefix-separator \
-	  --password \
-	  -m --max-count \
-	  --debug \
-	  --warn-empty \
-	  --unac \
-	 )
+          -i --ignore-case \
+          -F --fixed-strings \
+          -P --perl-regexp \
+          -H --with-filename \
+          -h --no-filename \
+          -c --count \
+          -p --page-count \
+          --color \
+          -r -R --recursive \
+          --exclude \
+          --include \
+          --help \
+          -V --version \
+          -q --quiet \
+          -Z --null\
+          --match-prefix-separator \
+          --password \
+          -m --max-count \
+          --debug \
+          --warn-empty \
+          --unac \
+         )
 
     case "${prev}" in
-	--color)
-	    COMPREPLY=( $(compgen -W "always never auto" -- ${cur}) )
-	    ;;
-	--exclude|--include|--password|-m|--max-count|--match-prefix-separator)
-	    COMPREPLY=( )
-	    ;;
-	*)
-	    case "${cur}" in
-		-*) 
-		    COMPREPLY=( $(compgen -W "${opts[*]}" -- ${cur}) )
-		    return
-		    ;;
-		*)
-		    _filedir pdf
-		    ;;
-	    esac
+        --color)
+            COMPREPLY=( $(compgen -W "always never auto" -- ${cur}) )
+            ;;
+        --exclude|--include|--password|-m|--max-count|--match-prefix-separator)
+            COMPREPLY=( )
+            ;;
+        *)
+            case "${cur}" in
+                -*)
+                    COMPREPLY=( $(compgen -W "${opts[*]}" -- ${cur}) )
+                    return
+                    ;;
+                *)
+                    _filedir pdf
+                    ;;
+            esac
     esac
 
     return
