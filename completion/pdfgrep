@@ -61,7 +61,7 @@ _pdfgrep()
 		    return
 		    ;;
 		*)
-		    COMPREPLY=( $(compgen -f -X '!*.pdf' -- ${cur} ) )
+		    _filedir pdf
 		    ;;
 	    esac
     esac
