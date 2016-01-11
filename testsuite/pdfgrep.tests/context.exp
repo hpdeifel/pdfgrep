@@ -6,6 +6,10 @@
 
 set test "Context after"
 
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
 clear_pdfdir
 set pdf [mkpdf lines {
     line one\\
@@ -27,6 +31,10 @@ line six"
 
 set test "Context after -- edge case"
 
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
 pdfgrep_expect -A1 "six" $pdf \
 "line six"
 
@@ -43,6 +51,10 @@ line three"
 
 set test "Context after -- line numbers"
 
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
 pdfgrep_expect -nA1 "one\|five" $pdf \
 "1:line one
 1-line two
@@ -53,6 +65,10 @@ pdfgrep_expect -nA1 "one\|five" $pdf \
 ######################################################################
 
 set test "Context after -- line numbers and filename"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
 
 pdfgrep_expect -nHA1 "one\|five" $pdf \
 "$pdf:1:line one
@@ -82,6 +98,10 @@ five"
 ######################################################################
 
 set test "Context after -- page breaks"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
 
 set pages [mkpdf pages {
     page one
@@ -123,6 +143,10 @@ pdfgrep_expect -A1 --page-count "one" $pdf \
 
 set test "Context before"
 
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
 pdfgrep_expect -B1 "two\|six" $pdf \
 "line one
 line two
@@ -150,6 +174,10 @@ line three"
 
 set test "Context before -- line numbers"
 
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
 pdfgrep_expect -nB1 "two\|six" $pdf \
 "1-line one
 1:line two
@@ -161,6 +189,10 @@ pdfgrep_expect -nB1 "two\|six" $pdf \
 
 set test "Context before -- line numbers and filename"
 
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
 pdfgrep_expect -nHB1 "two\|six" $pdf \
 "$pdf-1-line one
 $pdf:1:line two
@@ -171,6 +203,10 @@ $pdf:1:line six"
 ######################################################################
 
 set test "Context before -- zero context lines"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
 
 pdfgrep_expect -nHB0 "two\|six" $pdf \
 "$pdf:1:line two
@@ -189,6 +225,10 @@ six"
 ######################################################################
 
 set test "Context before -- page breaks"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
 
 pdfgrep_expect -nB2 "page" $pages \
 "1:page one
@@ -224,6 +264,10 @@ pdfgrep_expect -B1 --page-count "one" $pdf \
 
 set test "Context"
 
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
 pdfgrep_expect -C1 "one\|five" $pdf \
 "line one
 line two
@@ -244,6 +288,10 @@ line two"
 
 set test "Context -- edge case 2"
 
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
 pdfgrep_expect -C1 "six" $pdf \
 "line five
 line six"
@@ -263,6 +311,10 @@ line five"
 
 set test "Context -- line numbers"
 
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
 pdfgrep_expect -nC1 "one\|six" $pdf \
 "1:line one
 1-line two
@@ -274,6 +326,10 @@ pdfgrep_expect -nC1 "one\|six" $pdf \
 
 set test "Context -- line numbers and filename"
 
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
 pdfgrep_expect -nHC1 "one\|six" $pdf \
 "$pdf:1:line one
 $pdf-1-line two
@@ -284,6 +340,10 @@ $pdf:1:line six"
 ######################################################################
 
 set test "Context -- zero context lines"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
 
 pdfgrep_expect -nHC0 "two\|six" $pdf \
 "$pdf:1:line two
@@ -302,6 +362,10 @@ six"
 ######################################################################
 
 set test "Context -- page breaks"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
 
 pdfgrep_expect -nC1 "page" $pages \
 "1:page one
@@ -335,6 +399,10 @@ pdfgrep_expect -C1 --page-count "one" $pdf \
 ######################################################################
 
 set test "Context -- exact meeting"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
 
 pdfgrep_expect -A1 -B2 "one\|five" $pdf \
 "line one
