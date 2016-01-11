@@ -19,56 +19,55 @@
 
 _pdfgrep() 
 {
-    local cur prev opts
-    COMPREPLY=()
-    cur="${COMP_WORDS[COMP_CWORD]}"
-    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    local cur prev words cword
+    _init_completion || return
+
+    local opts
     opts=(-n --page-number \
-	  -i --ignore-case \
-	  -F --fixed-strings \
-	  -P --perl-regexp \
-	  -H --with-filename \
-	  -h --no-filename \
-	  -c --count \
-	  -p --page-count \
-	  --color \
-	  -r -R --recursive \
-	  --exclude \
-	  --include \
-	  --help \
-	  -V --version \
-	  -q --quiet \
-	  -Z --null\
-	  --match-prefix-separator \
-	  --password \
-	  -m --max-count \
-	  --debug \
-	  --warn-empty \
-	  --unac \
-	 )
+          -i --ignore-case \
+          -F --fixed-strings \
+          -P --perl-regexp \
+          -H --with-filename \
+          -h --no-filename \
+          -c --count \
+          -p --page-count \
+          --color \
+          -r -R --recursive \
+          --exclude \
+          --include \
+          --help \
+          -V --version \
+          -q --quiet \
+          -Z --null\
+          --match-prefix-separator \
+          --password \
+          -m --max-count \
+          --debug \
+          --warn-empty \
+          --unac \
+         )
 
     case "${prev}" in
-	--color)
-	    COMPREPLY=( $(compgen -W "always never auto" -- ${cur}) )
-	    ;;
-	--exclude|--include|--password|-m|--max-count|--match-prefix-separator)
-	    COMPREPLY=( )
-	    ;;
-	*)
-	    case "${cur}" in
-		-*) 
-		    COMPREPLY=( $(compgen -W "${opts[*]}" -- ${cur}) )
-		    return 0
-		    ;;
-		*)
-		    COMPREPLY=( $(compgen -f -X '!*.pdf' -- ${cur} ) )
-		    ;;
-	    esac
+        --color)
+            COMPREPLY=( $(compgen -W "always never auto" -- ${cur}) )
+            ;;
+        --exclude|--include|--password|-m|--max-count|--match-prefix-separator)
+            COMPREPLY=( )
+            ;;
+        *)
+            case "${cur}" in
+                -*)
+                    COMPREPLY=( $(compgen -W "${opts[*]}" -- ${cur}) )
+                    return
+                    ;;
+                *)
+                    _filedir pdf
+                    ;;
+            esac
     esac
 
-    return 0
-}
-
+    return
+} &&
 complete -F _pdfgrep pdfgrep
 
 # Local Variables:
