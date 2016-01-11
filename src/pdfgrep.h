@@ -59,6 +59,11 @@ struct Outconf {
 	bool null_byte_sep = false;
 	std::string prefix_sep = ":";
 
+	// true, if we need to print context separators between lines
+	bool context_mode = false;
+	int context_before = 0;
+	int context_after = 0;
+
 	Colorconf colors;
 };
 

@@ -100,6 +100,9 @@ struct option long_options[] =
 	{"warn-empty", 0, 0, WARN_EMPTY_OPTION},
 	{"unac", 0, 0, UNAC_OPTION},
 	{"fixed-strings", 0, 0, 'F'},
+	{"after-context", 1, 0, 'A'},
+	{"before-context", 1, 0, 'B'},
+	{"context", 1, 0, 'C'},
 	{0, 0, 0, 0}
 };
 
@@ -403,7 +406,7 @@ int main(int argc, char** argv)
 	} use_colors = COLOR_AUTO;
 
 	while (1) {
-		int c = getopt_long(argc, argv, "icC:nrRhHVPpqm:FoZ",
+		int c = getopt_long(argc, argv, "icA:B:C:nrRhHVPpqm:FoZ",
 				long_options, NULL);
 
 		if (c == -1)
@@ -520,6 +523,40 @@ int main(int argc, char** argv)
 				options.warn_empty = true;
 				break;
 
+			case 'A':
+				if (!parse_int(optarg, &options.outconf.context_after)) {
+					err() << "Could not parse number: " << optarg << "." << endl;
+					exit(EXIT_ERROR);
+				} else if (options.outconf.context_after < 0) {
+					err() << "--after-context must be positive." << endl;
+					exit(EXIT_ERROR);
+				}
+				options.outconf.context_mode = true;
+				break;
+
+			case 'B':
+				if (!parse_int(optarg, &options.outconf.context_before)) {
+					err() << "Could not parse number: " << optarg << "." << endl;
+					exit(EXIT_ERROR);
+				} else if (options.outconf.context_before < 0) {
+					err() << "--before-context must be positive." << endl;
+					exit(EXIT_ERROR);
+				}
+				options.outconf.context_mode = true;
+				break;
+
+			case 'C':
+				if (!parse_int(optarg, &options.outconf.context_after)) {
+					err() << "Could not parse number: " << optarg << "." << endl;
+					exit(EXIT_ERROR);
+				} else if (options.outconf.context_after < 0) {
+					err() << "--after-context must be positive." << endl;
+					exit(EXIT_ERROR);
+				}
+				options.outconf.context_before = options.outconf.context_after;
+				options.outconf.context_mode = true;
+				break;
+
 			/* In these two cases, getopt already prints an
 			 * error message
 			 */
@@ -578,6 +615,17 @@ int main(int argc, char** argv)
 			options.outconf.filename = false;
 		} else
 			options.outconf.filename = true;
+	}
+
+	if (options.outconf.only_matching && (options.outconf.context_before > 0
+					      || options.outconf.context_after > 0)) {
+		// TODO Print warning
+
+		// We only set the number of context lines to zero, not
+		// context_mode to false. This way the context separators will
+		// still be printed, since that's what grep does.
+		options.outconf.context_before = 0;
+		options.outconf.context_after = 0;
 	}
 
 	if (excludes_empty(options.includes))

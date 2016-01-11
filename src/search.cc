@@ -49,9 +49,11 @@ static string simple_unac(const Options &opts, string str);
 #endif
 static string maybe_unac(const Options &opts, string std);
 static void handle_match(const Options &opts, const string &filename, size_t page,
-                         vector<match> &line, const match &mt);
+                         vector<match> &line, vector<match> &last_line, const match &mt,
+                         bool previous_matches);
 static void flush_line_matches(const Options &opts, const string &filename, size_t page,
-                               vector<match> &line);
+                               vector<match> &line, vector<match> &last_line,
+                               bool previous_matches);
 
 int search_document(const Options &opts, unique_ptr<poppler::document> doc,
                     const string &filename, const Regengine &re) {
@@ -75,7 +77,7 @@ int search_document(const Options &opts, unique_ptr<poppler::document> doc,
 		int page_count = search_page(opts, move(page), pagenum, filename, re, state);
 
 		if (page_count > 0 && opts.pagecount && !opts.quiet) {
-			line_prefix(opts.outconf, filename, pagenum) << page_count << endl;
+			line_prefix(opts.outconf, filename, false, pagenum) << page_count << endl;
 		}
 
 		if (opts.max_count > 0 && state.total_count >= opts.max_count) {
@@ -84,7 +86,7 @@ int search_document(const Options &opts, unique_ptr<poppler::document> doc,
 	}
 
 	if (opts.count && !opts.quiet) {
-		line_prefix(opts.outconf, filename) << state.total_count << endl;
+		line_prefix(opts.outconf, filename, false) << state.total_count << endl;
 	}
 
 	if (opts.warn_empty && state.document_empty) {
@@ -106,6 +108,10 @@ static int search_page(const Options &opts, unique_ptr<poppler::page> page, size
 	// Count of matches just on this page
 	int page_count = 0;
 
+	// We need that in flush_line_matches to know if we need to print a
+	// context separator.
+	bool previous_matches = state.total_count > 0;
+
 	if (page->text().empty()) {
 		return 0;
 	}
@@ -121,6 +127,11 @@ static int search_page(const Options &opts, unique_ptr<poppler::page> page, size
 	// matches found in current line
 	vector<match> current;
 
+	// last line that contained matches. We only have to store at most one
+	// match, but the ability to store 0 matches is crucial for the initial
+	// state.
+	vector<match> last_line;
+
 	while (re.exec(text.c_str(), index, mt)) {
 		state.total_count++;
 		page_count++;
@@ -129,10 +140,15 @@ static int search_page(const Options &opts, unique_ptr<poppler::page> page, size
 			return page_count;
 		}
 
-		handle_match(opts, filename, pagenum, current, mt);
+		handle_match(opts, filename, pagenum, current, last_line, mt, previous_matches);
 
 		if (opts.max_count > 0 && state.total_count >= opts.max_count) {
-			flush_line_matches(opts, filename, pagenum, current);
+			flush_line_matches(opts, filename, pagenum, current, last_line, previous_matches);
+			if (!last_line.empty() && !opts.count && !opts.pagecount) {
+				// Print final context after last match
+				struct context cntxt = {filename, pagenum, opts.outconf};
+				print_context_after(cntxt, *last_line.rbegin());
+			}
 			return page_count;
 		}
 
@@ -148,31 +164,55 @@ static int search_page(const Options &opts, unique_ptr<poppler::page> page, size
 		}
 	}
 
-	flush_line_matches(opts, filename, pagenum, current);
+	flush_line_matches(opts, filename, pagenum, current, last_line, previous_matches);
+
+	if (!last_line.empty() && !opts.count && !opts.pagecount) {
+		// Print final context after last match
+		struct context cntxt = {filename, pagenum, opts.outconf};
+		print_context_after(cntxt, *last_line.rbegin());
+	}
 
 	return page_count;
 }
 
 static void flush_line_matches(const Options &opts, const string &filename, size_t page,
-                               vector<match> &line){
+                               vector<match> &line, vector<match> &last_line, bool previous_matches){
 
 	struct context cntxt = {filename, page, opts.outconf};
 
+	// We don't want any output:
 	if (line.empty() || opts.count || opts.pagecount)
-		return;
+		goto out;
+
+	// context printing
+	if (last_line.empty()) {
+		// There was no previous match
+
+		if (previous_matches) {
+			print_context_separator(opts.outconf);
+		}
+		// (see document_empty)
+		print_context_before(cntxt, *line.begin());
+	} else {
+		print_context_between(cntxt, *last_line.rbegin(), *line.begin());
+	}
 
 	if (opts.outconf.only_matching) {
 		for (auto mt : line) {
 			print_only_match(cntxt, mt);
 		}
-		return;
+	} else {
+		print_matches(cntxt, line);
 	}
 
-	print_matches(cntxt, line);
+out:
+	line.swap(last_line);
+	line.clear();
 }
 
 static void handle_match(const Options &opts, const string &filename, size_t page,
-                         vector<match> &line, const match &mt) {
+                         vector<match> &line, vector<match> &last_line, const match &mt,
+                         bool previous_matches) {
 	if (line.empty()) {
 		line.push_back(mt);
 		return;
@@ -183,8 +223,7 @@ static void handle_match(const Options &opts, const string &filename, size_t pag
 	if (next_newline == string::npos || next_newline > mt.start) {
 		line.push_back(mt);
 	} else {
-		flush_line_matches(opts, filename, page, line);
-		line.clear();
+		flush_line_matches(opts, filename, page, line, last_line, previous_matches);
 		line.push_back(mt);
 	}
 }

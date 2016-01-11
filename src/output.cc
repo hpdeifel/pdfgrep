@@ -60,7 +60,7 @@ static void putsn(const string str, int from, int to)
 
 void print_only_match(const struct context &context, const struct match &match)
 {
-	line_prefix(context.out, context.filename, context.pagenum);
+	line_prefix(context.out, context.filename, false, context.pagenum);
 
 	with_color(context.out.color, context.out.colors.highlight,
 		putsn(match.string, match.start, match.end);
@@ -74,20 +74,21 @@ ostream& err() {
 }
 
 std::ostream& line_prefix(const Outconf& outconf, const std::string& filename,
-                          size_t page) {
-	line_prefix(outconf, filename);
+                          bool in_context, size_t page) {
+	line_prefix(outconf, filename, in_context);
 
 	if (outconf.pagenum) {
 		with_color(outconf.color, outconf.colors.pagenum,
 			cout << page;);
 		with_color(outconf.color, outconf.colors.separator,
-			cout << outconf.prefix_sep;);
+			cout << (in_context ? "-" : outconf.prefix_sep););
 	}
 
 	return cout;
 }
 
-std::ostream& line_prefix(const Outconf& outconf, const std::string& filename) {
+std::ostream& line_prefix(const Outconf& outconf, const std::string& filename,
+                          bool in_context) {
 	if (outconf.filename) {
 		with_color(outconf.color, outconf.colors.filename,
 			cout << filename;);
@@ -98,7 +99,7 @@ std::ostream& line_prefix(const Outconf& outconf, const std::string& filename) {
 			cout << '\0';
 		} else {
 			with_color(outconf.color, outconf.colors.separator,
-				cout << outconf.prefix_sep;);
+				cout << (in_context ? "-" : outconf.prefix_sep ););
 		}
 	}
 
@@ -122,7 +123,7 @@ void print_matches(const context& context, const std::vector<match>& matches) {
 	if (b == string::npos)
 		b = str.size();
 
-	line_prefix(context.out, context.filename, context.pagenum);
+	line_prefix(context.out, context.filename, false, context.pagenum);
 
 	int previous_end = a;
 	for (auto match : matches) {
@@ -138,4 +139,120 @@ void print_matches(const context& context, const std::vector<match>& matches) {
 	putsn(str, previous_end, b);
 
 	cout << endl;
+}
+
+void print_context_before(const context& context, const match& match, int lines) {
+	if (!context.out.context_mode)
+		return;
+
+	if (lines < 0)
+		lines = context.out.context_before;
+
+	auto str = match.string;
+	auto line_begin = str.rfind('\n', match.start);
+
+	// we are at the first line
+	if (line_begin == string::npos)
+		return;
+
+	vector<string> lines_to_output;
+
+	auto pos = line_begin;
+	while (lines --> 0) {
+		if (pos == 0) {
+			lines_to_output.push_back("");
+			break;
+		}
+		auto newpos = str.rfind('\n', pos-1);
+
+		auto start_pos = newpos == string::npos ? 0 : newpos + 1;
+		lines_to_output.push_back(str.substr(start_pos, pos-start_pos));
+
+		if (newpos == string::npos)
+			break;
+		else
+			pos = newpos;
+	}
+
+	for (auto l = lines_to_output.rbegin(); l != lines_to_output.rend(); ++l) {
+		line_prefix(context.out, context.filename, true, context.pagenum) << *l << endl;
+	}
+}
+
+void print_context_after(const context& context, const match& match, int lines) {
+	if (!context.out.context_mode)
+		return;
+
+	if (lines < 0)
+		lines = context.out.context_after;
+
+	auto str = match.string;
+	auto line_end = str.find('\n', match.end);
+
+	// we are at the first line
+	if (line_end == string::npos)
+		return;
+
+	vector<string> lines_to_output;
+
+	auto pos = line_end;
+	while (lines --> 0) {
+		if (pos == str.size()-1) {
+			break;
+		}
+		auto newpos = str.find('\n', pos+1);
+
+		auto end_pos = newpos == string::npos ? str.size() : newpos;
+		line_prefix(context.out, context.filename, true, context.pagenum)
+			<< str.substr(pos+1, end_pos-pos-1) << endl;
+
+		if (newpos == string::npos)
+			break;
+		else
+			pos = newpos;
+	}
+
+}
+
+void print_context_between(const context& context, const match& match1, const match& match2) {
+	if (!context.out.context_mode) {
+		return;
+	}
+
+	auto str = match1.string;
+
+	auto pos_right = str.find('\n', match1.end);
+	auto pos_left = str.rfind('\n', match2.start);
+
+	// count the lines that we have to the right of match1
+	int lines_right = 0;
+	while (pos_right != string::npos && lines_right < context.out.context_after
+		&& pos_right < pos_left) {
+		lines_right++;
+		pos_right = str.find('\n', pos_right+1);
+	}
+
+	// count the lines that we have to the left of match2
+	int lines_left = 0;
+	while (pos_left != string::npos && lines_left < context.out.context_before
+	       && pos_left > pos_right) {
+		lines_left++;
+		if (pos_left == 0) {
+			pos_left = string::npos;
+			break;
+		}
+		pos_left = str.rfind('\n', pos_left-1);
+	}
+
+	print_context_after(context, match1, lines_right);
+	if (pos_left > pos_right)
+		print_context_separator(context.out);
+	print_context_before(context, match2, lines_left);
+}
+
+void print_context_separator(const Outconf &out) {
+	// TODO Add color here
+
+	if (out.context_mode)
+		cout << "--" << endl;
 }

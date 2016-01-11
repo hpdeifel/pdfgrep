@@ -48,13 +48,23 @@ void print_only_match(const struct context &context, const struct match &match);
  */
 void print_matches(const context& context, const std::vector<match>& matches);
 
+// Print `lines` lines of context before the match. If lines is smaller than 0,
+// use the value from context.outconf.
+void print_context_before(const context& context, const match& match, int lines = -1);
+// Print `lines` lines of context before the match. If lines is smaller than 0,
+// use the value from context.outconf.
+void print_context_after(const context& context, const match& match, int lines = -1);
+void print_context_between(const context& context, const match& match1, const match& match2);
+void print_context_separator(const Outconf &out);
+
 // C++ interface:
 
 // Print to stderr, with "pdfgrep: " as prefix;
 std::ostream& err();
 
 std::ostream& line_prefix(const Outconf& outconf, const std::string& filename,
-                          size_t page);
-std::ostream& line_prefix(const Outconf& outconf, const std::string& filename);
+                          bool in_context, size_t page);
+std::ostream& line_prefix(const Outconf& outconf, const std::string& filename,
+                          bool in_context);
 
 #endif

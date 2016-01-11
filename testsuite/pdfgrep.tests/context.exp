@@ -1,8 +1,8 @@
 # These are tests for the context system (i.e the options -A, -B and -C).
 
-# This feature is currently not implemented and so all tests are marked as
-# failing.
-
+######################################################################
+#######  Context after ###############################################
+######################################################################
 
 set test "Context after"
 
@@ -16,7 +16,7 @@ set pdf [mkpdf lines {
     line six
 }]
 
-pdfgrep_expect_x -A1 "one\|five" $pdf \
+pdfgrep_expect -A1 "one\|five" $pdf \
 "line one
 line two
 --
@@ -27,14 +27,14 @@ line six"
 
 set test "Context after -- edge case"
 
-pdfgrep_expect_x -A1 "six" $pdf \
+pdfgrep_expect -A1 "six" $pdf \
 "line six"
 
 ######################################################################
 
 set test "Context after -- continuous"
 
-pdfgrep_expect_x -A1 "one\|two" $pdf \
+pdfgrep_expect -A1 "one\|two" $pdf \
 "line one
 line two
 line three"
@@ -43,29 +43,303 @@ line three"
 
 set test "Context after -- line numbers"
 
-pdfgrep_expect_x -nA1 "one\|five" $pdf \
+pdfgrep_expect -nA1 "one\|five" $pdf \
 "1:line one
-2-line two
+1-line two
 --
-5:line five
-6-line six"
+1:line five
+1-line six"
 
 ######################################################################
 
 set test "Context after -- line numbers and filename"
 
-pdfgrep_expect_x -nHA1 "one\|five" $pdf \
+pdfgrep_expect -nHA1 "one\|five" $pdf \
 "$pdf:1:line one
-$pdf-2-line two
+$pdf-1-line two
 --
-$pdf:5:line five
-$pdf-6-line six"
+$pdf:1:line five
+$pdf-1-line six"
 
 ######################################################################
 
 set test "Context after -- zero context lines"
 
-pdfgrep_expect_x -nHA1 "one\|five" $pdf \
+pdfgrep_expect -nHA0 "one\|five" $pdf \
 "$pdf:1:line one
 --
-$pdf:5:line five"
+$pdf:1:line five"
+
+######################################################################
+
+set test "Context after -- only matching"
+
+pdfgrep_expect -oA2 "one\|five" $pdf \
+"one
+--
+five"
+
+######################################################################
+
+set test "Context after -- page breaks"
+
+set pages [mkpdf pages {
+    page one
+    \newpage
+    page two
+}]
+
+pdfgrep_expect -nA2 "page" $pages \
+"1:page one
+--
+2:page two"
+
+######################################################################
+
+set test "Context after -- max-count"
+
+pdfgrep_expect -A1 -m2 "line" $pdf \
+"line one
+line two
+line three"
+
+######################################################################
+
+set test "Context after -- count"
+
+pdfgrep_expect -A1 -c "one" $pdf \
+"1"
+
+######################################################################
+
+set test "Context after -- page count"
+
+pdfgrep_expect -A1 --page-count "one" $pdf \
+"1:1"
+
+######################################################################
+#######  Context before ##############################################
+######################################################################
+
+set test "Context before"
+
+pdfgrep_expect -B1 "two\|six" $pdf \
+"line one
+line two
+--
+line five
+line six"
+
+######################################################################
+
+set test "Context before -- edge case"
+
+pdfgrep_expect -B1 "one" $pdf \
+"line one"
+
+######################################################################
+
+set test "Context before -- continuous"
+
+pdfgrep_expect -B1 "two\|three" $pdf \
+"line one
+line two
+line three"
+
+######################################################################
+
+set test "Context before -- line numbers"
+
+pdfgrep_expect -nB1 "two\|six" $pdf \
+"1-line one
+1:line two
+--
+1-line five
+1:line six"
+
+######################################################################
+
+set test "Context before -- line numbers and filename"
+
+pdfgrep_expect -nHB1 "two\|six" $pdf \
+"$pdf-1-line one
+$pdf:1:line two
+--
+$pdf-1-line five
+$pdf:1:line six"
+
+######################################################################
+
+set test "Context before -- zero context lines"
+
+pdfgrep_expect -nHB0 "two\|six" $pdf \
+"$pdf:1:line two
+--
+$pdf:1:line six"
+
+######################################################################
+
+set test "Context before -- only matching"
+
+pdfgrep_expect -oB2 "two\|six" $pdf \
+"two
+--
+six"
+
+######################################################################
+
+set test "Context before -- page breaks"
+
+pdfgrep_expect -nB2 "page" $pages \
+"1:page one
+--
+2:page two"
+
+######################################################################
+
+set test "Context before -- max-count"
+
+pdfgrep_expect -B1 -m2 "two\|three\|four" $pdf \
+"line one
+line two
+line three"
+
+######################################################################
+
+set test "Context before -- count"
+
+pdfgrep_expect -B1 -c "one" $pdf \
+"1"
+
+######################################################################
+
+set test "Context before -- page count"
+
+pdfgrep_expect -B1 --page-count "one" $pdf \
+"1:1"
+
+######################################################################
+#######  Context around ##############################################
+######################################################################
+
+set test "Context"
+
+pdfgrep_expect -C1 "one\|five" $pdf \
+"line one
+line two
+--
+line four
+line five
+line six"
+
+######################################################################
+
+set test "Context -- edge case 1"
+
+pdfgrep_expect -C1 "one" $pdf \
+"line one
+line two"
+
+######################################################################
+
+set test "Context -- edge case 2"
+
+pdfgrep_expect -C1 "six" $pdf \
+"line five
+line six"
+
+######################################################################
+
+set test "Context -- continuous"
+
+pdfgrep_expect -C1 "two\|four" $pdf \
+"line one
+line two
+line three
+line four
+line five"
+
+######################################################################
+
+set test "Context -- line numbers"
+
+pdfgrep_expect -nC1 "one\|six" $pdf \
+"1:line one
+1-line two
+--
+1-line five
+1:line six"
+
+######################################################################
+
+set test "Context -- line numbers and filename"
+
+pdfgrep_expect -nHC1 "one\|six" $pdf \
+"$pdf:1:line one
+$pdf-1-line two
+--
+$pdf-1-line five
+$pdf:1:line six"
+
+######################################################################
+
+set test "Context -- zero context lines"
+
+pdfgrep_expect -nHC0 "two\|six" $pdf \
+"$pdf:1:line two
+--
+$pdf:1:line six"
+
+######################################################################
+
+set test "Contextbefore -- only matching"
+
+pdfgrep_expect -oC2 "two\|six" $pdf \
+"two
+--
+six"
+
+######################################################################
+
+set test "Context -- page breaks"
+
+pdfgrep_expect -nC1 "page" $pages \
+"1:page one
+--
+2:page two"
+
+######################################################################
+
+set test "Context -- max-count"
+
+pdfgrep_expect -C1 -m2 "two\|three\|five" $pdf \
+"line one
+line two
+line three
+line four"
+
+######################################################################
+
+set test "Context -- count"
+
+pdfgrep_expect -C1 -c "one" $pdf \
+"1"
+
+######################################################################
+
+set test "Context -- page count"
+
+pdfgrep_expect -C1 --page-count "one" $pdf \
+"1:1"
+
+######################################################################
+
+set test "Context -- exact meeting"
+
+pdfgrep_expect -A1 -B2 "one\|five" $pdf \
+"line one
+line two
+line three
+line four
+line five
+line six"
