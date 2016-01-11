@@ -19,10 +19,10 @@
 
 _pdfgrep() 
 {
-    local cur prev opts
-    COMPREPLY=()
-    cur="${COMP_WORDS[COMP_CWORD]}"
-    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    local cur prev words cword
+    _init_completion || return
+
+    local opts
     opts=(-n --page-number \
 	  -i --ignore-case \
 	  -F --fixed-strings \
