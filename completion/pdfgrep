@@ -58,7 +58,7 @@ _pdfgrep()
 	    case "${cur}" in
 		-*) 
 		    COMPREPLY=( $(compgen -W "${opts[*]}" -- ${cur}) )
-		    return 0
+		    return
 		    ;;
 		*)
 		    COMPREPLY=( $(compgen -f -X '!*.pdf' -- ${cur} ) )
@@ -66,7 +66,7 @@ _pdfgrep()
 	    esac
     esac
 
-    return 0
+    return
 }
 
 complete -F _pdfgrep pdfgrep
