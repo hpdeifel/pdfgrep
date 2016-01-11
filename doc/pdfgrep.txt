@@ -42,7 +42,7 @@ pages and not on lines.
   on the same page will be counted individually.
 
 *-p*, *--page-count* :: Like *-c*, but prints the number of matches
-  per page.
+  per page. Implies *-n*.
 
 *--color* 'WHEN' :: Surround file names, page numbers and matched text
   with escape sequences to display them in color on the terminal. (The
