@@ -67,8 +67,7 @@ _pdfgrep()
     esac
 
     return
-}
-
+} &&
 complete -F _pdfgrep pdfgrep
 
 # Local Variables:
