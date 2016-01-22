@@ -5,7 +5,7 @@ expect {
     -re "^Usage: .*" { pass $test }
     default { fail $test }
 }
-
+expect eof
 expect_exit_status 2
 
 # Also look that nothing is written to stdout

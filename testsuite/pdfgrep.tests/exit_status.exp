@@ -8,7 +8,7 @@ clear_pdfdir
 set pdf [mkpdf exit-status "foobar"]
 
 pdfgrep foobar $pdf
-
+expect eof
 expect_exit_status 0
 
 ########################################
@@ -21,6 +21,7 @@ set required_poppler_version {0 36 0}
 
 pdfgrep --quiet foobar $pdf
 
+expect eof
 expect_exit_status 0
 
 
@@ -30,6 +31,7 @@ set test "Exit status is 1 when nothing is found"
 
 pdfgrep not-there $pdf
 
+expect eof
 expect_exit_status 1
 
 ########################################
@@ -40,5 +42,5 @@ clear_pdfdir
 
 # $pdf doesn't exist anymore
 pdfgrep foobar $pdf
-
+expect eof
 expect_exit_status 2
