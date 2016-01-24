@@ -129,15 +129,6 @@ AS_IF([test "x$enable_doc" != "xno"], [
 
 AM_CONDITIONAL([BUILD_DOCUMENTATION], [test "x$enable_doc" != "xno"])
 
-dnl Set global config file for DEJAGNU
-
-if test x"$DEJAGNU" = x
-then
-	DEJAGNU="\$(top_srcdir)/testsuite/global-conf.exp"
-fi
-
-AC_SUBST(DEJAGNU)
-
 # Coverage ssupport
 AC_ARG_ENABLE([coverage],
 	AS_HELP_STRING([--enable-coverage], [compile for coverage reports with gcov. For testing only. (default=no)])

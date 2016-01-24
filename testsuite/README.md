@@ -12,6 +12,10 @@ The tests depend on the following packages:
 To run the tests, execute `make check` from the toplevel source
 directory.
 
+The testsuite might output some harmless messages like "WARNING:
+Couldn't find the global config file.". What's really important are
+any lines beginning with "FAIL:".
+
 ## Coverage
 
 To get a test coverage report, install `gcovr` and run configure with
@@ -33,7 +37,7 @@ The test runs can be configured by editing `testsuite/site.exp`. The
 following variables can be set:
 
 - `disable_poppler_version_check`: Don't mark tests as unsupported if
-  the poppler version is not recent enought. (This is useful, if you
+  the poppler version is not recent enough. (This is useful if you
   have backported a patch from a later version to your current one).
 
 ## Writing new tests
