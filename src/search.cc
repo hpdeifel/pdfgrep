@@ -112,12 +112,10 @@ static int search_page(const Options &opts, unique_ptr<poppler::page> page, size
 	// context separator.
 	bool previous_matches = state.total_count > 0;
 
-	if (page->text().empty()) {
-		return 0;
+	if (!page->text().empty()) {
+		// there is text on this page, document can't be empty
+		state.document_empty = false;
 	}
-
-	// there is text on this page, document can't be empty
-	state.document_empty = false;
 
 	string text = maybe_unac(opts, page_text(*page));
 

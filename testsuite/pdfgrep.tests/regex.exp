@@ -121,11 +121,7 @@ pdfgrep_expect -Pi "foobar" $pdf \
 
 ######################################################################
 
-# These test cases are expected to fail, because pdfgrep currently cannot do
-# this. The pattern is always matched on the whole text of a page instead of
-# line-wise. The question is whether this would be worthwile.
-
-set test "Matching line beginning and end"
+set test "Multiple fixed strings"
 
 clear_pdfdir
 set pdf [mkpdf lines {
@@ -133,21 +129,6 @@ set pdf [mkpdf lines {
     line two\\
     line three
 }]
-
-pdfgrep_expect_x "^line two$" $pdf \
-    "line two"
-
-
-set test "Matching line beginning and end -- PCRE"
-
-set requires_pcre_support true
-
-pdfgrep_expect_x "^line two$" $pdf \
-    "line two"
-
-######################################################################
-
-set test "Multiple fixed strings"
 
 # See poppler bug 91644
 # https://bugs.freedesktop.org/show_bug.cgi?id=91644
@@ -196,3 +177,27 @@ set multiline [mkpdf multiline {
 pdfgrep_expect -P "one\nline" $multiline \
 "line one
 line two"
+
+######################################################################
+
+set test "Empty page"
+
+clear_pdfdir
+set pdf [mkpdf empty {
+page1\\\\
+still page 1
+\newpage\mbox{}\newpage
+page2
+}]
+
+pdfgrep_expect -n "^$" $pdf \
+    "2:"
+
+######################################################################
+
+set test "Empty page -- PCRE"
+
+set requires_pcre_support true
+
+pdfgrep_expect -P -n "^$" $pdf \
+    "2:"
