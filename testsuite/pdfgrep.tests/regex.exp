@@ -213,7 +213,7 @@ pdfgrep_expect -n --only-match "p|^age" $pdf \
 
 ######################################################################
 
-set test "Page beginning is actually page beginning"
+set test "Page beginning is actually page beginning -- PCRE"
 
 set requires_pcre_support true
 
