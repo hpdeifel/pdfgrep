@@ -54,7 +54,10 @@ bool PosixRegex::exec(const string &str, size_t offset, struct match &m) const
 	regmatch_t match[] = {{0, 0}};
 	const int nmatch = 1;
 
-	int ret = regexec(&this->regex, &str[offset], nmatch, match, 0);
+	// If we aren't at the beginning of the page, ^ should not match.
+	int flags = offset == 0 ? 0 : REG_NOTBOL;
+
+	int ret = regexec(&this->regex, &str[offset], nmatch, match, flags);
 
 	if(ret) {
 		return false;

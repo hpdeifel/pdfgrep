@@ -201,3 +201,23 @@ set requires_pcre_support true
 
 pdfgrep_expect -P -n "^$" $pdf \
     "2:"
+
+######################################################################
+
+set test "Page beginning is actually page beginning"
+
+pdfgrep_expect -n --only-match "p|^age" $pdf \
+"1:p
+1:p
+3:p"
+
+######################################################################
+
+set test "Page beginning is actually page beginning"
+
+set requires_pcre_support true
+
+pdfgrep_expect -P -n --only-match "p|^age" $pdf \
+"1:p
+1:p
+3:p"
