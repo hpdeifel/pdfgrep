@@ -90,9 +90,9 @@ $pdf:1:line five"
 
 set test "Context after -- only matching"
 
-pdfgrep_expect -oA2 "one\|five" $pdf \
-"one
---
+pdfgrep_expect_with_err -oA1 "one\|five" $pdf \
+"pdfgrep: warning: .*
+one
 five"
 
 ######################################################################
@@ -217,9 +217,9 @@ $pdf:1:line six"
 
 set test "Context before -- only matching"
 
-pdfgrep_expect -oB2 "two\|six" $pdf \
-"two
---
+pdfgrep_expect_with_err -oB2 "two\|six" $pdf \
+"pdfgrep: warning: .*
+two
 six"
 
 ######################################################################
@@ -352,11 +352,11 @@ $pdf:1:line six"
 
 ######################################################################
 
-set test "Contextbefore -- only matching"
+set test "Context -- only matching"
 
-pdfgrep_expect -oC2 "two\|six" $pdf \
-"two
---
+pdfgrep_expect_with_err -oC2 "two\|six" $pdf \
+"pdfgrep: warning: .*
+two
 six"
 
 ######################################################################

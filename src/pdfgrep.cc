@@ -619,13 +619,10 @@ int main(int argc, char** argv)
 
 	if (options.outconf.only_matching && (options.outconf.context_before > 0
 					      || options.outconf.context_after > 0)) {
-		// TODO Print warning
+		err() << "warning: --only-matching and context options can't be used together."
+		      << " Ignoring context option." << endl;
 
-		// We only set the number of context lines to zero, not
-		// context_mode to false. This way the context separators will
-		// still be printed, since that's what grep does.
-		options.outconf.context_before = 0;
-		options.outconf.context_after = 0;
+		options.outconf.context_mode = false;
 	}
 
 	if (excludes_empty(options.includes))
