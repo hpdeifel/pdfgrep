@@ -19,7 +19,7 @@ proc pdfgrep args {
 }
 
 
-# Spawns pdfgrep and fail is pdfgrep prints something on stderr.
+# Spawns pdfgrep and fail if pdfgrep prints something on stderr.
 proc pdfgrep_noerr args {
     global spawn_id test
     pdfgrep {*}$args
@@ -70,15 +70,26 @@ set requires_pcre_support false
 # pattern is a regular expression that _completely_ matches the output. I.e it
 # pdfgrep_expect encloses it int ^$.
 proc pdfgrep_expect args {
-    pdfgrep_expect_internal 0 {*}$args
+    pdfgrep_expect_internal 0 0 {*}$args
 }
 
 # Same as above, but expect the test to fail
 proc pdfgrep_expect_x args {
-    pdfgrep_expect_internal 1 {*}$args
+    pdfgrep_expect_internal 1 0 {*}$args
 }
 
-proc pdfgrep_expect_internal {expected_failure args} {
+# Same as pdfgrep_expect, but don't immediately fail if pdfgrep prints to
+# stderr.
+proc pdfgrep_expect_with_err args {
+    pdfgrep_expect_internal 0 1 {*}$args
+}
+
+# Same as before, but expect the test to fail
+proc pdfgrep_expect_with_err_x args {
+    pdfgrep_expect_internal 1 1 {*}$args
+}
+
+proc pdfgrep_expect_internal {expected_failure allow_errors args} {
     global spawn_id test required_poppler_version
 
     set output [lindex $args end]
@@ -90,7 +101,11 @@ proc pdfgrep_expect_internal {expected_failure args} {
 
     # --color=never is necessary because we dont want to have escape sequences
     # in the output.
-    pdfgrep_noerr --color=never {*}$args
+    if {$allow_errors} {
+	pdfgrep --color=never {*}$args
+    } else {
+	pdfgrep_noerr --color=never {*}$args
+    }
     expect {
 	# The final newline is only optionally matched, because some client code
 	# may include it
