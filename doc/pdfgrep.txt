@@ -61,6 +61,18 @@ pages and not on lines.
 *-R*, *--dereference-recursive*:: Same as *-r*, but follows all
   symlinks.
 
+*-A* 'NUM', *--after-context=NUM*:: Print 'NUM' lines of context after
+  matching lines. Contiguous groups of matches are separated by a line
+  containing *--*. With *-o*, this option has no effect.
+
+*-B* 'NUM', *--before-context=NUM*:: Print 'NUM' lines of context
+  before matching lines. Contiguous groups of matches are separated by
+  a line containing *--*. With *-o*, this option has no effect.
+
+*-C* 'NUM', *--context=NUM*:: Print 'NUM' lines of context before and
+  after matching lines. Contiguous groups of matches are separated by
+  a line containing *--*. With *-o*, this option has no effect.
+
 *--exclude=*'GLOB' :: Skip files whose base name matches 'GLOB'. See
   'glob'(7) for wildcards you can use. You can use this option
   multiple times to exclude more patterns. It takes precedence over
