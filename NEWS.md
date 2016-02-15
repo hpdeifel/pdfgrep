@@ -1,0 +1,75 @@
+Version 1.4.1  [2015-09-26]
+---------------------------
+
+  - Test suite added
+  - Bugfix: The tarball contains HACKING and README again
+  - Bugfix: The zsh completion completes options as first
+    argument correctly
+  - Bugfix: Exit status is set as advertised
+  - Bugfix: Spurious null bytes removed from output
+  - Bugfix: Skipping of some matches in certain conditions fixed.
+  - Bugfix: Empty matches don't trigger a loop
+
+Version 1.4.0  [2015-08-14]
+---------------------------
+
+  - PCRE support (by Julius Plenz)
+  - Fixed string search
+  - Ability to pass multiple passwords
+  - Option to change the colon as prefix separator
+  - Optional warning about PDFs that contain no searchable text
+  - New option from grep: `--only-matching`
+  - New option from grep: `--null`
+  - Bugfix: Correctly print unicode characters
+  - Installation: New configure flag `--without-libpcre`
+  - Installation: New configure flag `--disable-doc` to disable
+        manpage generation with asciidoc
+  - Installation: pdfgrep now requires c++11
+
+Version 1.3.2    [2015-02-20]
+-----------------------------
+
+  - A bash completion module
+  - Don't limit output to 80 characters on non-terminals
+  - Print a lot less error messages by default (only with >= poppler-0.30.0)
+  - New option `--debug` to print verbose debug output
+  - Installation: New configure flag `--with-zsh-completion`
+
+Version 1.3.1    [2014-08-10]
+-----------------------------
+
+  - **Incompatible change**: `-r` doesn't follow symlinks
+  - A zsh completion module
+  - Support for password-protected PDFs
+  - Allow to omit '.' with `-r` to search current directory
+  - Add `-p` or `--page-count` to count matches per page (by Jascha Knack)
+  - Add `-m` or `--max-count` to limit matches per file (by Thibault Marin)
+
+Version 1.3.0    [2012-02-14]
+-----------------------------
+
+  - Experimental support for libunac (removing accents and ligatures
+	before search)
+  - Recursive search [`--recursive`] (by Mahmut Gundes)
+  - Don't use colors on dumb terminals
+  - A few minor bug fixes
+  - Use poppler-cpp instead of the poppler core library (by Pino Toscano)
+
+Version 1.2
+-----------
+
+  - 2 small bugfixes (`-h` option and closing open files)
+  - This is probably the last release that supports poppler < 0.14
+
+Version 1.1
+-----------
+
+  - Respect the `GREP_COLORS` environment variable
+  - Fix buffer overflow bug
+  - Don't exit on the first error
+  - Use terminal width to calculate the context length
+
+Version 1.0
+-----------
+
+  - First release
