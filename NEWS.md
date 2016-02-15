@@ -1,3 +1,16 @@
+NEXT RELEASE
+------------
+
+  - **Incompatible change**: `--context/-C` is now line based as opposed to
+    character based and works just like grep
+  - Two new options from grep: `-A/--after-context` and `-B/--before-context`
+  - Lines with multiple matches are now printed only once
+  - Bash-completion improvements (by Rainer Müller)
+  - Bugfix: Fixed string search (`-F`) now works as advertised with multiple
+    patterns
+  - Bugfix: Empty pages can now be matched with `^$`
+  - Bugfix: The pattern `^` now matches *only* at the beginning of pages
+
 Version 1.4.1  [2015-09-26]
 ---------------------------
 
