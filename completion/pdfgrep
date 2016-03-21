@@ -31,6 +31,9 @@ _pdfgrep()
           -h --no-filename \
           -c --count \
           -p --page-count \
+	  -C --context \
+	  -A --after-context \
+	  -B --before-context \
           --color \
           -r -R --recursive \
           --exclude \
