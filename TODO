@@ -1,13 +1,8 @@
 An incomplete list of things that should be done:
 
- - Line based context: Currently there is no way to print multiple
-   lines of context.
-
  - Parallelisation: PDF rendering is slow and could be a fine target
    for parallelisation.
 
  - More grep features:
     + Regex (de)selection: -E/-F/-G
     + Match control: -v
-    + Context: -A/-B
-    + Other: -Z
