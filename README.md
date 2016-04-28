@@ -1,26 +1,30 @@
 ## Overview
 
-*Pdfgrep* is a tool to search text in PDF files. It works similarly to *grep*.
+*pdfgrep* is a tool to search text in PDF files. It works similarly to *grep*.
 
 ## Features
 
- - search for regular expressions.
- - support for some important grep options, including:
-    - filename output.
-    - page number output.
-    - optional case insensitivity.
-    - count occurrences.
-    - recursive search
-    - support for extended or (optionally) Perl compatible regular expressions
- - and the most important feature: color output!
+  - Grep compatible: pdfgrep tries to be compatible with GNU grep,
+    where it makes sense. Many of your favorite grep options are
+    supported (such as `-r`, `-i`, `-n` or `-c`).
+  - Search many PDFs at once, even recursively in directories
+  - Regular expressions: Posix or PCRE
+  - Colored output
+  - Support for password protected PDFs
 
+For a complete documentation, please consult the [manpage].
 
-For a complete documentation, please consult the [manpage](pdfgrep.html).
+## Example
+
+    $ pdfgrep --max-count 1 --context 1 --with-filename --page-number pattern rabin-karp.pdf
+	rabin-karp.pdf-1-randomized
+	rabin-karp.pdf:1:pattern-matching
+	rabin-karp.pdf-1-algorithms
 
 ## Dependencies
 
- - poppler-cpp (poppler >= 0.14) [http://poppler.freedesktop.org/]
- - optionally libpcre [http://www.pcre.org/]
+ - poppler-cpp (poppler >= 0.14) (http://poppler.freedesktop.org/)
+ - optionally libpcre (http://www.pcre.org/)
 
 ## Building
 
@@ -59,11 +63,12 @@ https://gitlab.com/pdfgrep/pdfgrep
 ## Contact
 
 General questions, suggestions, bug reports, patches or anything else
-can be sent to the mailinglist at
-mailto:pdfgrep-users@pdfgrep.org[pdfgrep-users@pdfgrep.org].
+can be sent to the [mailinglist](mailto:pdfgrep-users@pdfgrep.org).
 
-You can also use the
-[issue tracker](https://gitlab.com/pdfgrep/pdfgrep/issues) for bug
-reports or create a
-[merge request](https://gitlab.com/pdfgrep/pdfgrep/merge_requests) on
-GitLab, if you prefer that over mailinglists.
+You can also use the [issue tracker] for bug reports or create a
+[merge request] on GitLab, if you prefer that over mailinglists.
+
+
+[manpage]: https://pdfgrep.org/doc.html
+[issue tracker]: https://gitlab.com/pdfgrep/pdfgrep/issues
+[merge request]: https://gitlab.com/pdfgrep/pdfgrep/merge_requests
