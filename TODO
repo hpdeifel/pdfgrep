@@ -1,8 +1,0 @@
-An incomplete list of things that should be done:
-
- - Parallelisation: PDF rendering is slow and could be a fine target
-   for parallelisation.
-
- - More grep features:
-    + Regex (de)selection: -E/-F/-G
-    + Match control: -v
