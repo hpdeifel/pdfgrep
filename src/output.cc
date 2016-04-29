@@ -193,8 +193,6 @@ void print_context_after(const context& context, const match& match, int lines) 
 	if (line_end == string::npos)
 		return;
 
-	vector<string> lines_to_output;
-
 	auto pos = line_end;
 	while (lines --> 0) {
 		if (pos == str.size()-1) {

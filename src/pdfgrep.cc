@@ -107,8 +107,7 @@ struct option long_options[] =
 };
 
 #ifdef HAVE_UNAC
-/* convenience layer over libunac. The result has to be freed with
- * simple_unac_free */
+/* convenience layer over libunac. */
 static char *simple_unac(const Options &opts, char *string)
 {
 	if (!opts.use_unac)
@@ -123,12 +122,6 @@ static char *simple_unac(const Options &opts, char *string)
 	}
 
 	return res;
-}
-
-static void simple_unac_free(const Options &opts, char *string)
-{
-	if (opts.use_unac)
-		free(string);
 }
 #endif
 
