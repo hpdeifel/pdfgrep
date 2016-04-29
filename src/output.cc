@@ -52,7 +52,7 @@ static void end_color(bool use_colors, const char *colorcode)
 		end_color(use_colors, color);	\
 	} while (0);
 
-static void putsn(const string str, int from, int to)
+static void putsn(const string &str, int from, int to)
 {
 	for (; from < to; from++)
 		cout << (str[from]);
