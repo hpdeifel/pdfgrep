@@ -55,3 +55,31 @@ set pdf [mkpdf pdf {this is a long line}]
 
 pdfgrep_expect --only-matching long $pdf \
     "long"
+
+######################################################################
+
+set test "without arguments and no -r"
+
+set savedir [pwd]
+cd $pdfdir
+
+pdfgrep_expect foo \
+  "Usage.*"
+
+expect_exit_status 2
+
+######################################################################
+
+set test "without arguments and -r"
+
+pdfgrep_expect -r long \
+    "./pdf.pdf:this is a long line"
+
+######################################################################
+
+set test "without arguments and -R"
+
+pdfgrep_expect -R long \
+    "./pdf.pdf:this is a long line"
+
+cd $savedir

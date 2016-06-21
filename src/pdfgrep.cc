@@ -568,7 +568,7 @@ int main(int argc, char** argv)
 		}
 	}
 
-	if (argc == optind || (argc - optind < 2 && options.recursive != Recursion::NONE)) {
+	if (argc == optind || (argc - optind < 2 && options.recursive == Recursion::NONE)) {
 		print_usage(argv[0]);
 		exit(EXIT_ERROR);
 	}
