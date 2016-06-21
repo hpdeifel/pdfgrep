@@ -221,3 +221,19 @@ pdfgrep_expect -P -n --only-match "p|^age" $pdf \
 "1:p
 1:p
 3:p"
+
+######################################################################
+
+set test "Invalid regex"
+
+pdfgrep_expect_error -r "(" .
+
+expect_exit_status 2
+
+######################################################################
+
+set test "Invalid regex -- PCRE"
+
+pdfgrep_expect_error -Pr "(" .
+
+expect_exit_status 2
