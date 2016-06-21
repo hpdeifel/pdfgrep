@@ -11,11 +11,12 @@
 # unless explicitly told so. And then we want to be able to test for them.
 remove_nulls -d 0
 
+set pdfgrep_path [file normalize ../src/pdfgrep]
 
 # Just spawns pdfgrep with the given arguments
 proc pdfgrep args {
-    global spawn_id
-    spawn ../src/pdfgrep {*}$args
+    global spawn_id pdfgrep_path
+    spawn $pdfgrep_path {*}$args
 }
 
 
@@ -281,7 +282,8 @@ proc mkpdf {name content} {
 # The following functions are called by dejagnu
 
 proc pdfgrep_version {} {
+    global pdfgrep_path
     puts ""
-    note [exec ../src/pdfgrep --version]
+    note [exec $pdfgrep_path --version]
     puts ""
 }
