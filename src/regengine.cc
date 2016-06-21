@@ -83,7 +83,7 @@ PCRERegex::PCRERegex(const string &pattern, bool case_insensitive)
 {
 	const char *pcre_err;
 	int pcre_err_ofs;
-	const int pcre_options = case_insensitive ? PCRE_CASELESS : 0;
+	const int pcre_options = PCRE_UTF8 | (case_insensitive ? PCRE_CASELESS : 0);
 
 	this->regex = pcre_compile(pattern.c_str(), pcre_options,
 	                           &pcre_err, &pcre_err_ofs, NULL);
