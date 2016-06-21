@@ -36,6 +36,7 @@
 #include <limits.h>
 #include <vector>
 #include <iostream>
+#include <locale>
 
 #include <cpp/poppler-document.h>
 #include <cpp/poppler-page.h>
@@ -380,6 +381,11 @@ int main(int argc, char** argv)
 {
 	Options options;
 	init_colors(options.outconf.colors);
+
+	// Set locale to user-preference. If this locale is an UTF-8 locale, the
+	// regex-functions regcomp/regexec become unicode aware, which means
+	// e.g. that '.' will match a unicode character, not a single byte.
+	locale::global(locale(""));
 
 	enum re_engine_type {
 		RE_POSIX = 0,
