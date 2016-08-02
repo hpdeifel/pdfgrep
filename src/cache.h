@@ -29,7 +29,7 @@ class Cache {
 	std::string cache_file;
 	bool valid;
 public:
-	Cache(std::string cache_file);
+	explicit Cache(std::string cache_file);
 
 	bool get_page(unsigned pagenum, std::string &text);
 	void set_page(unsigned pagenum, const std::string &text);

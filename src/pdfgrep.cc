@@ -428,7 +428,7 @@ static int agefilter(const struct dirent * a) {
 static void limit_cachesize(const char *cache, int entries) {
 	struct dirent **namelist;
 	cache_directory = cache;
-	unsigned n = scandir(cache, &namelist, agefilter, agesort);
+	int n = scandir(cache, &namelist, agefilter, agesort);
 	if (n < 0) {
 		return;
 	} else {
