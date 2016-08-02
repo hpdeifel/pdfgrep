@@ -36,6 +36,7 @@ _arguments -s -S \
     "(-A --after-context)"{-A,--after-context=}"[specify lines of trailing context]:Lines:" \
     "(-B --before-context)"{-B,--before-context=}"[specify lines of leading context]:Lines:" \
     "(--color)--color=[Use colors for highlighting]:Color:(always never auto)" \
+    "(--cache)--cache[Use a cache for faster operation]" \
     "(-r -R --recursive)"{-r,-R,--recursive}"[Search directories recursively]" \
     "*--exclude=[Skip files]:Exclude:" \
     "*--include=[Opposite of exclude]:Include:" \
