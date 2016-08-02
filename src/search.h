@@ -30,8 +30,8 @@
 
 // Returns the number of matches found in this document
 int search_document(const Options &opts, std::unique_ptr<poppler::document> doc,
-					std::unique_ptr<Cache> cache, const std::string &filename,
-					const Regengine &re);
+                    std::unique_ptr<Cache> cache, const std::string &filename,
+                    const Regengine &re);
 
 
 #endif /* SEARCH_H */

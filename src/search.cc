@@ -41,8 +41,8 @@ struct SearchState {
 
 // Returns the number of matches found
 static int search_page(const Options &opts, const string &text, size_t pagenum,
-					   const string &filename, const Regengine &re,
-					   SearchState &state);
+                       const string &filename, const Regengine &re,
+                       SearchState &state);
 
 #ifdef HAVE_UNAC
 /* convenience layer over libunac */
@@ -63,8 +63,8 @@ static string page_text(poppler::page &page) {
 }
 
 int search_document(const Options &opts, unique_ptr<poppler::document> doc,
-					unique_ptr<Cache> cache, const string &filename,
-					const Regengine &re) {
+		    unique_ptr<Cache> cache, const string &filename,
+		    const Regengine &re) {
 
 	SearchState state;
 
@@ -79,7 +79,7 @@ int search_document(const Options &opts, unique_ptr<poppler::document> doc,
 			if (!page) {
 				if (!opts.quiet) {
 					err() << "Could not search in page " << pagenum
-						  << " of " << filename << endl;
+					      << " of " << filename << endl;
 				}
 				continue;
 			}
@@ -96,7 +96,7 @@ int search_document(const Options &opts, unique_ptr<poppler::document> doc,
 		}
 
 		int page_count = search_page(opts, text, pagenum,
-									 filename, re, state);
+		                             filename, re, state);
 
 		if (page_count > 0 && opts.pagecount && !opts.quiet) {
 			line_prefix(opts.outconf, filename, false, pagenum) << page_count << endl;
@@ -123,8 +123,8 @@ int search_document(const Options &opts, unique_ptr<poppler::document> doc,
 }
 
 static int search_page(const Options &opts, const string &page_text,
-					   size_t pagenum, const string &filename,
-					   const Regengine &re, SearchState &state)
+                       size_t pagenum, const string &filename,
+                       const Regengine &re, SearchState &state)
 {
 	// Count of matches just on this page
 	int page_count = 0;

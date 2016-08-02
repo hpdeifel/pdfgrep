@@ -35,8 +35,8 @@ Cache::Cache(string cache_file)
 	fd >> indicator;
 	if (indicator != 'G') return;
 	for (std::string page; std::getline(fd, page, '\0'); ) {
-        pages.push_back(page);
-    }
+		pages.push_back(page);
+	}
 	valid = true;
 }
 

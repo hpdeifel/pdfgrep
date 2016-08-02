@@ -707,7 +707,7 @@ int main(int argc, char** argv)
 		xdgHandle xdg_handle;
 		if (!xdgInitHandle(&xdg_handle)) {
 			err() << "warning: Could not initialize XDG handle;"
-				  << " no cache is used!" << endl;
+			      << " no cache is used!" << endl;
 			options.use_cache = false;
 		}
 		const char *cache_base_directory = xdgCacheHome(&xdg_handle);
