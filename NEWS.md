@@ -5,6 +5,7 @@ NEXT RELEASE
     character based and works just like grep
   - Two new options from grep: `-A/--after-context` and `-B/--before-context`
   - Lines with multiple matches are now printed only once
+  - Optional caching of pdf-text for faster operation (by Christian Dietrich)
   - Bash-completion improvements (by Rainer Müller)
   - Bugfix: Fixed string search (`-F`) now works as advertised with multiple
     patterns
