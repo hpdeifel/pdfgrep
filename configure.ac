@@ -41,6 +41,16 @@ PKG_CHECK_MODULES(poppler_cpp, poppler-cpp)
 AC_SUBST(poppler_cpp_CFLAGS)
 AC_SUBST(poppler_cpp_LIBS)
 
+dnl RHash library for SHA1
+AC_SEARCH_LIBS([rhash_file], [rhash], [], [
+    AC_MSG_ERROR([unable to find the dlopen() function])
+])
+
+dnl XDG Basedir specification
+PKG_CHECK_MODULES(xdg_basedir, libxdg-basedir)
+AC_SUBST(xdg_basedir_CFLAGS)
+AC_SUBST(xdg_basedir_LIBS)
+
 dnl PCRE (optional)
 AC_ARG_WITH([libpcre],
 	AS_HELP_STRING([--without-libpcre], [disable support for perl compatible regular expresssions])
@@ -158,4 +168,3 @@ AC_CONFIG_FILES([Makefile
 	testsuite/lib/Makefile
 	testsuite/pdfgrep.tests/Makefile])
 AC_OUTPUT
-

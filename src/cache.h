@@ -1,6 +1,6 @@
 /***************************************************************************
- *   Copyright (C) 2016 by Hans-Peter Deifel                               *
- *   hpd@hpdeifel.de                                                       *
+ *   Copyright (C) 2016 by Christian Dietrich                              *
+ *   stettberger@dokucode.de                                               *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -18,20 +18,23 @@
  *   Boston, MA 02110-1301 USA.                                            *
  ***************************************************************************/
 
-#ifndef SEARCH_H
-#define SEARCH_H
+#ifndef CACHE_H
+#define CACHE_H
 
-#include <memory>
-#include <cpp/poppler-document.h>
+#include <vector>
+#include <string>
 
-#include "pdfgrep.h"
-#include "regengine.h"
-#include "cache.h"
+class Cache {
+	std::vector<std::string> pages;
+	std::string cache_file;
+	bool valid;
+public:
+	Cache(std::string cache_file);
 
-// Returns the number of matches found in this document
-int search_document(const Options &opts, std::unique_ptr<poppler::document> doc,
-					std::unique_ptr<Cache> cache, const std::string &filename,
-					const Regengine &re);
+	bool get_page(unsigned pagenum, std::string &text);
+	void set_page(unsigned pagenum, const std::string &text);
 
+	void dump();
+};
 
-#endif /* SEARCH_H */
+#endif

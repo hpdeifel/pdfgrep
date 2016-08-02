@@ -33,10 +33,13 @@
 #include <errno.h>
 #include <dirent.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <limits.h>
 #include <vector>
 #include <iostream>
 #include <locale>
+#include <basedir.h>
+#include <rhash.h>
 
 #include <cpp/poppler-document.h>
 #include <cpp/poppler-page.h>
@@ -54,6 +57,7 @@
 #include "exclude.h"
 #include "regengine.h"
 #include "search.h"
+#include "cache.h"
 
 using namespace std;
 
@@ -101,6 +105,7 @@ struct option long_options[] =
 	{"warn-empty", 0, 0, WARN_EMPTY_OPTION},
 	{"unac", 0, 0, UNAC_OPTION},
 	{"fixed-strings", 0, 0, 'F'},
+	{"cache", 0, 0, 'f'},
 	{"after-context", 1, 0, 'A'},
 	{"before-context", 1, 0, 'B'},
 	{"context", 1, 0, 'C'},
@@ -237,6 +242,7 @@ static void print_help(char *self)
 	     << " -q, --quiet\t\t\tSuppress normal output" << endl
 	     << " -r, --recursive\t\tSearch directories recursively" << endl
 	     << " -R, --dereference-recursive\tLikewise, but follow all symlinks" << endl
+		 << " -f, --cache\t\tUse cache for faster operation" << endl
 	     << "     --help\t\t\tPrint this help" << endl
 	     << " -V, --version\t\t\tShow version information" << endl;
 }
@@ -270,6 +276,24 @@ static int do_search_in_document(const Options &opts, const string &path, const 
 	    (!is_excluded(opts.includes, filename) || is_excluded(opts.excludes, filename)))
 		return 0;
 
+	unique_ptr<Cache> cache;
+
+	if (opts.use_cache) {
+		unsigned char sha1sum[20];
+		std::string cache_file(opts.cache_directory);
+		if (rhash_file(RHASH_SHA1, filename.c_str(), sha1sum) != 0) {
+			err() << "Could not hash " << path.c_str() << endl;
+			return 1;
+		}
+		char translate[] = "0123456789abcdef";
+		for (unsigned i = 0; i < 20; ++i) {
+			cache_file += translate[sha1sum[i] & 0xf];
+			cache_file += translate[(sha1sum[i] >> 4 ) & 0xf];
+		}
+
+		cache = unique_ptr<Cache>(new Cache(cache_file));
+	}
+
 	unique_ptr<poppler::document> doc;
 
 	if (opts.passwords.empty()) {
@@ -291,7 +315,7 @@ static int do_search_in_document(const Options &opts, const string &path, const 
 		return 1;
 	}
 
-	int matches = search_document(opts, move(doc), path, re);
+	int matches = search_document(opts, move(doc), move(cache), path, re);
 	if (matches > 0) {
 		found_something = 1;
 		if (opts.quiet) {
@@ -405,7 +429,7 @@ int main(int argc, char** argv)
 	} use_colors = COLOR_AUTO;
 
 	while (1) {
-		int c = getopt_long(argc, argv, "icA:B:C:nrRhHVPpqm:FoZ",
+		int c = getopt_long(argc, argv, "icA:B:C:nrRhHVPpqm:FfoZ",
 				long_options, NULL);
 
 		if (c == -1)
@@ -504,6 +528,10 @@ int main(int argc, char** argv)
 				break;
 			case 'F':
 				re_engine |= RE_FIXED;
+				break;
+
+			case 'f':
+				options.use_cache = true;
 				break;
 
 			case 'o':
@@ -631,6 +659,22 @@ int main(int argc, char** argv)
 	// empty string aka "no password" into the passwords array.
 	if (options.passwords.empty()) {
 		options.passwords.push_back("");
+	}
+
+	if (options.use_cache) {
+		xdgHandle xdg_handle;
+		if (!xdgInitHandle(&xdg_handle)) {
+			err() << "warning: Could not initialize XDG handle;"
+				  << " no cache is used!" << endl;
+			options.use_cache = false;
+		}
+		const char *cache_base_directory = xdgCacheHome(&xdg_handle);
+		options.cache_directory = string(cache_base_directory)
+			+ "/pdfgrep/";
+
+		// Make base directory
+		mkdir(cache_base_directory, 0755);
+		mkdir(options.cache_directory.c_str(), 0755);
 	}
 
 	int error = 0;

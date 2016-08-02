@@ -85,6 +85,8 @@ struct Options {
 	Outconf outconf;
 	ExcludeList excludes;
 	ExcludeList includes;
+	bool use_cache = false;
+	std::string cache_directory;
 };
 
 #endif /* PDFGREP_H */

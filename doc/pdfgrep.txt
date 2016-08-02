@@ -24,6 +24,9 @@ pages and not on lines.
 *-F*, *--fixed-strings* :: Interpret 'PATTERN' as a list of fixed
   strings separated by newlines, any of which is to be matched.
 
+*-f*, *--cache* :: Use a cache for the rendered text to speed up the
+  operation on large files.
+
 *-P*, *--perl-regexp* :: Interpret 'PATTERN' as a Perl compatible
   regular expression (PCRE). See 'pcresyntax'(3) for a quick overview.
 
