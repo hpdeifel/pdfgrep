@@ -149,6 +149,12 @@ variable.
   *se* are used by *pdfgrep*, where *mt*, *ms* and *mc* have the same
   effect.
 
+== FILES
+
+*$\{XDG_CACHE_HOME\}/pdfgrep/** :: Cache files written and used when
+  *--cache* is enabled. At most 200 cache entries older than a day are
+  retained.
+
 == Examples
 *Print the first ten lines matching 'pattern' and print their page number* ::
 +
