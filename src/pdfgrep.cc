@@ -77,6 +77,7 @@ enum {
 	PREFIX_SEP_OPTION,
 	WARN_EMPTY_OPTION,
 	UNAC_OPTION,
+	CACHE_OPTION,
 };
 
 struct option long_options[] =
@@ -105,7 +106,7 @@ struct option long_options[] =
 	{"warn-empty", 0, 0, WARN_EMPTY_OPTION},
 	{"unac", 0, 0, UNAC_OPTION},
 	{"fixed-strings", 0, 0, 'F'},
-	{"cache", 0, 0, 'f'},
+	{"cache", 0, 0, CACHE_OPTION},
 	{"after-context", 1, 0, 'A'},
 	{"before-context", 1, 0, 'B'},
 	{"context", 1, 0, 'C'},
@@ -242,7 +243,7 @@ static void print_help(char *self)
 	     << " -q, --quiet\t\t\tSuppress normal output" << endl
 	     << " -r, --recursive\t\tSearch directories recursively" << endl
 	     << " -R, --dereference-recursive\tLikewise, but follow all symlinks" << endl
-		 << " -f, --cache\t\tUse cache for faster operation" << endl
+	     << "     --cache\t\tUse cache for faster operation" << endl
 	     << "     --help\t\t\tPrint this help" << endl
 	     << " -V, --version\t\t\tShow version information" << endl;
 }
@@ -471,7 +472,7 @@ int main(int argc, char** argv)
 	} use_colors = COLOR_AUTO;
 
 	while (1) {
-		int c = getopt_long(argc, argv, "icA:B:C:nrRhHVPpqm:FfoZ",
+		int c = getopt_long(argc, argv, "icA:B:C:nrRhHVPpqm:FoZ",
 				long_options, NULL);
 
 		if (c == -1)
@@ -572,7 +573,7 @@ int main(int argc, char** argv)
 				re_engine |= RE_FIXED;
 				break;
 
-			case 'f':
+			case CACHE_OPTION:
 				options.use_cache = true;
 				break;
 
