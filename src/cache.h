@@ -37,4 +37,6 @@ public:
 	void dump();
 };
 
+void limit_cachesize(const char *cache, int entries);
+
 #endif

@@ -21,6 +21,10 @@
 #include "cache.h"
 
 #include <fstream>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <dirent.h>
+#include <unistd.h>
 #include <iostream>
 
 using namespace std;
@@ -70,4 +74,46 @@ void Cache::dump() {
 	fd.seekp(0, ios_base::beg);
 	fd << 'G';
 	fd.close();
+}
+
+// I feel so bad...
+static const char *cache_directory;
+static int agesort(const struct dirent ** a, const struct dirent **b) {
+	std::string A = string(cache_directory) + "/" + (*a)->d_name;
+	std::string B = string(cache_directory) + "/" + (*b)->d_name;
+
+	struct stat bufa, bufb;
+	if (stat(A.c_str(), &bufa) != 0) return 0;
+	if (stat(B.c_str(), &bufb) != 0) return 0;
+
+	return bufb.st_mtime - bufa.st_mtime;
+}
+
+static int agefilter(const struct dirent * a) {
+	if (a->d_name[0] == '.') return false;
+	std::string A = string(cache_directory) + "/" + a->d_name;
+	struct stat bufa;
+	if (stat(A.c_str(), &bufa) != 0) return false;
+
+	// Filter all files that are younger than one day
+	return (time(NULL) - bufa.st_mtime) > 24 * 60 * 60;
+}
+
+void limit_cachesize(const char *cache, int entries) {
+	struct dirent **namelist;
+	cache_directory = cache;
+	int n = scandir(cache, &namelist, agefilter, agesort);
+	if (n < 0) {
+		return;
+	} else {
+		while (entries--, n--) {
+			// Skip the first N cache entries
+			if (entries > 0) continue;
+
+			string path(cache + string("/") + namelist[n]->d_name);
+			unlink(path.c_str());
+			free(namelist[n]);
+		}
+		free(namelist);
+	}
 }
