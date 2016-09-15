@@ -83,7 +83,7 @@ count_cache_files 6
 
 ######################################################################
 
-set test "cached works when XDG_CACHE_HOME is not set"
+set test "cache works when XDG_CACHE_HOME is not set"
 
 unsetenv XDG_CACHE_HOME
 set homedir $env(HOME)
@@ -98,5 +98,36 @@ set pdf [mkpdf pdf {
 exec $pdfgrep_path --cache test $pdf
 
 count_cache_files 1
+
+setenv HOME $homedir
+
+######################################################################
+
+set test "warning if XDG_CACHE_HOME cannot be created"
+
+setenv XDG_CACHE_HOME "$pdfdir/testdir/cache"
+
+clear_pdfdir
+
+set pdf [mkpdf pdf {
+    this is a test
+}]
+
+pdfgrep_expect_with_err --cache test $pdf \
+".*pdfgrep: warning: .*
+this is a test"
+
+######################################################################
+
+set test "warning if XDG_CACHE_HOME/pdfgrep cannot be created"
+
+setenv XDG_CACHE_HOME "$pdfdir/cache"
+
+file mkdir "$pdfdir/cache"
+exec chmod -w "$pdfdir/cache"
+
+pdfgrep_expect_with_err --cache test $pdf \
+".*pdfgrep: warning: .*
+this is a test"
 
 # TODO Find a way to test cache size limit without creating too many files
