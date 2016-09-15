@@ -1,0 +1,83 @@
+setenv XDG_CACHE_HOME "$pdfdir"
+
+set cachedir "$pdfdir/pdfgrep/"
+
+proc count_cache_files num {
+    global cachedir test
+    set len [llength [glob $cachedir/*]]
+    if {$len == $num} {
+	ppass $test
+    } else {
+	pfail "$test -- file count: $len"
+    }
+}
+
+######################################################################
+
+set test "cache creates file"
+
+clear_pdfdir
+set pdf [mkpdf pdf {
+    das ist ein test
+}]
+
+exec $pdfgrep_path --cache test $pdf
+
+count_cache_files 1
+
+######################################################################
+
+set test "cache creates another file"
+
+set pdf2 [mkpdf pdf2 {
+    das ist noch ein test
+}]
+
+exec $pdfgrep_path --cache test $pdf2
+
+count_cache_files 2
+
+######################################################################
+
+set test "cache doesn't create new file for same content"
+
+file copy $pdf2 $pdfdir/pdf3.pdf
+
+exec $pdfgrep_path --cache test $pdfdir/pdf3.pdf
+
+count_cache_files 2
+
+
+######################################################################
+
+set test "cached call returns the same as original"
+
+clear_pdfdir
+set pdf [mkpdf pdf {
+    das ist ein test
+}]
+
+set output [exec $pdfgrep_path --cache test $pdf]
+
+pdfgrep_expect --cache test $pdf $output
+
+
+######################################################################
+
+set test "cached works when XDG_CACHE_HOME is not set"
+
+unsetenv XDG_CACHE_HOME
+set homedir $env(HOME)
+setenv HOME "$pdfdir"
+set cachedir "$pdfdir/.cache/pdfgrep"
+
+clear_pdfdir
+set pdf [mkpdf pdf {
+    das ist ein test
+}]
+
+exec $pdfgrep_path --cache test $pdf
+
+count_cache_files 1
+
+# TODO Find a way to test cache size limit without creating too many files

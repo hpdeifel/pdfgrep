@@ -7,5 +7,6 @@ EXTRA_DIST =color.exp \
 	recursive.exp \
 	regex.exp \
 	usage.exp \
-	context.exp
+	context.exp \
+	cache.exp
 
