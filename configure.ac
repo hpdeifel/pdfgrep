@@ -47,11 +47,6 @@ AM_PATH_LIBGCRYPT([1.0.0], [
   AC_SUBST(LIBGCRYPT_CFLAGS)
 ], [])
 
-dnl XDG Basedir specification
-PKG_CHECK_MODULES(xdg_basedir, libxdg-basedir)
-AC_SUBST(xdg_basedir_CFLAGS)
-AC_SUBST(xdg_basedir_LIBS)
-
 dnl PCRE (optional)
 AC_ARG_WITH([libpcre],
 	AS_HELP_STRING([--without-libpcre], [disable support for perl compatible regular expresssions])

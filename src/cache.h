@@ -39,4 +39,10 @@ public:
 
 void limit_cachesize(const char *cache, int entries);
 
+/** Write cache directory to dir.
+ *
+ * Returns -1 on failure and 0 on success
+ */
+int find_cache_directory(std::string &dir);
+
 #endif

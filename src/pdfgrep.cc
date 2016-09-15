@@ -40,7 +40,6 @@
 #include <sstream>
 #include <fstream>
 #include <locale>
-#include <basedir.h>
 #include <gcrypt.h>
 
 #include <cpp/poppler-document.h>
@@ -678,21 +677,13 @@ int main(int argc, char** argv)
 	}
 
 	if (options.use_cache) {
-		xdgHandle xdg_handle;
-		if (!xdgInitHandle(&xdg_handle)) {
-			err() << "warning: Could not initialize XDG handle;"
+		if (find_cache_directory(options.cache_directory) != 0) {
+			err() << "warning: Failed to initialize cache directory."
 			      << " no cache is used!" << endl;
 			options.use_cache = false;
+		} else {
+			limit_cachesize(options.cache_directory.c_str(), 200);
 		}
-		const char *cache_base_directory = xdgCacheHome(&xdg_handle);
-		options.cache_directory = string(cache_base_directory)
-			+ "/pdfgrep/";
-
-		// Make base directory
-		mkdir(cache_base_directory, 0755);
-		mkdir(options.cache_directory.c_str(), 0755);
-
-		limit_cachesize(options.cache_directory.c_str(), 200);
 	}
 
 	int error = 0;

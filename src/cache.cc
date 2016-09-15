@@ -19,6 +19,7 @@
  ***************************************************************************/
 
 #include "cache.h"
+#include "output.h"
 
 #include <fstream>
 #include <sys/stat.h>
@@ -26,6 +27,12 @@
 #include <dirent.h>
 #include <unistd.h>
 #include <iostream>
+#include <cstdlib>
+#include <unistd.h>
+#include <pwd.h>
+#include <sys/stat.h>
+#include <errno.h>
+#include <string.h>
 
 using namespace std;
 
@@ -116,4 +123,42 @@ void limit_cachesize(const char *cache, int entries) {
 		}
 		free(namelist);
 	}
+}
+
+int find_cache_directory(std::string &dir)
+{
+	const char *cache_base = getenv("XDG_CACHE_HOME");
+
+	dir = "";
+	if (cache_base != NULL && cache_base[0] != '\0') {
+		dir += cache_base;
+	} else {
+		char *home = getenv("HOME");
+		if (home == NULL) {
+			struct passwd *passwd;
+			passwd = getpwuid(getuid());
+			if (passwd != NULL) {
+				home = passwd->pw_dir;
+			} else {
+				return -1;
+			}
+		}
+		dir += home;
+		dir += "/.cache";
+	}
+	// according to xdg spec, all directories should be created as 0700.
+	if (mkdir(dir.c_str(), 0700) && errno != EEXIST) {
+		char *msg = strerror(errno);
+		err() << "mkdir(" << dir << "): " << msg << endl;
+		return -1;
+	}
+
+	dir += "/pdfgrep/";
+
+	if (mkdir(dir.c_str(), 0700) && errno != EEXIST) {
+		char *msg = strerror(errno);
+		err() << "mkdir(" << dir << "): " << msg << endl;
+		return -1;
+	}
+	return 0;
 }
