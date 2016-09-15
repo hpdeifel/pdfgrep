@@ -682,7 +682,9 @@ int main(int argc, char** argv)
 			      << " no cache is used!" << endl;
 			options.use_cache = false;
 		} else {
-			limit_cachesize(options.cache_directory.c_str(), 200);
+			char *limitstr = getenv("PDFGREP_CACHE_LIMIT");
+			unsigned int limit = limitstr ? strtoul(limitstr, NULL, 10) : 200;
+			limit_cachesize(options.cache_directory.c_str(), limit);
 		}
 	}
 
