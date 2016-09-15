@@ -37,9 +37,11 @@
 #include <limits.h>
 #include <vector>
 #include <iostream>
+#include <sstream>
+#include <fstream>
 #include <locale>
 #include <basedir.h>
-#include <rhash.h>
+#include <gcrypt.h>
 
 #include <cpp/poppler-document.h>
 #include <cpp/poppler-page.h>
@@ -270,6 +272,19 @@ static bool is_dir(const string &filename)
 	return stat(filename.c_str(), &st) == 0 && S_ISDIR(st.st_mode);
 }
 
+static int sha1_file(const std::string &filename, unsigned char *sha1out)
+{
+	std::ifstream file(filename);
+	std::stringstream content;
+	if (!(content << file.rdbuf())) {
+		return -1;
+	}
+	std::string str(content.str());
+
+	gcry_md_hash_buffer( GCRY_MD_SHA1, sha1out, str.c_str(), str.size());
+	return 0;
+}
+
 static int do_search_in_document(const Options &opts, const string &path, const string &filename,
                                  Regengine &re, bool check_excludes = true)
 {
@@ -282,8 +297,8 @@ static int do_search_in_document(const Options &opts, const string &path, const 
 	if (opts.use_cache) {
 		unsigned char sha1sum[20];
 		std::string cache_file(opts.cache_directory);
-		if (rhash_file(RHASH_SHA1, filename.c_str(), sha1sum) != 0) {
-			err() << "Could not hash " << path.c_str() << endl;
+		if (sha1_file(filename, sha1sum) != 0) {
+			err() << "Could not hash " << path << endl;
 			return 1;
 		}
 		char translate[] = "0123456789abcdef";

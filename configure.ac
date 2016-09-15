@@ -41,10 +41,11 @@ PKG_CHECK_MODULES(poppler_cpp, poppler-cpp)
 AC_SUBST(poppler_cpp_CFLAGS)
 AC_SUBST(poppler_cpp_LIBS)
 
-dnl RHash library for SHA1
-AC_SEARCH_LIBS([rhash_file], [rhash], [], [
-    AC_MSG_ERROR([unable to find the dlopen() function])
-])
+dnl gcrypt library for SHA1
+AM_PATH_LIBGCRYPT([1.0.0], [
+  AC_SUBST(LIBGCRYPT_LIBS)
+  AC_SUBST(LIBGCRYPT_CFLAGS)
+], [])
 
 dnl XDG Basedir specification
 PKG_CHECK_MODULES(xdg_basedir, libxdg-basedir)
