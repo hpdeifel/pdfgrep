@@ -115,7 +115,7 @@ void limit_cachesize(const char *cache, int entries) {
 	} else {
 		while (entries--, n--) {
 			// Skip the first N cache entries
-			if (entries > 0) continue;
+			if (entries >= 0) continue;
 
 			string path(cache + string("/") + namelist[n]->d_name);
 			unlink(path.c_str());
