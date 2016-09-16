@@ -1,6 +1,6 @@
 ACLOCAL_AMFLAGS = -I m4
 
-EXTRA_DIST=autogen.sh README.md HACKING
+EXTRA_DIST=autogen.sh README.md CONTRIBUTING.md
 
 SUBDIRS = src completion doc testsuite
 
