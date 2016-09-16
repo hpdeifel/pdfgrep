@@ -45,7 +45,9 @@ dnl gcrypt library for SHA1
 AM_PATH_LIBGCRYPT([1.0.0], [
   AC_SUBST(LIBGCRYPT_LIBS)
   AC_SUBST(LIBGCRYPT_CFLAGS)
-], [])
+], [
+  AC_MSG_ERROR([*** libgcrypt not found!])
+])
 
 dnl PCRE (optional)
 AC_ARG_WITH([libpcre],
