@@ -35,6 +35,7 @@ _pdfgrep()
 	  -A --after-context \
 	  -B --before-context \
           --color \
+          --cache \
           -r -R --recursive \
           --exclude \
           --include \

@@ -33,10 +33,14 @@
 #include <errno.h>
 #include <dirent.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <limits.h>
 #include <vector>
 #include <iostream>
+#include <sstream>
+#include <fstream>
 #include <locale>
+#include <gcrypt.h>
 
 #include <cpp/poppler-document.h>
 #include <cpp/poppler-page.h>
@@ -54,6 +58,7 @@
 #include "exclude.h"
 #include "regengine.h"
 #include "search.h"
+#include "cache.h"
 
 using namespace std;
 
@@ -73,6 +78,7 @@ enum {
 	PREFIX_SEP_OPTION,
 	WARN_EMPTY_OPTION,
 	UNAC_OPTION,
+	CACHE_OPTION,
 };
 
 struct option long_options[] =
@@ -101,6 +107,7 @@ struct option long_options[] =
 	{"warn-empty", 0, 0, WARN_EMPTY_OPTION},
 	{"unac", 0, 0, UNAC_OPTION},
 	{"fixed-strings", 0, 0, 'F'},
+	{"cache", 0, 0, CACHE_OPTION},
 	{"after-context", 1, 0, 'A'},
 	{"before-context", 1, 0, 'B'},
 	{"context", 1, 0, 'C'},
@@ -237,6 +244,7 @@ static void print_help(char *self)
 	     << " -q, --quiet\t\t\tSuppress normal output" << endl
 	     << " -r, --recursive\t\tSearch directories recursively" << endl
 	     << " -R, --dereference-recursive\tLikewise, but follow all symlinks" << endl
+	     << "     --cache\t\tUse cache for faster operation" << endl
 	     << "     --help\t\t\tPrint this help" << endl
 	     << " -V, --version\t\t\tShow version information" << endl;
 }
@@ -263,12 +271,43 @@ static bool is_dir(const string &filename)
 	return stat(filename.c_str(), &st) == 0 && S_ISDIR(st.st_mode);
 }
 
+static int sha1_file(const std::string &filename, unsigned char *sha1out)
+{
+	std::ifstream file(filename);
+	std::stringstream content;
+	if (!(content << file.rdbuf())) {
+		return -1;
+	}
+	std::string str(content.str());
+
+	gcry_md_hash_buffer( GCRY_MD_SHA1, sha1out, str.c_str(), str.size());
+	return 0;
+}
+
 static int do_search_in_document(const Options &opts, const string &path, const string &filename,
                                  Regengine &re, bool check_excludes = true)
 {
 	if (check_excludes &&
 	    (!is_excluded(opts.includes, filename) || is_excluded(opts.excludes, filename)))
 		return 0;
+
+	unique_ptr<Cache> cache;
+
+	if (opts.use_cache) {
+		unsigned char sha1sum[20];
+		std::string cache_file(opts.cache_directory);
+		if (sha1_file(filename, sha1sum) != 0) {
+			err() << "Could not hash " << path << endl;
+			return 1;
+		}
+		char translate[] = "0123456789abcdef";
+		for (unsigned i = 0; i < 20; ++i) {
+			cache_file += translate[sha1sum[i] & 0xf];
+			cache_file += translate[(sha1sum[i] >> 4 ) & 0xf];
+		}
+
+		cache = unique_ptr<Cache>(new Cache(cache_file));
+	}
 
 	unique_ptr<poppler::document> doc;
 
@@ -291,7 +330,7 @@ static int do_search_in_document(const Options &opts, const string &path, const 
 		return 1;
 	}
 
-	int matches = search_document(opts, move(doc), path, re);
+	int matches = search_document(opts, move(doc), move(cache), path, re);
 	if (matches > 0) {
 		found_something = 1;
 		if (opts.quiet) {
@@ -506,6 +545,10 @@ int main(int argc, char** argv)
 				re_engine |= RE_FIXED;
 				break;
 
+			case CACHE_OPTION:
+				options.use_cache = true;
+				break;
+
 			case 'o':
 				options.outconf.only_matching = true;
 				break;
@@ -631,6 +674,18 @@ int main(int argc, char** argv)
 	// empty string aka "no password" into the passwords array.
 	if (options.passwords.empty()) {
 		options.passwords.push_back("");
+	}
+
+	if (options.use_cache) {
+		if (find_cache_directory(options.cache_directory) != 0) {
+			err() << "warning: Failed to initialize cache directory."
+			      << " no cache is used!" << endl;
+			options.use_cache = false;
+		} else {
+			char *limitstr = getenv("PDFGREP_CACHE_LIMIT");
+			unsigned int limit = limitstr ? strtoul(limitstr, NULL, 10) : 200;
+			limit_cachesize(options.cache_directory.c_str(), limit);
+		}
 	}
 
 	int error = 0;

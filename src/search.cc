@@ -40,8 +40,9 @@ struct SearchState {
 };
 
 // Returns the number of matches found
-static int search_page(const Options &opts, unique_ptr<poppler::page> page, size_t pagenum,
-                        const string &filename, const Regengine &re, SearchState &state);
+static int search_page(const Options &opts, const string &text, size_t pagenum,
+                       const string &filename, const Regengine &re,
+                       SearchState &state);
 
 #ifdef HAVE_UNAC
 /* convenience layer over libunac */
@@ -55,8 +56,15 @@ static void flush_line_matches(const Options &opts, const string &filename, size
                                vector<match> &line, vector<match> &last_line,
                                bool previous_matches);
 
+static string page_text(poppler::page &page) {
+	poppler::byte_array arr = page.text().to_utf8();
+	char *c_str = &arr[0];
+	return string(c_str, arr.size());
+}
+
 int search_document(const Options &opts, unique_ptr<poppler::document> doc,
-                    const string &filename, const Regengine &re) {
+		    unique_ptr<Cache> cache, const string &filename,
+		    const Regengine &re) {
 
 	SearchState state;
 
@@ -64,17 +72,31 @@ int search_document(const Options &opts, unique_ptr<poppler::document> doc,
 	size_t doc_pages = static_cast<size_t>(doc->pages());
 
 	for (size_t pagenum = 1; pagenum <= doc_pages; pagenum++) {
-		unique_ptr<poppler::page> page(doc->create_page(pagenum-1));
+		string text;
+		if (!opts.use_cache || !cache->get_page(pagenum, text)) {
+			unique_ptr<poppler::page> page(doc->create_page(pagenum-1));
 
-		if (!page) {
-			if (!opts.quiet) {
-				err() << "Could not search in page " << pagenum
-				      << " of " << filename << endl;
+			if (!page) {
+				if (!opts.quiet) {
+					err() << "Could not search in page " << pagenum
+					      << " of " << filename << endl;
+				}
+				continue;
 			}
-			continue;
+
+			if (!page->text().empty()) {
+				// there is text on this page, document can't be empty
+				state.document_empty = false;
+			}
+
+			text = page_text(*page);
+			// Update the rendering cache
+			if (opts.use_cache)
+				cache->set_page(pagenum, text);
 		}
 
-		int page_count = search_page(opts, move(page), pagenum, filename, re, state);
+		int page_count = search_page(opts, text, pagenum,
+		                             filename, re, state);
 
 		if (page_count > 0 && opts.pagecount && !opts.quiet) {
 			line_prefix(opts.outconf, filename, false, pagenum) << page_count << endl;
@@ -93,17 +115,16 @@ int search_document(const Options &opts, unique_ptr<poppler::document> doc,
 		err() << "File does not contain text: " << filename << endl;
 	}
 
+	// Save the cache for a later use
+	if (opts.use_cache)
+		cache->dump();
+
 	return state.total_count;
 }
 
-static string page_text(poppler::page &page) {
-	poppler::byte_array arr = page.text().to_utf8();
-	char *c_str = &arr[0];
-	return string(c_str, arr.size());
-}
-
-static int search_page(const Options &opts, unique_ptr<poppler::page> page, size_t pagenum,
-                       const string &filename, const Regengine &re, SearchState &state)
+static int search_page(const Options &opts, const string &page_text,
+                       size_t pagenum, const string &filename,
+                       const Regengine &re, SearchState &state)
 {
 	// Count of matches just on this page
 	int page_count = 0;
@@ -112,12 +133,7 @@ static int search_page(const Options &opts, unique_ptr<poppler::page> page, size
 	// context separator.
 	bool previous_matches = state.total_count > 0;
 
-	if (!page->text().empty()) {
-		// there is text on this page, document can't be empty
-		state.document_empty = false;
-	}
-
-	string text = maybe_unac(opts, page_text(*page));
+	string text = maybe_unac(opts, page_text);
 
 	size_t index = 0;
 	struct match mt = { text, 0, 0 };
