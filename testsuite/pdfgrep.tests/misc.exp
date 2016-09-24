@@ -83,3 +83,23 @@ pdfgrep_expect -R long \
     "./pdf.pdf:this is a long line"
 
 cd $savedir
+
+######################################################################
+
+set test "text in MediaBox and not in CropBox"
+
+# a pdf can have multiple boundary boxes. By default, poppler-cpp uses the
+# CropBox which can be smaller as the guaranteed largest MediaBox. But pdfgrep
+# should also find text that's in in the MediaBox and not in the CropBox.
+
+clear_pdfdir
+set pdf [mkpdf pdf {
+    \pdfpageattr{
+    % This is smaller than the default mediabox
+    /CropBox [0 300 595.28 841.89]
+    }
+    test
+}]
+
+pdfgrep_expect ".*" $pdf \
+    "test"
