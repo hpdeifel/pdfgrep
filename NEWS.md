@@ -12,6 +12,8 @@ NEXT RELEASE
     patterns
   - Bugfix: Empty pages can now be matched with `^$`
   - Bugfix: The pattern `^` now matches *only* at the beginning of pages
+  - Bugfix: Text outside of PDF's CropBox but inside the MediaBox is not
+    ignored anymore.
 
 Version 1.4.1  [2015-09-26]
 ---------------------------
