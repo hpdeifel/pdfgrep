@@ -57,7 +57,7 @@ static void flush_line_matches(const Options &opts, const string &filename, size
                                bool previous_matches);
 
 static string page_text(poppler::page &page) {
-	poppler::byte_array arr = page.text().to_utf8();
+	poppler::byte_array arr = page.text(page.page_rect(poppler::media_box)).to_utf8();
 	char *c_str = &arr[0];
 	return string(c_str, arr.size());
 }
@@ -84,7 +84,7 @@ int search_document(const Options &opts, unique_ptr<poppler::document> doc,
 				continue;
 			}
 
-			if (!page->text().empty()) {
+			if (!page->text(page->page_rect(poppler::media_box)).empty()) {
 				// there is text on this page, document can't be empty
 				state.document_empty = false;
 			}
