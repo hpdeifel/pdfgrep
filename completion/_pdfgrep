@@ -19,39 +19,33 @@
 # Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 # Boston, MA 02110-1301 USA.
 
-typeset -A opt_args
-
-local context state line
-
-_arguments -s -S \
-    "(-n --page-number)"{-n,--page-number}"[Prefix match with page number]" \
-    "(-i --ignore-case)"{-i,--ignore-case}"[Ignore case distinctions]" \
-    "(-F --fixed-strings)"{-F,--fixed-strings}"[Use literal strings]" \
-    "(-P --perl-regexp)"{-P,--perl-regexp}"[Use Perl compatible regular expression syntax]" \
-    "(-H --with-filename -h --no-filename)"{-H,--with-filename}"[Print filename for each match]" \
-    "(-h --no-filename -H --with-filename)"{-h,--no-filename}"[Don't print filename]" \
-    "(-c --count)"{-c,--count}"[Print only a count of matches per file]" \
-    "(-p --page-count)"{-p,--page-count}"[Count matches per page]" \
-    "(-C --context)"{-C,--context=}"[specify lines of context]:Lines:" \
-    "(-A --after-context)"{-A,--after-context=}"[specify lines of trailing context]:Lines:" \
-    "(-B --before-context)"{-B,--before-context=}"[specify lines of leading context]:Lines:" \
-    "(--color)--color=[Use colors for highlighting]:Color:(always never auto)" \
-    "(--cache)--cache[Use a cache for faster operation]" \
-    "(-r -R --recursive)"{-r,-R,--recursive}"[Search directories recursively]" \
-    "*--exclude=[Skip files]:Exclude:" \
-    "*--include=[Opposite of exclude]:Include:" \
-    "(--help)--help[show a short help message]" \
-    "(-V --version)"{-V,--version}"[Show version information]" \
-    "(-q --quiet)"{-q,--quiet}"[Suppress all normal output]" \
-    "(-Z --null)"{-Z,--null}"[Replace colon after filename by null byte]" \
-    "(--match-prefix-separator)--match-prefix-separator=[Separator between filename, page and text]:Separator:" \
-    "*--password=[Password to encrypt file]:Password:" \
-    "(-m --max-count)"{-m,--max-count=}"[Process at most count matches]:Count:" \
-    "(--debug)"--debug"[Enable debug output]" \
-    "(--warn-empty)"--warn-empty"[Warn if a PDF file contains no text]" \
-    "(--unac)--unac[Remove accents and ligatures]" \
-    "1:pattern:()" \
-    "*:pdf file:_files -g \"*.pdf\"" \
-    && return 0
-
-return 1
+_arguments -s -S -A "-*" \
+    "(-n --page-number)"{-n,--page-number}"[prefix match with page number]" \
+    "(-i --ignore-case)"{-i,--ignore-case}"[ignore case distinctions]" \
+    "(-F --fixed-strings -P --perl-regexp)"{-F,--fixed-strings}"[use literal strings]" \
+    "(-F --fixed-strings -P --perl-regexp)"{-P,--perl-regexp}"[use Perl compatible regular expression syntax]" \
+    "(-H --with-filename -h --no-filename)"{-H,--with-filename}"[print filename for each match]" \
+    "(-h --no-filename -H --with-filename)"{-h,--no-filename}"[don't print filename]" \
+    "(-c --count)"{-c,--count}"[print only a count of matches per file]" \
+    "(-p --page-count)"{-p,--page-count}"[count matches per page]" \
+    "(-C --context)"{-C,--context=}"[specify lines of context]:lines" \
+    "(-A --after-context)"{-A,--after-context=}"[specify lines of trailing context]:lines" \
+    "(-B --before-context)"{-B,--before-context=}"[specify lines of leading context]:lines" \
+    "--color=[use colors for highlighting]:color:(always never auto)" \
+    "--cache[use a cache for faster operation]" \
+    "(-r -R --recursive --dereference-recursive)"{-r,--recursive}"[search directories recursively]" \
+    "(-r -R --recursive --dereference-recursive)"{-R,--dereference-recursive}"[search directories recursively, follow symlinks]" \
+    "*--exclude=[skip files]:exclude" \
+    "*--include=[opposite of exclude]:include" \
+    "(- 1)--help[display help information]" \
+    "(- 1)"{-V,--version}"[display version information]" \
+    "(-q --quiet)"{-q,--quiet}"[suppress all normal output]" \
+    "(-Z --null)"{-Z,--null}"[replace colon after filename by null byte]" \
+    "--match-prefix-separator=[specify separator between filename, page and text]:separator" \
+    "*--password=[specify password to decrypt file]:password" \
+    "(-m --max-count)"{-m,--max-count=}"[process at most count matches]:count" \
+    "--debug[enable debug output]" \
+    "--warn-empty[warn if a PDF file contains no text]" \
+    "--unac[remove accents and ligatures]" \
+    '1: :_guard "^-*" pattern' \
+    '*:pdf file:_files -g "*.pdf(-.)"'
