@@ -185,13 +185,6 @@ Bugs can either be reportet to the mailing list
 (pdfgrep-users@pdfgrep.org) or to the bugtracker on gitlab
 (https://gitlab.com/pdfgrep/pdfgrep/issues).
 
-=== Known Bugs
-*pdfgrep* prints a single line multiple times, if there is more than
-one match in that line. That doesn't mirror to the behavior of *grep*.
-
-Also, the current context options don't have the same semantics as the
-*grep* ones.
-
 == AUTHORS
 *pdfgrep* is maintained by Hans-Peter Deifel.
 
