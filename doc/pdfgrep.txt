@@ -125,7 +125,12 @@ pages and not on lines.
 *This option is experimental and only available if pdfgrep is
 compiled with unac support.*
 
-*-q*, *--quiet* :: Suppress all normal output to stdout. Errors will
+*-q*, *--quiet* :: Suppress all normal output to stdout. Exit
+  immediately with exit status zero if a match is found, even in case
+  of errors. Use this if you only care about the presence of matches,
+  not their number or content.
+
+Errors will
   be printed and the exit codes will be returned (see below).
 
 *--help* :: Print a short summary of the options.
