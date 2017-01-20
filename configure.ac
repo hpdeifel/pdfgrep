@@ -17,8 +17,9 @@ AC_CHECK_FUNCS([regcomp])
 AC_CHECK_FUNCS([getopt_long])
 AC_CHECK_FUNCS([strcasestr])
 
+AC_MSG_CHECKING([for git head])
 dnl git revision, code stolen from paludis
-if test -d "${GIT_DIR:-${ac_top_srcdir:-./}/.git}" ; then
+if git version >/dev/null 2>&1 && test -d "${GIT_DIR:-${ac_top_srcdir:-./}/.git}" ; then
 	GITHEAD=`git describe 2>/dev/null`
 	if test -z ${GITHEAD} ; then
 		GITHEAD=`git rev-parse HEAD`
@@ -29,7 +30,6 @@ if test -d "${GIT_DIR:-${ac_top_srcdir:-./}/.git}" ; then
 else
 	GITHEAD=
 fi
-AC_MSG_CHECKING([for git head])
 AC_MSG_RESULT([$GITHEAD])
 AS_IF([test "x$GITHEAD" != "x"], [
 AC_DEFINE_UNQUOTED([PDFGREP_GIT_HEAD], ["$GITHEAD"], [Git commit used to build this programm])
