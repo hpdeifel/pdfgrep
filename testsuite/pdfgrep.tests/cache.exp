@@ -123,8 +123,10 @@ set test "warning if XDG_CACHE_HOME/pdfgrep cannot be created"
 
 setenv XDG_CACHE_HOME "$pdfdir/cache"
 
-file mkdir "$pdfdir/cache"
-exec chmod -w "$pdfdir/cache"
+# Create /cache as file instead of directory to make mkdir return EEXIST but
+# prevent the creation of subdirs. Creating a readonly directory does not work
+# in case tests are executed as root (relevant in containers).
+exec touch "$pdfdir/cache"
 
 pdfgrep_expect_with_err --cache test $pdf \
 ".*pdfgrep: warning: .*
