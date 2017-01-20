@@ -35,6 +35,15 @@ AS_IF([test "x$GITHEAD" != "x"], [
 AC_DEFINE_UNQUOTED([PDFGREP_GIT_HEAD], ["$GITHEAD"], [Git commit used to build this programm])
 ])
 
+dnl Check for presence of PKG_CHECK_MODULES macro
+AC_MSG_CHECKING([for pkg-config m4 macros])
+ifdef([PKG_CHECK_MODULES], [AC_MSG_RESULT([yes])], [
+  AC_MSG_RESULT(no)
+  AC_MSG_ERROR([*** pkg-config macro PKG_CHECK_MODULES is not defined!
+
+This can happen when ./configure was built without pkg-config installed.
+Please install pkg-config and re-run autoconf.])
+])
 
 dnl Poppler checking
 PKG_CHECK_MODULES(poppler_cpp, poppler-cpp)
