@@ -1,0 +1,30 @@
+before_script:
+  - apt-get update -qq
+  - apt-get install -y -qq gcc g++ pkg-config make automake autoconf gcovr
+  - apt-get install -y -qq libpoppler-cpp-dev libgcrypt20-dev libpcre3-dev asciidoc dejagnu texlive-latex-base
+
+test:
+  image: ubuntu:16.10
+  script:
+    - ./autogen.sh && ./configure --enable-coverage && make
+    - make check
+    - gcovr -r .
+  artifacts:
+    paths:
+      - testsuite/pdfgrep.log
+    when: on_failure
+    expire_in: 1 week
+
+# Build on debian stable as it has poppler < 0.34, where we need to
+# disable some tests
+test:debian-stable:
+  image: debian:jessie
+  script:
+    - ./autogen.sh && ./configure --enable-coverage && make
+    - make check
+    - gcovr -r .
+  artifacts:
+    paths:
+      - testsuite/pdfgrep.log
+    when: on_failure
+    expire_in: 1 week
