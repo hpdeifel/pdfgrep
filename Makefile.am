@@ -18,6 +18,10 @@ cov-reset:
 
 .PHONY: cov-report
 cov-report:
+	@gcovr -r src/
+
+.PHONY: cov-report-html
+cov-report-html: coverage
 	@mkdir -p coverage_report
 	@lcov --directory src/ --capture --no-external --output-file coverage_report/pdfgrep.info
 	@genhtml -o coverage_report/ coverage_report/pdfgrep.info

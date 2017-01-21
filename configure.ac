@@ -154,13 +154,9 @@ AS_IF([test "x$enable_coverage" = "xyes"], [
 	AS_IF([test "x$HAVE_GCOV" = "xno"], [
 		AC_MSG_ERROR([gcov not found, but configured with --enable-coverage])
 	])
-	AC_CHECK_PROG(HAVE_LCOV, [lcov], [yes], [no])
-	AS_IF([test "x$HAVE_LCOV" = "xno"], [
-		AC_MSG_ERROR([lcov not found, but configured with --enable-coverage])
-	])
-	AC_CHECK_PROG(HAVE_GENHTML, [genhtml], [yes], [no])
-	AS_IF([test "x$HAVE_GENHTML" = "xno"], [
-		AC_MSG_ERROR([genhtml not found, but configured with --enable-coverage])
+	AC_CHECK_PROG(HAVE_GCOVR, [gcovr], [yes], [no])
+	AS_IF([test "x$HAVE_GCOVR" = "xno"], [
+		AC_MSG_WARN([gcovr not found, but configured with --enable-coverage])
 	])
 ])
 

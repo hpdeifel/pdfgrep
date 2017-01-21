@@ -14,7 +14,8 @@ directory.
 
 ## Coverage
 
-To get test coverage, run configure with the following arguments:
+To get a test coverage report, install `gcovr` and run configure with
+the following arguments:
 
     ./configure CXXFLAGS="-O0" --enable-coverage
 
@@ -23,8 +24,8 @@ and then run:
     make clean
     make coverage
 
-This will write a coverage report as HTML to the new directory
-`coverage_report`.
+This will print a test coverage report to stdout. To get an HTML
+report with lcov, run `make cov-report-html`.
 
 ## Configuration
 
