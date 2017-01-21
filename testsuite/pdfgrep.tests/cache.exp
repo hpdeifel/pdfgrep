@@ -12,30 +12,41 @@ proc count_cache_files num {
     }
 }
 
+proc with_zero_exit args {
+    global test
+    try {
+	return [eval {*}$args]
+    } trap CHILDSTATUS {} {
+	pfail "$test -- exited with nonzero exit status"
+    }
+}
+
 ######################################################################
 
 set test "cache creates file"
 
 clear_pdfdir
 set pdf [mkpdf pdf {
-    this is a test
+    this is a test.
 }]
 
-exec $pdfgrep_path --cache test $pdf
-
-count_cache_files 1
+with_zero_exit "
+    exec $pdfgrep_path --cache test $pdf
+    count_cache_files 1
+"
 
 ######################################################################
 
 set test "cache creates another file"
 
 set pdf2 [mkpdf pdf2 {
-    this is another test
+    this is another test.
 }]
 
-exec $pdfgrep_path --cache test $pdf2
-
-count_cache_files 2
+with_zero_exit "
+    exec $pdfgrep_path --cache test $pdf2
+    count_cache_files 2
+"
 
 ######################################################################
 
@@ -43,22 +54,25 @@ set test "cache doesn't create new file for same content"
 
 file copy $pdf2 $pdfdir/pdf3.pdf
 
-exec $pdfgrep_path --cache test $pdfdir/pdf3.pdf
-
-count_cache_files 2
-
+with_zero_exit "
+    exec $pdfgrep_path --cache test $pdfdir/pdf3.pdf
+    count_cache_files 2
+"
 
 ######################################################################
 
 set test "cached call returns the same as original"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
 
 clear_pdfdir
 set pdf [mkpdf pdf {
     this is a test
 }]
 
-set output [exec $pdfgrep_path --cache test $pdf]
-
+set output [with_zero_exit "exec $pdfgrep_path --cache test $pdf"]
 pdfgrep_expect --cache test $pdf $output
 
 ######################################################################
@@ -72,14 +86,17 @@ for {set i 0} {$i < 10} {incr i} {
 }
 
 set pdf [mkpdf pdf {
-    this is a test
+    this is a test.
 }]
 
 setenv PDFGREP_CACHE_LIMIT 5
-exec $pdfgrep_path --cache test $pdf
 
-# 5 old ones and the one from the pdf
-count_cache_files 6
+with_zero_exit "
+    exec $pdfgrep_path --cache test $pdf
+
+    # 5 old ones and the one from the pdf
+    count_cache_files 6
+"
 
 ######################################################################
 
@@ -92,18 +109,23 @@ set cachedir "$pdfdir/.cache/pdfgrep"
 
 clear_pdfdir
 set pdf [mkpdf pdf {
-    this is a test
+    this is a test.
 }]
 
-exec $pdfgrep_path --cache test $pdf
-
-count_cache_files 1
+with_zero_exit "
+    exec $pdfgrep_path --cache test $pdf
+    count_cache_files 1
+"
 
 setenv HOME $homedir
 
 ######################################################################
 
 set test "warning if XDG_CACHE_HOME cannot be created"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
 
 setenv XDG_CACHE_HOME "$pdfdir/testdir/cache"
 
@@ -120,6 +142,10 @@ this is a test"
 ######################################################################
 
 set test "warning if XDG_CACHE_HOME/pdfgrep cannot be created"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
 
 setenv XDG_CACHE_HOME "$pdfdir/cache"
 
