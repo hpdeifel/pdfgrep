@@ -12,15 +12,6 @@ proc count_cache_files num {
     }
 }
 
-proc with_zero_exit args {
-    global test
-    try {
-	return [eval {*}$args]
-    } trap CHILDSTATUS {} {
-	pfail "$test -- exited with nonzero exit status"
-    }
-}
-
 ######################################################################
 
 set test "cache creates file"
@@ -30,10 +21,9 @@ set pdf [mkpdf pdf {
     this is a test.
 }]
 
-with_zero_exit "
-    exec $pdfgrep_path --cache test $pdf
-    count_cache_files 1
-"
+pdfgrep --cache test $pdf
+expect eof
+count_cache_files 1
 
 ######################################################################
 
@@ -43,10 +33,9 @@ set pdf2 [mkpdf pdf2 {
     this is another test.
 }]
 
-with_zero_exit "
-    exec $pdfgrep_path --cache test $pdf2
-    count_cache_files 2
-"
+pdfgrep --cache test $pdf2
+expect eof
+count_cache_files 2
 
 ######################################################################
 
@@ -54,10 +43,9 @@ set test "cache doesn't create new file for same content"
 
 file copy $pdf2 $pdfdir/pdf3.pdf
 
-with_zero_exit "
-    exec $pdfgrep_path --cache test $pdfdir/pdf3.pdf
-    count_cache_files 2
-"
+pdfgrep --cache test $pdfdir/pdf3.pdf
+expect eof
+count_cache_files 2
 
 ######################################################################
 
@@ -72,8 +60,10 @@ set pdf [mkpdf pdf {
     this is a test
 }]
 
-set output [with_zero_exit "exec $pdfgrep_path --cache test $pdf"]
-pdfgrep_expect --cache test $pdf $output
+pdfgrep --cache test $pdf
+expect eof
+
+pdfgrep_expect --cache test $pdf "this is a test"
 
 ######################################################################
 
@@ -91,12 +81,11 @@ set pdf [mkpdf pdf {
 
 setenv PDFGREP_CACHE_LIMIT 5
 
-with_zero_exit "
-    exec $pdfgrep_path --cache test $pdf
+pdfgrep --cache test $pdf
+expect eof
 
-    # 5 old ones and the one from the pdf
-    count_cache_files 6
-"
+# 5 old ones and the one from the pdf
+count_cache_files 6
 
 ######################################################################
 
@@ -112,10 +101,9 @@ set pdf [mkpdf pdf {
     this is a test.
 }]
 
-with_zero_exit "
-    exec $pdfgrep_path --cache test $pdf
-    count_cache_files 1
-"
+pdfgrep --cache test $pdf
+expect eof
+count_cache_files 1
 
 setenv HOME $homedir
 

@@ -40,7 +40,17 @@ PosixRegex::PosixRegex(const string &pattern, bool case_insensitive)
 {
 	int regex_flags = REG_EXTENDED | (case_insensitive ? REG_ICASE : 0);
 
-	int ret = regcomp(&this->regex, pattern.c_str(), regex_flags);
+	// The regcomp/regexec implementation of OpenBSD doesn't like empty
+	// patterns. Thus we just replace empty patterns by "()", which does
+	// have the same semantics.
+	const char *c_str_pattern;
+	if (pattern == "") {
+		c_str_pattern = "()";
+	} else {
+		c_str_pattern = pattern.c_str();
+	}
+
+	int ret = regcomp(&this->regex, c_str_pattern, regex_flags);
 	if(ret) {
 		char err_msg[256];
 		regerror(ret, &this->regex, err_msg, 256);

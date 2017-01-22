@@ -8,6 +8,7 @@ expect {
     default { pfail $test }
 }
 
+expect eof
 expect_exit_status 2
 
 

@@ -228,8 +228,11 @@ proc reset_configuration {} {
 
 
 # The directory where the PDFs will be generated.
-# NOTE This will frequently be removed, so don't put important data there
-set pdfdir [exec mktemp --tmpdir -d pdfgrep_tests.XXXXXXXXXX]
+# NOTE This will frequently be # removed, so don't put important data there
+# TODO On Linux, the -t option for mktemp is marked as deprecated and the
+# --tmpdir option should be used. Unfortunately, this option is not available on
+# the BSDs.
+set pdfdir [exec mktemp -t -d pdfgrep_tests.XXXXXXXXXX]
 
 
 # Delete $pdfdir recursively and create it anew
