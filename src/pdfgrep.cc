@@ -297,7 +297,7 @@ static int do_search_in_document(const Options &opts, const string &path, const 
 		unsigned char sha1sum[20];
 		std::string cache_file(opts.cache_directory);
 		if (sha1_file(filename, sha1sum) != 0) {
-			err() << "Could not hash " << path << endl;
+			err() << "Could not compute checksum for " << path << endl;
 			return 1;
 		}
 		char translate[] = "0123456789abcdef";
