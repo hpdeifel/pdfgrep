@@ -14,6 +14,7 @@ NEXT RELEASE
   - Bugfix: The pattern `^` now matches *only* at the beginning of pages
   - Bugfix: Text outside of PDF's CropBox but inside the MediaBox is not
     ignored anymore.
+  - Various fixes for *BSD support
 
 Version 1.4.1  [2015-09-26]
 ---------------------------
