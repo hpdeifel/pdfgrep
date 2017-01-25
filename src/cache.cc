@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2016 by Christian Dietrich                              *
+ *   Copyright (C) 2017 by Christian Dietrich                              *
  *   stettberger@dokucode.de                                               *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
