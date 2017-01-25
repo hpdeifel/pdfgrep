@@ -3,6 +3,6 @@ AUTOMAKE_OPTIONS = dejagnu
 
 DEJATOOL = pdfgrep
 
-EXTRA_DIST = global-conf.exp README.md
+EXTRA_DIST = README.md
 
 SUBDIRS = config lib pdfgrep.tests
