@@ -1,4 +1,4 @@
-AC_INIT([pdfgrep], [1.4.1], [pdfgrep-users@pdfgrep.org])
+AC_INIT([pdfgrep], [2.0], [pdfgrep-users@pdfgrep.org])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([foreign])
 AC_CONFIG_HEADER([config.h])

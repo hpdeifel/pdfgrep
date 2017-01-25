@@ -1,5 +1,5 @@
-NEXT RELEASE
-------------
+Version 2.0  [2017-01-25]
+-------------------------
 
   - **Incompatible change**: `--context/-C` is now line based as opposed to
     character based and works just like grep
