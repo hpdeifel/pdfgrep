@@ -7,8 +7,8 @@ test:
   image: ubuntu:16.10
   script:
     - ./autogen.sh
-    - make distcheck
     - ./configure --enable-coverage
+    - make distcheck
     - make check
     - gcovr -r .
   artifacts:
