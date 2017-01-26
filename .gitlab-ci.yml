@@ -6,7 +6,9 @@ before_script:
 test:
   image: ubuntu:16.10
   script:
-    - ./autogen.sh && ./configure --enable-coverage && make
+    - ./autogen.sh
+    - make distcheck
+    - ./configure --enable-coverage
     - make check
     - gcovr -r .
   artifacts:
