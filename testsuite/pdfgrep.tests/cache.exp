@@ -154,6 +154,10 @@ set test "cache works for recursive search in subdirs"
 
 # See https://gitlab.com/pdfgrep/pdfgrep/issues/7
 
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
 clear_pdfdir
 
 file mkdir $pdfdir/subdir
