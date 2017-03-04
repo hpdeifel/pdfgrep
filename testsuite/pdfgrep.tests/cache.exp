@@ -147,3 +147,18 @@ pdfgrep_expect_with_err --cache test $pdf \
 this is a test"
 
 # TODO Find a way to test cache size limit without creating too many files
+
+######################################################################
+
+set test "cache works for recursive search in subdirs"
+
+# See https://gitlab.com/pdfgrep/pdfgrep/issues/7
+
+clear_pdfdir
+
+file mkdir $pdfdir/subdir
+mkpdf pdf "foobar"
+file rename $pdfdir/pdf.pdf $pdfdir/subdir/pdf.pdf
+
+pdfgrep_expect --cache -r "foobar" $pdfdir \
+    "$pdfdir/subdir/pdf.pdf:foobar"
