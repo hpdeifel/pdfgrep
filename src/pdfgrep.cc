@@ -284,6 +284,10 @@ static int sha1_file(const std::string &filename, unsigned char *sha1out)
 	return 0;
 }
 
+/** Perform search in `path`
+ *
+ * - filename is the basename of the file without the directory part
+ */
 static int do_search_in_document(const Options &opts, const string &path, const string &filename,
                                  Regengine &re, bool check_excludes = true)
 {
@@ -296,7 +300,7 @@ static int do_search_in_document(const Options &opts, const string &path, const 
 	if (opts.use_cache) {
 		unsigned char sha1sum[20];
 		std::string cache_file(opts.cache_directory);
-		if (sha1_file(filename, sha1sum) != 0) {
+		if (sha1_file(path, sha1sum) != 0) {
 			err() << "Could not compute checksum for " << path << endl;
 			return 1;
 		}
