@@ -1,3 +1,8 @@
+NEXT RELEASE
+------------
+
+  - Bugfix: Fix --cache when used with recursive search
+
 Version 2.0  [2017-01-25]
 -------------------------
 
