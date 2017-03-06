@@ -1,5 +1,5 @@
-NEXT RELEASE
-------------
+Version 2.0.1  [2017-03-06]
+---------------------------
 
   - Bugfix: Fix --cache when used with recursive search
 
