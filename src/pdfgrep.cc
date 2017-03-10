@@ -244,7 +244,7 @@ static void print_help(char *self)
 	     << " -q, --quiet\t\t\tSuppress normal output" << endl
 	     << " -r, --recursive\t\tSearch directories recursively" << endl
 	     << " -R, --dereference-recursive\tLikewise, but follow all symlinks" << endl
-	     << "     --cache\t\tUse cache for faster operation" << endl
+	     << "     --cache\t\t\tUse cache for faster operation" << endl
 	     << "     --help\t\t\tPrint this help" << endl
 	     << " -V, --version\t\t\tShow version information" << endl;
 }
