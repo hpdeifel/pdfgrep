@@ -27,6 +27,12 @@
 
 #include "output.h"
 
+// The interval container data structure could be much more sophisticated (e.g
+// by using interval trees or even sorted lists), but as the number of intervals
+// in typical use cases is small, this shouldn't make much difference and could
+// actually be harmful.
+//
+// tl;dr Measure before you optimize
 
 void IntervalContainer::addInterval(Interval i) {
 	intervals.push_back(i);

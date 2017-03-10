@@ -24,9 +24,14 @@
 #include <vector>
 #include <string>
 
-/* Inclusive interval
+/* This file implements a interval container that supports insertion and
+ * inclusion tests for integer intervals.
+ *
+ * Used for the --page-range feature
  */
+
 struct Interval {
+	/* from and to are inclusive. */
 	Interval(int from, int to) {
 		this->from = from;
 		this->to = to;
@@ -34,6 +39,7 @@ struct Interval {
 
 	int from;
 	int to;
+
 	inline bool contains(int element) const {
 		return element >= from && element <= to;
 	}
@@ -43,9 +49,29 @@ class IntervalContainer {
 public:
 	IntervalContainer() {}
 
+	/** Parses a string into intervals.
+	 *
+	 * This accepts the format used for the --page-range option: A comma
+	 * separated list of intervals, which can be either a single integer or
+	 * two integers separated by a minus character. Whitespace is not
+	 * allowed.
+	 *
+	 * More precisely, the following grammar is implemented:
+	 *
+	 * INTERVALS ::= 𝝴 | INTERVAL ',' INTERVALS
+	 * INTERVAL  ::= int | int '-' int
+	 *
+	 */
 	static IntervalContainer fromString(const std::string str);
 
 	void addInterval(Interval i);
+
+	/** Returns true if either the element is contained in any interval or
+	 * this container is empty.
+	 *
+	 * The latter case is there to simplify --page-range. If no intervals
+	 * are specified, we want to search every page.
+	 */
 	bool contains(int element) const;
 
 private:
