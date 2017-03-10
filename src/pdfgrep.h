@@ -23,6 +23,7 @@
 
 #include "config.h"
 #include "exclude.h"
+#include "intervals.h"
 
 #include <vector>
 #include <string>
@@ -87,6 +88,7 @@ struct Options {
 	ExcludeList includes;
 	bool use_cache = false;
 	std::string cache_directory;
+	IntervalContainer page_range;
 };
 
 #endif /* PDFGREP_H */

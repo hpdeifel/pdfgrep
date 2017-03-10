@@ -59,6 +59,7 @@
 #include "regengine.h"
 #include "search.h"
 #include "cache.h"
+#include "intervals.h"
 
 using namespace std;
 
@@ -79,10 +80,12 @@ enum {
 	WARN_EMPTY_OPTION,
 	UNAC_OPTION,
 	CACHE_OPTION,
+	PAGE_RANGE_OPTION,
 };
 
 struct option long_options[] =
 {
+	// name, has_arg, *flag, val
 	{"ignore-case", 0, 0, 'i'},
 	{"perl-regexp", 0, 0, 'P'},
 	{"page-number", 0, 0, 'n'},
@@ -111,6 +114,7 @@ struct option long_options[] =
 	{"after-context", 1, 0, 'A'},
 	{"before-context", 1, 0, 'B'},
 	{"context", 1, 0, 'C'},
+	{"page-range", 1, 0, PAGE_RANGE_OPTION},
 	{0, 0, 0, 0}
 };
 
@@ -601,6 +605,10 @@ int main(int argc, char** argv)
 				}
 				options.outconf.context_before = options.outconf.context_after;
 				options.outconf.context_mode = true;
+				break;
+
+			case PAGE_RANGE_OPTION:
+				options.page_range = IntervalContainer::fromString(optarg);
 				break;
 
 			/* In these two cases, getopt already prints an
