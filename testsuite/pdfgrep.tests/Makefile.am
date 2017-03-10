@@ -8,5 +8,6 @@ EXTRA_DIST =color.exp \
 	regex.exp \
 	usage.exp \
 	context.exp \
+	page_range.exp \
 	cache.exp
 

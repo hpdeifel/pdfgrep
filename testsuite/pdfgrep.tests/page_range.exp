@@ -1,0 +1,72 @@
+set test "page range with range"
+
+clear_pdfdir
+set pdf [mkpdf foo {
+    first page
+    \newpage
+    second page
+    \newpage
+    third page
+}]
+
+pdfgrep_expect --page-range 1-2 page $pdf \
+"first page
+second page"
+
+expect_exit_status 0
+
+######################################################################
+
+set test "page range with single page"
+
+pdfgrep_expect --page-range 2 page $pdf \
+"second page"
+
+expect_exit_status 0
+
+######################################################################
+
+set test "page range with both"
+
+pdfgrep_expect --page-range 1-2,3 page $pdf \
+"first page
+second page
+third page"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+expect_exit_status 0
+
+######################################################################
+
+set test "invalid page range"
+
+pdfgrep_expect_error --page-range foo page $pdf
+
+expect_exit_status 2
+
+######################################################################
+
+set test "invalid number in page range"
+
+pdfgrep_expect_error --page-range 0--2 page $pdf
+
+expect_exit_status 2
+
+######################################################################
+
+set test "invalid number in page range"
+
+pdfgrep_expect_error --page-range 1-foo page $pdf
+
+expect_exit_status 2
+
+######################################################################
+
+set test "empty page range"
+
+pdfgrep_expect_error --page-range 2-1 page $pdf
+
+expect_exit_status 1
