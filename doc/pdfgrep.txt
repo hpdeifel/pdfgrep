@@ -92,6 +92,11 @@ pages and not on lines.
   the output of 'ps'(1). So please do not use this if the security of
   'PASSWORD' is important.
 
+*--page-range=*'RANGE' :: Limit search to a specified set of pages.
+   'RANGE' is a comma separated list of either a single page number or
+   a range expression of the form `PAGE1-PAGE2`. Example:
+   `2-3,5,7-10`.
+
 *-m*, *--max-count* 'NUM' :: Stop reading a file after 'NUM' matches.
   When the -c or --count option is also used, pdfgrep does not output
   a count greater than 'NUM'.

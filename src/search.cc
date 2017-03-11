@@ -72,6 +72,9 @@ int search_document(const Options &opts, unique_ptr<poppler::document> doc,
 	size_t doc_pages = static_cast<size_t>(doc->pages());
 
 	for (size_t pagenum = 1; pagenum <= doc_pages; pagenum++) {
+		if (opts.page_range.contains(pagenum) == false)
+			continue;
+
 		string text;
 		if (!opts.use_cache || !cache->get_page(pagenum, text)) {
 			unique_ptr<poppler::page> page(doc->create_page(pagenum-1));

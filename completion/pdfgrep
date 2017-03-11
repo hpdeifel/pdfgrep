@@ -39,6 +39,7 @@ _pdfgrep()
           -r -R --recursive \
           --exclude \
           --include \
+	  --page-range \
           --help \
           -V --version \
           -q --quiet \
@@ -55,7 +56,7 @@ _pdfgrep()
         --color)
             COMPREPLY=( $(compgen -W "always never auto" -- ${cur}) )
             ;;
-        --exclude|--include|--password|-m|--max-count|--match-prefix-separator)
+        --exclude|--include|--password|-m|--max-count|--match-prefix-separator|--page-range)
             COMPREPLY=( )
             ;;
         *)

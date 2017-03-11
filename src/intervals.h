@@ -18,77 +18,64 @@
  *   Boston, MA 02110-1301 USA.                                            *
  ***************************************************************************/
 
-#ifndef PDFGREP_H
-#define PDFGREP_H
-
-#include "config.h"
-#include "exclude.h"
-#include "intervals.h"
+#ifndef INTERVALS_H
+#define INTERVALS_H
 
 #include <vector>
 #include <string>
 
-/* Exit codes. */
-enum {
-	/* EXIT_SUCCESS = 0 */
+/* This file implements a interval container that supports insertion and
+ * inclusion tests for integer intervals.
+ *
+ * Used for the --page-range feature
+ */
 
-	// no match was found
-	EXIT_NOT_FOUND = 1,
-	// an error occured
-	EXIT_ERROR = 2,
+struct Interval {
+	/* from and to are inclusive. */
+	Interval(int from, int to) {
+		this->from = from;
+		this->to = to;
+	}
+
+	int from;
+	int to;
+
+	inline bool contains(int element) const {
+		return element >= from && element <= to;
+	}
 };
 
-enum class Recursion {
-	NONE,
-	FOLLOW_SYMLINKS,
-	DONT_FOLLOW_SYMLINKS
+class IntervalContainer {
+public:
+	IntervalContainer() {}
+
+	/** Parses a string into intervals.
+	 *
+	 * This accepts the format used for the --page-range option: A comma
+	 * separated list of intervals, which can be either a single integer or
+	 * two integers separated by a minus character. Whitespace is not
+	 * allowed.
+	 *
+	 * More precisely, the following grammar is implemented:
+	 *
+	 * INTERVALS ::= 𝝴 | INTERVAL ',' INTERVALS
+	 * INTERVAL  ::= int | int '-' int
+	 *
+	 */
+	static IntervalContainer fromString(const std::string str);
+
+	void addInterval(Interval i);
+
+	/** Returns true if either the element is contained in any interval or
+	 * this container is empty.
+	 *
+	 * The latter case is there to simplify --page-range. If no intervals
+	 * are specified, we want to search every page.
+	 */
+	bool contains(int element) const;
+
+private:
+	std::vector<Interval> intervals;
 };
 
-struct Colorconf {
-	char *filename;
-	char *pagenum;
-	char *highlight;
-	char *separator;
-};
-
-// Controls, what to print
-struct Outconf {
-	bool filename = false;
-	bool pagenum = false;
-	bool color = false;
-	bool only_matching = false;
-	bool null_byte_sep = false;
-	std::string prefix_sep = ":";
-
-	// true, if we need to print context separators between lines
-	bool context_mode = false;
-	int context_before = 0;
-	int context_after = 0;
-
-	Colorconf colors;
-};
-
-
-struct Options {
-	bool ignore_case = false;
-	Recursion recursive = Recursion::NONE;
-	bool count = false;
-	bool pagecount = false;
-	bool quiet = false;
-	// vector of all passwords to try on any pdf
-	std::vector<std::string> passwords;
-	int max_count = 0;
-	bool debug = 0;
-	bool warn_empty = false;
-#ifdef HAVE_UNAC
-	bool use_unac = false;
-#endif
-	Outconf outconf;
-	ExcludeList excludes;
-	ExcludeList includes;
-	bool use_cache = false;
-	std::string cache_directory;
-	IntervalContainer page_range;
-};
-
-#endif /* PDFGREP_H */
+#endif /* INTERVALS_H */
