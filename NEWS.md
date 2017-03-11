@@ -1,3 +1,8 @@
+NEXT RELEASE
+------------
+
+  - New option `--page-range` to limit search to a set of pages
+
 Version 2.0.1  [2017-03-06]
 ---------------------------
 

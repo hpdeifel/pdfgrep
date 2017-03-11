@@ -37,6 +37,7 @@ _arguments -s -S -A "-*" \
     "(-r -R --recursive --dereference-recursive)"{-R,--dereference-recursive}"[search directories recursively, follow symlinks]" \
     "*--exclude=[skip files]:exclude" \
     "*--include=[opposite of exclude]:include" \
+    "--page-range=[limit search to a set of pages]:page-range" \
     "(- 1)--help[display help information]" \
     "(- 1)"{-V,--version}"[display version information]" \
     "(-q --quiet)"{-q,--quiet}"[suppress all normal output]" \
