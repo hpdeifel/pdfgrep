@@ -234,23 +234,25 @@ static void print_help(char *self)
 	     << "Search for PATTERN in each FILE." << endl
 	     << "PATTERN is, by default, an extended regular expression." << endl
 	     << endl
-	     << "Options:" << endl
-	     << " -i, --ignore-case\t\tIgnore case distinctions" << endl
-	     << " -P, --pcre\t\t\tUse Perl compatible regular expressions (PCRE)" << endl
-	     << " -H, --with-filename\t\tPrint the file name for each match" << endl
-	     << " -h, --no-filename\t\tSuppress the prefixing of file name on output" << endl
-	     << " -n, --page-number\t\tPrint page number with output lines" << endl
-	     << " -c, --count\t\t\tPrint only a count of matches per file" << endl
-	     << "     --color WHEN\t\tUse colors for highlighting;" << endl
-	     << "\t\t\t\tWHEN can be `always', `never' or `auto'" << endl
-	     << " -p, --page-count\t\tPrint only a count of matches per page" << endl
-	     << " -m, --max-count NUM\t\tStop reading after NUM matching lines (per file)" << endl
-	     << " -q, --quiet\t\t\tSuppress normal output" << endl
-	     << " -r, --recursive\t\tSearch directories recursively" << endl
-	     << " -R, --dereference-recursive\tLikewise, but follow all symlinks" << endl
-	     << "     --cache\t\t\tUse cache for faster operation" << endl
-	     << "     --help\t\t\tPrint this help" << endl
-	     << " -V, --version\t\t\tShow version information" << endl;
+	     << "Commonly used options:" << endl
+	     << " -i, --ignore-case              Ignore case distinctions" << endl
+	     << " -P, --pcre                     Use Perl compatible regular expressions (PCRE)" << endl
+	     << " -H, --with-filename            Print the file name for each match" << endl
+	     << " -h, --no-filename              Suppress the prefixing of file name on output" << endl
+	     << " -n, --page-number              Print page number with output lines" << endl
+	     << " -c, --count                    Print only a count of matches per file" << endl
+	     << "     --color WHEN               Use colors for highlighting;" << endl
+	     << "                                WHEN can be `always', `never' or `auto'" << endl
+	     << " -p, --page-count               Print only a count of matches per page" << endl
+	     << " -m, --max-count NUM            Stop reading after NUM matching lines (per file)" << endl
+	     << " -q, --quiet                    Suppress normal output" << endl
+	     << " -r, --recursive                Search directories recursively" << endl
+	     << " -R, --dereference-recursive    Likewise, but follow all symlinks" << endl
+	     << "     --cache                    Use cache for faster operation" << endl
+	     << "     --help                     Print this help" << endl
+	     << " -V, --version                  Show version information" << endl << endl
+	     << "The above list is only a selection of commonly used options. Please refer" << endl
+	     << "to the man page for a complete list." << endl;
 }
 
 static void print_version()
