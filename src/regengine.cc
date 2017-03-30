@@ -32,9 +32,28 @@
 #include "output.h"
 #include "pdfgrep.h"
 
-// regex(3)
-
 using namespace std;
+
+bool PatternList::exec(const string &str, size_t offset, struct match &m) const
+{
+	struct match m_copy = m;
+
+	for (auto &r : patterns) {
+		if (r->exec(str, offset, m_copy)) {
+			m.start = m_copy.start;
+			m.end = m_copy.end;
+			return true;
+		}
+	}
+	return false;
+}
+
+
+void PatternList::add_pattern(unique_ptr<Regengine> pattern) {
+	patterns.push_back(move(pattern));
+}
+
+// regex(3)
 
 PosixRegex::PosixRegex(const string &pattern, bool case_insensitive)
 {

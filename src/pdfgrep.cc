@@ -115,22 +115,23 @@ struct option long_options[] =
 	{"before-context", 1, 0, 'B'},
 	{"context", 1, 0, 'C'},
 	{"page-range", 1, 0, PAGE_RANGE_OPTION},
+	{"regexp", 1, 0, 'e'},
 	{0, 0, 0, 0}
 };
 
 #ifdef HAVE_UNAC
 /* convenience layer over libunac. */
-static char *simple_unac(const Options &opts, char *string)
+static string simple_unac(const Options &opts, string str)
 {
 	if (!opts.use_unac)
-		return string;
+		return str;
 
 	char *res = NULL;
 	size_t reslen = 0;
 
-	if (unac_string("UTF-8", string, strlen(string), &res, &reslen)) {
+	if (unac_string("UTF-8", str.c_str(), str.size(), &res, &reslen)) {
 		perror("pdfgrep: Failed to remove accents: ");
-		return strdup(string);
+		return str;
 	}
 
 	return res;
@@ -453,8 +454,11 @@ int main(int argc, char** argv)
 		COLOR_NEVER
 	} use_colors = COLOR_AUTO;
 
+	// patterns specified with --regex or --file
+	vector<string> patterns;
+
 	while (1) {
-		int c = getopt_long(argc, argv, "icA:B:C:nrRhHVPpqm:FoZ",
+		int c = getopt_long(argc, argv, "icA:B:C:nrRhHVPpqm:FoZe:",
 				long_options, NULL);
 
 		if (c == -1)
@@ -613,6 +617,10 @@ int main(int argc, char** argv)
 				options.page_range = IntervalContainer::fromString(optarg);
 				break;
 
+			case 'e':
+				patterns.push_back(string(optarg));
+				break;
+
 			/* In these two cases, getopt already prints an
 			 * error message
 			 */
@@ -625,30 +633,47 @@ int main(int argc, char** argv)
 		}
 	}
 
-	if (argc == optind || (argc - optind < 2 && options.recursive == Recursion::NONE)) {
+	int remaining_args = argc - optind;
+	int required_args = 0;
+	if (patterns.empty()) required_args++;
+	if (options.recursive == Recursion::NONE) required_args++;
+
+	if (remaining_args < required_args) {
 		print_usage(argv[0]);
 		exit(EXIT_ERROR);
 	}
-
-	char *pattern = argv[optind++];
-#ifdef HAVE_UNAC
-	pattern = simple_unac(options, pattern);
-#endif
 
 	unique_ptr<Regengine> re;
 	if (re_engine == (RE_FIXED | RE_PCRE)) {
 		err() << "--pcre and --fixed cannot be used together" << endl;
 		exit(EXIT_ERROR);
 	}
+
+	auto make_regengine = [&](const string pattern) -> unique_ptr<Regengine> {
+#ifdef HAVE_UNAC
+		pattern = simple_unac(options, pattern);
+#endif
 #ifdef HAVE_LIBPCRE
-	if (re_engine == RE_PCRE) {
-		re.reset(new PCRERegex(pattern, options.ignore_case));
-	} else
+		if (re_engine == RE_PCRE) {
+			return unique_ptr<PCRERegex>(new PCRERegex(pattern, options.ignore_case));
+		} else
 #endif // HAVE_LIBPCRE
-	if (re_engine == RE_FIXED) {
-		re.reset(new FixedString(pattern, options.ignore_case));
+		if (re_engine == RE_FIXED) {
+			return unique_ptr<FixedString>(new FixedString(pattern, options.ignore_case));
+		} else {
+			return unique_ptr<PosixRegex>(new PosixRegex(pattern, options.ignore_case));
+		}
+
+	};
+
+	if (patterns.empty()) {
+		re = make_regengine(argv[optind++]);
 	} else {
-		re.reset(new PosixRegex(pattern, options.ignore_case));
+		auto patt_list = std::unique_ptr<PatternList>(new PatternList());
+		for (auto p : patterns) {
+			patt_list->add_pattern(make_regengine(p));
+		}
+		re = move(patt_list);
 	}
 
 #if POPPLER_VERSION_MAJOR > 0 || POPPLER_VERSION_MINOR >= 29
