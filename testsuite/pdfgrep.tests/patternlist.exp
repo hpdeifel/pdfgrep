@@ -1,0 +1,78 @@
+# These are tests for --regex and --file
+
+set test "-e"
+
+clear_pdfdir
+set pdf [mkpdf pdf {
+    line1\\
+    line2\\
+    -a dash
+}]
+
+pdfgrep_expect -e line $pdf \
+"line1
+line2"
+
+######################################################################
+
+set test "-e multiple times"
+
+pdfgrep_expect --regexp 1 -e 2 $pdf \
+"line1
+line2"
+
+######################################################################
+
+set test "-e argument with a dash"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+pdfgrep_expect -e -a $pdf \
+"-a dash"
+
+######################################################################
+
+set test "--file"
+
+set filename "$pdfdir/patternfile"
+set fileId [open "$filename" "w"]
+puts $fileId "1"
+puts $fileId "2"
+close $fileId
+
+pdfgrep_expect --file "$filename" $pdf \
+"line1
+line2"
+
+######################################################################
+
+set test "--file used twice"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+set filename2 "$pdfdir/patternfile2"
+set fileId [open "$filename2" "w"]
+puts $fileId "dash"
+close $fileId
+
+pdfgrep_expect -f "$filename" --file "$filename2" $pdf \
+"line1
+line2
+-a dash"
+
+######################################################################
+
+set test "--file and --regexp"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+pdfgrep_expect --file "$filename" --regexp "dash" $pdf \
+"line1
+line2
+-a dash"
