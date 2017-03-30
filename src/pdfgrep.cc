@@ -116,6 +116,7 @@ struct option long_options[] =
 	{"context", 1, 0, 'C'},
 	{"page-range", 1, 0, PAGE_RANGE_OPTION},
 	{"regexp", 1, 0, 'e'},
+	{"file", 1, 0, 'f'},
 	{0, 0, 0, 0}
 };
 
@@ -417,6 +418,28 @@ static bool parse_int(const char *str, int *i)
 	return true;
 }
 
+bool read_pattern_file(string filename, vector<string> &patterns)
+{
+	ifstream file(filename);
+
+	if (!file.is_open()) {
+		err() << filename << ": " << strerror(errno) << endl;
+		return false;
+	}
+
+	string line;
+	while (getline(file, line)) {
+		patterns.push_back(line);
+	}
+
+	if (file.bad()) {
+		err() << filename << ": " << strerror(errno) << endl;
+		return false;
+	}
+
+	return true;
+}
+
 #if POPPLER_VERSION_MAJOR > 0 || POPPLER_VERSION_MINOR >= 29
 static void handle_poppler_errors(const string &msg, void *_opts)
 {
@@ -456,9 +479,10 @@ int main(int argc, char** argv)
 
 	// patterns specified with --regex or --file
 	vector<string> patterns;
+	bool patterns_specified = false;
 
 	while (1) {
-		int c = getopt_long(argc, argv, "icA:B:C:nrRhHVPpqm:FoZe:",
+		int c = getopt_long(argc, argv, "icA:B:C:nrRhHVPpqm:FoZe:f:",
 				long_options, NULL);
 
 		if (c == -1)
@@ -618,7 +642,14 @@ int main(int argc, char** argv)
 				break;
 
 			case 'e':
+				patterns_specified = true;
 				patterns.push_back(string(optarg));
+				break;
+
+			case 'f':
+				patterns_specified = true;
+				if (!read_pattern_file(string(optarg), patterns))
+					exit(EXIT_ERROR);
 				break;
 
 			/* In these two cases, getopt already prints an
@@ -635,7 +666,7 @@ int main(int argc, char** argv)
 
 	int remaining_args = argc - optind;
 	int required_args = 0;
-	if (patterns.empty()) required_args++;
+	if (!patterns_specified) required_args++;
 	if (options.recursive == Recursion::NONE) required_args++;
 
 	if (remaining_args < required_args) {
