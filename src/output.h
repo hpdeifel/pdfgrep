@@ -68,3 +68,7 @@ std::ostream& line_prefix(const Outconf& outconf, const std::string& filename,
                           bool in_context);
 
 #endif
+
+/* Local Variables: */
+/* mode: c++ */
+/* End: */

@@ -76,3 +76,7 @@ private:
 };
 
 #endif /* REGENGINE_H */
+
+/* Local Variables: */
+/* mode: c++ */
+/* End: */

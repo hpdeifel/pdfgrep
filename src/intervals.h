@@ -79,3 +79,7 @@ private:
 };
 
 #endif /* INTERVALS_H */
+
+/* Local Variables: */
+/* mode: c++ */
+/* End: */

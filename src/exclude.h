@@ -32,3 +32,7 @@ bool is_excluded(const ExcludeList &list, const std::string &name);
 bool excludes_empty(ExcludeList &list);
 
 #endif
+
+/* Local Variables: */
+/* mode: c++ */
+/* End: */

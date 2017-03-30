@@ -35,3 +35,7 @@ int search_document(const Options &opts, std::unique_ptr<poppler::document> doc,
 
 
 #endif /* SEARCH_H */
+
+/* Local Variables: */
+/* mode: c++ */
+/* End: */

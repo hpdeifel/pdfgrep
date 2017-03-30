@@ -92,3 +92,7 @@ struct Options {
 };
 
 #endif /* PDFGREP_H */
+
+/* Local Variables: */
+/* mode: c++ */
+/* End: */
