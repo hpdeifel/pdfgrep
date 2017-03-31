@@ -50,13 +50,15 @@ _pdfgrep()
           --debug \
           --warn-empty \
           --unac \
+	  -e --regexp \
+	  -f --file \
          )
 
     case "${prev}" in
         --color)
             COMPREPLY=( $(compgen -W "always never auto" -- ${cur}) )
             ;;
-        --exclude|--include|--password|-m|--max-count|--match-prefix-separator|--page-range)
+        --exclude|--include|--password|-m|--max-count|--match-prefix-separator|--page-range|-e|--regexp|-f|--file)
             COMPREPLY=( )
             ;;
         *)
