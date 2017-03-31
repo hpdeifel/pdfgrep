@@ -46,3 +46,7 @@ void limit_cachesize(const char *cache, int entries);
 int find_cache_directory(std::string &dir);
 
 #endif
+
+/* Local Variables: */
+/* mode: c++ */
+/* End: */

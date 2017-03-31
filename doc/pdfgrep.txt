@@ -8,7 +8,9 @@
 pdfgrep - search pdf files for a regular expression
 
 == SYNOPSIS
+[verse]
 *pdfgrep* ['OPTION'...] 'PATTERN' ['FILE'...]
+*pdfgrep* ['OPTION'...] [*-e* 'PATTERN' | *-f* 'FILE'] ['FILE'...]
 
 == DESCRIPTION
 Search for 'PATTERN' in each 'FILE'. 'PATTERN' is an extended regular
@@ -24,11 +26,22 @@ pages and not on lines.
 *-F*, *--fixed-strings* :: Interpret 'PATTERN' as a list of fixed
   strings separated by newlines, any of which is to be matched.
 
-*--cache* :: Use a cache for the rendered text to speed up the
-  operation on large files.
-
 *-P*, *--perl-regexp* :: Interpret 'PATTERN' as a Perl compatible
   regular expression (PCRE). See 'pcresyntax'(3) for a quick overview.
+
+*-e* 'PATTERN', *--regexp=*'PATTERN' :: Use 'PATTERN' as the pattern
+  to search for. If this option is specified multiple times or
+  combined with *--file*, all patterns are tried in turn until one of
+  them matches.
+
+*-f* 'FILE', *--file=*'FILE' :: Read patterns from 'FILE', one per
+  line. If 'FILE' contains multiple patterns or if this option is
+  applied multiple times or combined with *-e*, all patterns are tried
+  in turn until one of them matches. An empty pattern list matches
+  nothing.
+
+*--cache* :: Use a cache for the rendered text to speed up the
+  operation on large files.
 
 *-H*, *--with-filename* :: Print the file name for each match. This is
   the default setting when there is more than one file to search.

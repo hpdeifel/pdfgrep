@@ -48,5 +48,7 @@ _arguments -s -S -A "-*" \
     "--debug[enable debug output]" \
     "--warn-empty[warn if a PDF file contains no text]" \
     "--unac[remove accents and ligatures]" \
+    "(-e --regexp)"{-e,--regexp}"[use argument as pattern]:pattern" \
+    "(-f --file)"{-f,--file}"[read patterns from file]:pattern" \
     '1: :_guard "^-*" pattern' \
     '*:pdf file:_files -g "*.pdf(-.)"'

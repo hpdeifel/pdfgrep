@@ -31,6 +31,7 @@
 #endif
 #include <vector>
 #include <string>
+#include <memory>
 
 
 struct match;
@@ -41,6 +42,22 @@ public:
 	// writes the match data to m. Returns true on success and false on failure
 	virtual bool exec(const std::string &str, size_t offset, struct match &m) const = 0;
 	virtual ~Regengine() {}
+};
+
+// This matches the union of a set of patterns
+//
+// It just tries all patterns in turn. This could be more efficient by using
+// some engine-specific way of combining patterns, e.g with "|" in the posix
+// case.
+class PatternList : public Regengine
+{
+public:
+	PatternList() {}
+	~PatternList() {}
+	bool exec(const std::string &str, size_t offset, struct match &m) const override;
+	void add_pattern(std::unique_ptr<Regengine> pattern);
+private:
+	std::vector<std::unique_ptr<Regengine>> patterns;
 };
 
 class PosixRegex : public Regengine
@@ -76,3 +93,7 @@ private:
 };
 
 #endif /* REGENGINE_H */
+
+/* Local Variables: */
+/* mode: c++ */
+/* End: */

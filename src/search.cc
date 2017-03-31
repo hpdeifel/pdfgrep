@@ -245,24 +245,6 @@ static void handle_match(const Options &opts, const string &filename, size_t pag
 	}
 }
 
-#ifdef HAVE_UNAC
-static string simple_unac(const Options &opts, string str)
-{
-	if (!opts.use_unac)
-		return str;
-
-	char *res = NULL;
-	size_t reslen = 0;
-
-	if (unac_string("UTF-8", str.c_str(), str.size(), &res, &reslen)) {
-		perror("pdfgrep: Failed to remove accents: ");
-		return str;
-	}
-
-	return res;
-}
-#endif
-
 static string maybe_unac(const Options &opts, string str) {
 #ifdef HAVE_UNAC
 	return simple_unac(opts, str);
