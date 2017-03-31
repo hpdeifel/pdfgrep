@@ -45,6 +45,10 @@ public:
 };
 
 // This matches the union of a set of patterns
+//
+// It just tries all patterns in turn. This could be more efficient by using
+// some engine-specific way of combining patterns, e.g with "|" in the posix
+// case.
 class PatternList : public Regengine
 {
 public:
