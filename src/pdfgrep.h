@@ -68,6 +68,11 @@ struct Outconf {
 	Colorconf colors;
 };
 
+enum class OnlyFilenames {
+	NOPE,
+	WITH_MATCHES,
+	WITHOUT_MATCH
+};
 
 struct Options {
 	bool ignore_case = false;
@@ -89,6 +94,7 @@ struct Options {
 	bool use_cache = false;
 	std::string cache_directory;
 	IntervalContainer page_range;
+	OnlyFilenames only_filenames = OnlyFilenames::NOPE;
 };
 
 #endif /* PDFGREP_H */

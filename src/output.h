@@ -48,6 +48,9 @@ void print_only_match(const struct context &context, const struct match &match);
  */
 void print_matches(const context& context, const std::vector<match>& matches);
 
+/* print the filename, useful for --files-{with-match,without-matches} */
+void print_only_filename(const Outconf& outconf, const std::string& filename);
+
 // Print `lines` lines of context before the match. If lines is smaller than 0,
 // use the value from context.outconf.
 void print_context_before(const context& context, const match& match, int lines = -1);

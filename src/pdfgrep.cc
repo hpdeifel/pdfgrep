@@ -117,6 +117,8 @@ struct option long_options[] =
 	{"page-range", 1, 0, PAGE_RANGE_OPTION},
 	{"regexp", 1, 0, 'e'},
 	{"file", 1, 0, 'f'},
+	{"files-with-matches", 0, 0, 'l'},
+	{"files-without-match", 0, 0, 'L'},
 	{0, 0, 0, 0}
 };
 
@@ -482,7 +484,7 @@ int main(int argc, char** argv)
 	bool patterns_specified = false;
 
 	while (1) {
-		int c = getopt_long(argc, argv, "icA:B:C:nrRhHVPpqm:FoZe:f:",
+		int c = getopt_long(argc, argv, "icA:B:C:nrRhHVPpqm:FoZe:f:lL",
 				long_options, NULL);
 
 		if (c == -1)
@@ -652,6 +654,14 @@ int main(int argc, char** argv)
 					exit(EXIT_ERROR);
 				break;
 
+			case 'l':
+				options.only_filenames = OnlyFilenames::WITH_MATCHES;
+				break;
+				
+			case 'L':
+				options.only_filenames = OnlyFilenames::WITHOUT_MATCH;
+				break;
+
 			/* In these two cases, getopt already prints an
 			 * error message
 			 */
@@ -736,6 +746,9 @@ int main(int argc, char** argv)
 
 		options.outconf.context_mode = false;
 	}
+
+	// TODO Warn about --files-{with-matches,without-match} and other output
+	// options
 
 	if (excludes_empty(options.includes))
 		exclude_add(options.includes, "*.pdf");
