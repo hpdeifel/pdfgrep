@@ -10,5 +10,6 @@ EXTRA_DIST =color.exp \
 	context.exp \
 	page_range.exp \
 	patternlist.exp \
+	only_filenames.exp \
 	cache.exp
 
