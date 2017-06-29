@@ -60,6 +60,16 @@ pages and not on lines.
 *-p*, *--page-count* :: Like *-c*, but prints the number of matches
   per page. Implies *-n*.
 
+*-L*, *--files-without-match* :: Suppress normal output. Instead print
+  the name of each input file that doesn't contain a match. This works
+  well with *-Z*, but many other output options like *-n* or *-c* are
+  ignored when *-L* is specified.
+
+*-l*, *--files-with-matches* :: Suppress normal output. Instead print
+  the name of each input file that contains a match. This works well
+  with *-Z*, but many other output options like *-n* or *-c* are
+  ignored when *-l* is specified.
+
 *--color* 'WHEN' :: Surround file names, page numbers and matched text
   with escape sequences to display them in color on the terminal. (The
   default setting is *auto*). 'WHEN' can be:
