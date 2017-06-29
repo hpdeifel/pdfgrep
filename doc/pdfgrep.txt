@@ -201,6 +201,12 @@ pdfgrep -n --max-count 10 pattern foo.pdf
 pdfgrep -r --include "foo*.pdf" pattern
 --------------------------------------------------
 
+*Search all PDFs in the current directory for 'foo' that also contain 'bar'* ::
++
+--------------------------------------------------
+pdfgrep -Z --files-with-matches "bar" *.pdf | xargs -0 pdfgrep -H foo
+--------------------------------------------------
+
 *Search all .pdf files that are smaller than 12M recursively in the current directory* ::
 +
 --------------------------------------------------
