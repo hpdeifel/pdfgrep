@@ -29,6 +29,8 @@ _pdfgrep()
           -P --perl-regexp \
           -H --with-filename \
           -h --no-filename \
+	  -l --files-with-matches \
+	  -L --files-without-match \
           -c --count \
           -p --page-count \
 	  -C --context \
