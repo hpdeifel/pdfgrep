@@ -87,6 +87,17 @@ std::ostream& line_prefix(const Outconf& outconf, const std::string& filename,
 	return cout;
 }
 
+void print_only_filename(const Outconf& outconf, const std::string& filename) {
+	with_color(outconf.color, outconf.colors.filename,
+		   cout << filename;);
+
+	if (outconf.null_byte_sep) {
+		cout << '\0';
+	} else {
+		cout << endl;
+	}
+}
+
 std::ostream& line_prefix(const Outconf& outconf, const std::string& filename,
                           bool in_context) {
 	if (outconf.filename) {
@@ -105,6 +116,7 @@ std::ostream& line_prefix(const Outconf& outconf, const std::string& filename,
 
 	return cout;
 }
+
 
 // Invariant: matches can't be empty
 void print_matches(const context& context, const std::vector<match>& matches) {

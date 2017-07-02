@@ -101,7 +101,15 @@ int search_document(const Options &opts, unique_ptr<poppler::document> doc,
 		int page_count = search_page(opts, text, pagenum,
 		                             filename, re, state);
 
-		if (page_count > 0 && opts.pagecount && !opts.quiet) {
+		if (opts.only_filenames == OnlyFilenames::WITH_MATCHES
+		    && page_count > 0) {
+			if (!opts.quiet) {
+				print_only_filename(opts.outconf, filename);
+			}
+			break;
+		}
+		if (page_count > 0 && opts.pagecount &&
+		    opts.only_filenames == OnlyFilenames::NOPE && !opts.quiet) {
 			line_prefix(opts.outconf, filename, false, pagenum) << page_count << endl;
 		}
 
@@ -110,7 +118,13 @@ int search_document(const Options &opts, unique_ptr<poppler::document> doc,
 		}
 	}
 
-	if (opts.count && !opts.quiet) {
+	if (opts.only_filenames == OnlyFilenames::WITHOUT_MATCH
+	    && state.total_count == 0
+	    && !opts.quiet) {
+		print_only_filename(opts.outconf, filename);
+	}
+
+	if (opts.count && opts.only_filenames == OnlyFilenames::NOPE && !opts.quiet) {
 		line_prefix(opts.outconf, filename, false) << state.total_count << endl;
 	}
 
@@ -153,7 +167,7 @@ static int search_page(const Options &opts, const string &page_text,
 		state.total_count++;
 		page_count++;
 
-		if (opts.quiet) {
+		if (opts.quiet || opts.only_filenames == OnlyFilenames::WITH_MATCHES) {
 			return page_count;
 		}
 
@@ -198,7 +212,8 @@ static void flush_line_matches(const Options &opts, const string &filename, size
 	struct context cntxt = {filename, page, opts.outconf};
 
 	// We don't want any output:
-	if (line.empty() || opts.count || opts.pagecount)
+	if (line.empty() || opts.count || opts.pagecount
+	    || opts.only_filenames != OnlyFilenames::NOPE)
 		goto out;
 
 	// context printing

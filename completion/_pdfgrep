@@ -26,6 +26,8 @@ _arguments -s -S -A "-*" \
     "(-F --fixed-strings -P --perl-regexp)"{-P,--perl-regexp}"[use Perl compatible regular expression syntax]" \
     "(-H --with-filename -h --no-filename)"{-H,--with-filename}"[print filename for each match]" \
     "(-h --no-filename -H --with-filename)"{-h,--no-filename}"[don't print filename]" \
+    "(-l --files-with-matches -L --files-without-match)"{-l,--files-with-matches}"[print only names of matching files]" \
+    "(-l --files-with-matches -L --files-without-match)"{-L,--files-without-match}"[print only names of non-matching files]" \
     "(-c --count)"{-c,--count}"[print only a count of matches per file]" \
     "(-p --page-count)"{-p,--page-count}"[count matches per page]" \
     "(-C --context)"{-C,--context=}"[specify lines of context]:lines" \

@@ -1,0 +1,290 @@
+clear_pdfdir
+
+set one [mkpdf one "foo"]
+set two [mkpdf two "bar"]
+set three [mkpdf three "foobar"]
+set four [mkpdf four "baz"]
+
+######################################################################
+
+set test "files-with-matches"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+pdfgrep_expect --files-with-matches "foo" $one $two $three $four \
+"$one
+$three"
+
+######################################################################
+
+set test "files-without-match"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+pdfgrep_expect --files-without-match "foo" $one $two $three $four \
+"$two
+$four"
+
+######################################################################
+
+set test "recursive files-with-matches"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+pdfgrep_expect -l -r  "foo" $pdfdir \
+    "(($one|$three)(\n)?){2}"
+
+######################################################################
+
+set test "recursive files-without-match"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+pdfgrep_expect -L -r  "foo" $pdfdir \
+    "(($two|$four)(\n)?){2}"
+
+######################################################################
+
+set test "files-with-matches and -Z"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+pdfgrep_expect --null --files-with-matches "foo" $one $two $three $four \
+"$one\0$three\0"
+
+######################################################################
+
+set test "files-without-match and -Z"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+pdfgrep_expect -Z --files-without-match "foo" $one $two $three $four \
+"$two\0$four\0"
+
+######################################################################
+
+set test "files-with-matches and --with-filename"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+pdfgrep_expect --with-filename --files-with-matches "foo" $one $two $three $four \
+"$one
+$three"
+
+######################################################################
+
+set test "files-with-matches and --no-filename"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+pdfgrep_expect --no-filename --files-with-matches "foo" $one $two $three $four \
+"$one
+$three"
+
+######################################################################
+
+set test "files-without-match and --with-filename"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+pdfgrep_expect --with-filename --files-without-match "foo" $one $two $three $four \
+"$two
+$four"
+
+######################################################################
+
+set test "files-without-match and --no-filename"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+pdfgrep_expect --no-filename --files-without-match "foo" $one $two $three $four \
+"$two
+$four"
+
+######################################################################
+
+set test "files-with-matches and --page-number"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+pdfgrep_expect --page-number --files-with-matches "foo" $one $two $three $four \
+"$one
+$three"
+
+######################################################################
+
+set test "files-without-match and --page-number"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+pdfgrep_expect --page-number --files-without-match "foo" $one $two $three $four \
+"$two
+$four"
+
+######################################################################
+
+set test "files-with-matches and --page-count"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+pdfgrep_expect --page-count --files-with-matches "foo" $one $two $three $four \
+"$one
+$three"
+
+######################################################################
+
+set test "files-without-match and --page-count"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+pdfgrep_expect --page-count --files-without-match "foo" $one $two $three $four \
+"$two
+$four"
+
+######################################################################
+
+set test "files-with-matches and --only-matching"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+pdfgrep_expect --only-matching --files-with-matches "foo" $one $two $three $four \
+"$one
+$three"
+
+######################################################################
+
+set test "files-without-match and --only-matching"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+pdfgrep_expect --only-matching --files-without-match "foo" $one $two $three $four \
+"$two
+$four"
+
+######################################################################
+
+set test "files-with-matches and --context"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+pdfgrep_expect --context 3 --files-with-matches "foo" $one $two $three $four \
+"$one
+$three"
+
+######################################################################
+
+set test "files-without-match and --context"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+pdfgrep_expect --context 3 --files-without-match "foo" $one $two $three $four \
+"$two
+$four"
+
+######################################################################
+
+set test "files-with-matches and --count"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+pdfgrep_expect --count --files-with-matches "foo" $one $two $three $four \
+"$one
+$three"
+
+######################################################################
+
+set test "files-without-match and --count"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+pdfgrep_expect --count --files-without-match "foo" $one $two $three $four \
+"$two
+$four"
+
+######################################################################
+
+set test "files-with-matches and --quiet"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+pdfgrep_expect --quiet --files-with-matches "foo" $one $two $three $four ""
+expect_exit_status 0
+
+######################################################################
+
+set test "files-without-match and --quiet"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+pdfgrep_expect --quiet --files-without-match "foo" $one $two $three $four ""
+expect_exit_status 0
+
+######################################################################
+
+set test "files-with-matches (unsuccessful)"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+pdfgrep_expect --files-with-matches "barfoo" $one $two $three $four ""
+expect_exit_status 1
+
+######################################################################
+
+set test "files-without-match (unsuccessful)"
+
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
+pdfgrep_expect --files-without-match "barfoo" $one $two $three $four \
+"$one
+$two
+$three
+$four"
+expect_exit_status 1
