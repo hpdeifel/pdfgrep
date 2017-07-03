@@ -5,7 +5,7 @@
 :man version: {pdfgrepversion}
 
 == NAME
-pdfgrep - search pdf files for a regular expression
+pdfgrep - search PDF files for a regular expression
 
 == SYNOPSIS
 [verse]
@@ -13,21 +13,30 @@ pdfgrep - search pdf files for a regular expression
 *pdfgrep* ['OPTION'...] [*-e* 'PATTERN' | *-f* 'FILE'] ['FILE'...]
 
 == DESCRIPTION
-Search for 'PATTERN' in each 'FILE'. 'PATTERN' is an extended regular
-expression.
 
-*pdfgrep* works much like grep, with one distinction: It operates on
-pages and not on lines.
+Search for 'PATTERN' in each PDF 'FILE' and print matching lines. By
+default, 'PATTERN' is an extended regular expression.
+
+*pdfgrep* tries to be mostly compatible with *GNU grep* with some
+ PDF-specific distinctions and additional options. Most notably, *-n*
+ prints page instead of line numbers.
 
 == OPTIONS
-*-i*, *--ignore-case* :: Ignore case distinctions in both the
-  'PATTERN' and the input files.
+=== General Information
+
+*--help* :: Print a short summary of the options.
+
+*-V*, *--version* :: Show version information.
+
+=== Pattern Interpretation
 
 *-F*, *--fixed-strings* :: Interpret 'PATTERN' as a list of fixed
   strings separated by newlines, any of which is to be matched.
 
 *-P*, *--perl-regexp* :: Interpret 'PATTERN' as a Perl compatible
   regular expression (PCRE). See 'pcresyntax'(3) for a quick overview.
+
+=== Matching Control
 
 *-e* 'PATTERN', *--regexp=*'PATTERN' :: Use 'PATTERN' as the pattern
   to search for. If this option is specified multiple times or
@@ -40,18 +49,10 @@ pages and not on lines.
   in turn until one of them matches. An empty pattern list matches
   nothing.
 
-*--cache* :: Use a cache for the rendered text to speed up the
-  operation on large files.
+*-i*, *--ignore-case* :: Ignore case distinctions in both the
+  'PATTERN' and the input files.
 
-*-H*, *--with-filename* :: Print the file name for each match. This is
-  the default setting when there is more than one file to search.
-
-*-h*, *--no-filename* :: Suppress the prefixing of file name on
-  output. This is the default setting when there is only one file to
-  search.
-
-*-n*, *--page-number* :: Prefix each match with the number of the page
-  where it was found.
+=== General Output Control
 
 *-c*, *--count* :: Suppress normal output. Instead print the number of
   matches for each input file. Note that unlike grep, multiple matches
@@ -59,6 +60,16 @@ pages and not on lines.
 
 *-p*, *--page-count* :: Like *-c*, but prints the number of matches
   per page. Implies *-n*.
+
+*--color* 'WHEN' :: Surround file names, page numbers and matched text
+  with escape sequences to display them in color on the terminal.
+  'WHEN' can be:
++
+[horizontal]
+  *always* ;; Always use colors, even when stdout is not a terminal.
+  *never* ;; Do not use colors.
+  *auto* ;; Use colors only when stdout is a terminal (this is the
+   default).
 
 *-L*, *--files-without-match* :: Suppress normal output. Instead print
   the name of each input file that doesn't contain a match. This works
@@ -70,59 +81,29 @@ pages and not on lines.
   with *-Z*, but many other output options like *-n* or *-c* are
   ignored when *-l* is specified.
 
-*--color* 'WHEN' :: Surround file names, page numbers and matched text
-  with escape sequences to display them in color on the terminal. (The
-  default setting is *auto*). 'WHEN' can be:
-  *always* ;; Always use colors, even when stdout is not a terminal.
-  *never* ;; Do not use colors.
-  *auto* ;; Use colors only when stdout is a terminal.
+*-m*, *--max-count* 'NUM' :: Stop reading a file after 'NUM' matches.
+  When the -c or --count option is also used, pdfgrep does not output
+  a count greater than 'NUM'.
 
 *-o*, *--only-matching* :: Print only the matched part of a line
   without any surrounding context.
 
-*-r*, *--recursive*:: Recursively search all files (restricted by
-  *--include* and *--exclude*) under each directory, following symlinks
-  only if they are on the command line.
+*-q*, *--quiet* :: Suppress all normal output to stdout. Exit
+  immediately with exit status 0 if a match is found, even in case of
+  errors. Use this if you only care about the presence of matches, not
+  their number or content.
 
-*-R*, *--dereference-recursive*:: Same as *-r*, but follows all
-  symlinks.
+=== Line Prefix Control
 
-*-A* 'NUM', *--after-context=NUM*:: Print 'NUM' lines of context after
-  matching lines. Contiguous groups of matches are separated by a line
-  containing *--*. With *-o*, this option has no effect.
+*-H*, *--with-filename* :: Print the file name for each match. This is
+  the default setting when there is more than one file to search.
 
-*-B* 'NUM', *--before-context=NUM*:: Print 'NUM' lines of context
-  before matching lines. Contiguous groups of matches are separated by
-  a line containing *--*. With *-o*, this option has no effect.
+*-h*, *--no-filename* :: Suppress the prefixing of file name on
+  output. This is the default setting when there is only one file to
+  search.
 
-*-C* 'NUM', *--context=NUM*:: Print 'NUM' lines of context before and
-  after matching lines. Contiguous groups of matches are separated by
-  a line containing *--*. With *-o*, this option has no effect.
-
-*--exclude=*'GLOB' :: Skip files whose base name matches 'GLOB'. See
-  'glob'(7) for wildcards you can use. You can use this option
-  multiple times to exclude more patterns. It takes precedence over
-  *--include*. Note, that in- and excludes apply only to files found
-  via *--recursive* and not to the argument list.
-
-*--include=*'GLOB' :: Only search files whose base name matches
-  'GLOB'. See *--exclude* for details. The default is '*.pdf'.
-
-*--password=*'PASSWORD' :: Use PASSWORD to decrypt the PDF-files. Can
-  be specified multiple times; all passwords will be tried on all
-  PDFs.
-  *Note* that this password will show up in your command history and
-  the output of 'ps'(1). So please do not use this if the security of
-  'PASSWORD' is important.
-
-*--page-range=*'RANGE' :: Limit search to a specified set of pages.
-   'RANGE' is a comma separated list of either a single page number or
-   a range expression of the form `PAGE1-PAGE2`. Example:
-   `2-3,5,7-10`.
-
-*-m*, *--max-count* 'NUM' :: Stop reading a file after 'NUM' matches.
-  When the -c or --count option is also used, pdfgrep does not output
-  a count greater than 'NUM'.
+*-n*, *--page-number* :: Prefix each match with the number of the page
+  where it was found.
 
 *-Z*, *--null* :: Output a null byte (called 'NUL' in ASCII and \'\0'
   in C) instead of the colon that usually separates a filename from
@@ -136,6 +117,55 @@ pages and not on lines.
    an arbitrary string. This is useful when filenames contain colons,
    but only for interactive usage. For scripting, *--null* should be
    used.
+
+=== Context Control
+
+*-A* 'NUM', *--after-context=NUM*:: Print 'NUM' lines of context after
+  matching lines. Contiguous groups of matches are separated by a line
+  containing *--*. With *-o*, this option has no effect.
+
+*-B* 'NUM', *--before-context=NUM*:: Print 'NUM' lines of context
+  before matching lines. Contiguous groups of matches are separated by
+  a line containing *--*. With *-o*, this option has no effect.
+
+*-C* 'NUM', *--context=NUM*:: Print 'NUM' lines of context before and
+  after matching lines. Contiguous groups of matches are separated by
+  a line containing *--*. With *-o*, this option has no effect.
+
+=== File Selection
+
+*-r*, *--recursive*:: Recursively search all files (restricted by
+  *--include* and *--exclude*) under each directory, following symlinks
+  only if they are on the command line.
+
+*-R*, *--dereference-recursive*:: Same as *-r*, but follows all
+  symlinks.
+
+*--exclude=*'GLOB' :: Skip files whose base name matches 'GLOB'. See
+  'glob'(7) for wildcards you can use. You can use this option
+  multiple times to exclude more patterns. It takes precedence over
+  *--include*. Note, that in- and excludes apply only to files found
+  via *--recursive* and not to the argument list.
+
+*--include=*'GLOB' :: Only search files whose base name matches
+  'GLOB'. See *--exclude* for details. The default is '*.pdf'.
+
+=== Other Options
+
+*--cache* :: Use a cache for the rendered text to speed up the
+  operation on large files.
+
+*--password=*'PASSWORD' :: Use PASSWORD to decrypt the PDF-files. Can
+  be specified multiple times; all passwords will be tried on all
+  PDFs.
+  *Note* that this password will show up in your command history and
+  the output of 'ps'(1). So please do not use this if the security of
+  'PASSWORD' is important.
+
+*--page-range=*'RANGE' :: Limit search to a specified set of pages.
+   'RANGE' is a comma separated list of either a single page number or
+   a range expression of the form `PAGE1-PAGE2`. Example:
+   `2-3,5,7-10`.
 
 *--debug* :: Enable debug output. *Note*: Due to limitations of
    poppler before version 0.30.0, some debug output is also printed
@@ -152,18 +182,6 @@ pages and not on lines.
 +
 *This option is experimental and only available if pdfgrep is
 compiled with unac support.*
-
-*-q*, *--quiet* :: Suppress all normal output to stdout. Exit
-  immediately with exit status zero if a match is found, even in case
-  of errors. Use this if you only care about the presence of matches,
-  not their number or content.
-
-Errors will
-  be printed and the exit codes will be returned (see below).
-
-*--help* :: Print a short summary of the options.
-
-*-V*, *--version* Show version information.
 
 == EXIT STATUS
 Normally, the exit status is 0 if at least one match is found, 1 if no
@@ -189,25 +207,25 @@ variable.
   retained.
 
 == Examples
-*Print the first ten lines matching 'pattern' and print their page number* ::
+*Print the first ten lines matching 'pattern' and print their page number:* ::
 +
 --------------------------------------------------
 pdfgrep -n --max-count 10 pattern foo.pdf
 --------------------------------------------------
 
-*Search all .pdf files whose names begin with 'foo' recursively in the current directory* ::
+*Search all .pdf files whose names begin with 'foo' recursively in the current directory:* ::
 +
 --------------------------------------------------
 pdfgrep -r --include "foo*.pdf" pattern
 --------------------------------------------------
 
-*Search all PDFs in the current directory for 'foo' that also contain 'bar'* ::
+*Search all PDFs in the current directory for 'foo' that also contain 'bar':*::
 +
 --------------------------------------------------
 pdfgrep -Z --files-with-matches "bar" *.pdf | xargs -0 pdfgrep -H foo
 --------------------------------------------------
 
-*Search all .pdf files that are smaller than 12M recursively in the current directory* ::
+*Search all .pdf files that are smaller than 12M recursively in the current directory:* ::
 +
 --------------------------------------------------
 find . -name "*.pdf" -size -12M -print0 | xargs -0 pdfgrep pattern
