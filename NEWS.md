@@ -2,6 +2,12 @@ NEXT RELEASE
 ------------
 
   - New option `--page-range` to limit search to a set of pages
+  - New option `--file/-f` to read patterns from a file
+  - New option `--regexp/-e` to specify multiple patterns (combined with OR).
+  - New options `--files-with-matches/-l` and `--files-without-match/-L` to only
+    list filenames of files that contain or don't contain matches.
+  - Major manpage restructuring. It's now divided into subsections like the GNU
+    grep's manpage.
 
 Version 2.0.1  [2017-03-06]
 ---------------------------
