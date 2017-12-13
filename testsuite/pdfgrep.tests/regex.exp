@@ -237,3 +237,45 @@ set test "Invalid regex -- PCRE"
 pdfgrep_expect_error -Pr "(" .
 
 expect_exit_status 2
+
+######################################################################
+
+clear_pdfdir
+set pdf [mkpdf empty {
+line1\\\\
+line2
+}]
+
+set test "^ only matches the beginning of a page"
+
+pdfgrep_expect "^line" $pdf "line1"
+
+######################################################################
+
+set test "^ only matches the beginning of a page -- PCRE"
+
+set requires_pcre_support true
+
+pdfgrep_expect -P "^line" $pdf "line1"
+
+######################################################################
+
+set test "\$ only matches the end of a page"
+
+# FIXME This currently fails, but shouldn't. The problem is that the last line
+# ends with a newline chraracter and so "line.\n$" would match, but "line.$"
+# doesn't.
+#
+# See bug #14 for details.
+
+pdfgrep_expect_x "line.\$" $pdf "line2"
+
+exit 0
+
+######################################################################
+
+set test "\$ only matches the end of a page -- PCRE"
+
+set requires_pcre_support true
+
+pdfgrep_expect -P "line.\$" $pdf "line2"
