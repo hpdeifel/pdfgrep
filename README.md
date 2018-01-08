@@ -26,14 +26,17 @@ For a complete documentation, please consult the [manpage].
  - poppler-cpp (poppler >= 0.14) (http://poppler.freedesktop.org/)
  - libgcrypt (https://www.gnu.org/software/libgcrypt/)
  - optionally libpcre (http://www.pcre.org/)
-
+ 
 ## Building
 
-... is easy. Just use the standard procedure:
+To build `pdfgrep`, use the standard procedure:
 
     ./configure
     make
     sudo make install
+
+Depending on your OS, you need to have `-dev` or `-devel` packages
+installed for all dependencies.
 
 The `./configure` script can take lots of options to customize the
 build process, the most important of which are:
