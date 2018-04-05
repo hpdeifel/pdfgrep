@@ -270,8 +270,6 @@ set test "\$ only matches the end of a page"
 
 pdfgrep_expect_x "line.\$" $pdf "line2"
 
-exit 0
-
 ######################################################################
 
 set test "\$ only matches the end of a page -- PCRE"

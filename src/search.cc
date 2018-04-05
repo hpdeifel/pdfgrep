@@ -101,6 +101,10 @@ int search_document(const Options &opts, unique_ptr<poppler::document> doc,
 		int page_count = search_page(opts, text, pagenum,
 		                             filename, re, state);
 
+		if (page_count > 0 && opts.quiet) {
+			break;
+		}
+
 		if (opts.only_filenames == OnlyFilenames::WITH_MATCHES
 		    && page_count > 0) {
 			if (!opts.quiet) {

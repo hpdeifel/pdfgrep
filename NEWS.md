@@ -8,6 +8,7 @@ NEXT RELEASE
     list filenames of files that contain or don't contain matches.
   - Major manpage restructuring. It's now divided into subsections like the GNU
     grep's manpage.
+  - Bugfix: Actually stop searching after first match with `-q`
 
 Version 2.0.1  [2017-03-06]
 ---------------------------
