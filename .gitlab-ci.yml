@@ -4,7 +4,7 @@ before_script:
   - apt-get install -y -qq libpoppler-cpp-dev libgcrypt20-dev libpcre3-dev asciidoc dejagnu texlive-latex-base
 
 test:
-  image: ubuntu:16.10
+  image: ubuntu:17.10
   script:
     - ./autogen.sh
     - ./configure --enable-coverage
