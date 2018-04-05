@@ -274,6 +274,10 @@ pdfgrep_expect_x "line.\$" $pdf "line2"
 
 set test "\$ only matches the end of a page -- PCRE"
 
+# See poppler bug 91644
+# https://bugs.freedesktop.org/show_bug.cgi?id=91644
+set required_poppler_version {0 36 0}
+
 set requires_pcre_support true
 
 pdfgrep_expect -P "line.\$" $pdf "line2"
