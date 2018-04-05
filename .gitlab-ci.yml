@@ -8,6 +8,7 @@ test:
   script:
     - ./autogen.sh
     - ./configure --enable-coverage
+    - if grep -q '^exit' testsuite/pdfgrep.tests/*.exp; then false; else true; fi
     - make distcheck
     - make check
     - gcovr -r .
@@ -23,6 +24,7 @@ test:debian-stable:
   image: debian:jessie
   script:
     - ./autogen.sh && ./configure --enable-coverage && make
+    - if grep -q '^exit' testsuite/pdfgrep.tests/*.exp; then false; else true; fi
     - make check
     - gcovr -r .
   artifacts:
