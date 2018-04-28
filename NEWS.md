@@ -1,5 +1,5 @@
-NEXT RELEASE
-------------
+Version 2.1.0  [2018-04-28]
+---------------------------
 
   - New option `--page-range` to limit search to a set of pages
   - New option `--file/-f` to read patterns from a file
