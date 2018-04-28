@@ -1,6 +1,7 @@
 /***************************************************************************
- *   Copyright (C) 2017 by Christian Dietrich                              *
+ *   Copyright (C) 2016 by Christian Dietrich                              *
  *   stettberger@dokucode.de                                               *
+ *   Copyright (C) 2017-2018 by Hans-Peter Deifel <hpd@hpdeifel.de>        *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
