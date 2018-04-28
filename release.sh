@@ -29,7 +29,7 @@ sed -i "s/^NEXT RELEASE/$headline/" NEWS.md
 sed -i "2 s/.*/$underline/" NEWS.md
 
 echo "### Updating version in configure.ac"
-sed -i "1s/\[[0-9.]\+\]/[2.0.1]/" configure.ac
+sed -i "1s/\[[0-9.]\+\]/[${version}]/" configure.ac
 git diff
 
 echo -en "\nPress enter to continue... "
