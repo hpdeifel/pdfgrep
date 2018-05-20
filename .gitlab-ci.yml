@@ -18,6 +18,20 @@ test:
     when: on_failure
     expire_in: 1 week
 
+test:libunac:
+  image: ubuntu:17.10
+  script:
+    - apt-get install -y libunac1-dev
+    - ./autogen.sh
+    - ./configure --with-unac
+    - if grep -q '^exit' testsuite/pdfgrep.tests/*.exp; then false; else true; fi
+    - LC_ALL=C.UTF-8 make check
+  artifacts:
+    paths:
+      - testsuite/pdfgrep.log
+    when: on_failure
+    expire_in: 1 week
+
 # Build on debian stable as it has poppler < 0.34, where we need to
 # disable some tests
 test:debian-stable:

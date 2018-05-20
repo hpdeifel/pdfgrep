@@ -124,7 +124,7 @@ struct option long_options[] =
 
 #ifdef HAVE_UNAC
 /* convenience layer over libunac. */
-static string simple_unac(const Options &opts, string str)
+string simple_unac(const Options &opts, const string str)
 {
 	if (!opts.use_unac)
 		return str;
@@ -264,7 +264,7 @@ static void print_version()
 	cout << "This is " << PACKAGE << " version " << VERSION << "." << endl << endl;
 	cout << "Using poppler version " << poppler::version_string().c_str() << endl;
 #ifdef HAVE_UNAC
-	cout << "Using unac version " << unac_version() << endl;
+	cout << "Using libunac version " << unac_version() << endl;
 #endif
 #ifdef HAVE_LIBPCRE
 	cout << "Using libpcre version " << pcre_version() << endl;
@@ -657,7 +657,7 @@ int main(int argc, char** argv)
 			case 'l':
 				options.only_filenames = OnlyFilenames::WITH_MATCHES;
 				break;
-				
+
 			case 'L':
 				options.only_filenames = OnlyFilenames::WITHOUT_MATCH;
 				break;
@@ -692,17 +692,19 @@ int main(int argc, char** argv)
 
 	auto make_regengine = [&](const string pattern) -> unique_ptr<Regengine> {
 #ifdef HAVE_UNAC
-		pattern = simple_unac(options, pattern);
+		const string new_pattern = simple_unac(options, pattern);
+#else
+		const string new_pattern = move(pattern);
 #endif
 #ifdef HAVE_LIBPCRE
 		if (re_engine == RE_PCRE) {
-			return unique_ptr<PCRERegex>(new PCRERegex(pattern, options.ignore_case));
+			return unique_ptr<PCRERegex>(new PCRERegex(new_pattern, options.ignore_case));
 		} else
 #endif // HAVE_LIBPCRE
 		if (re_engine == RE_FIXED) {
-			return unique_ptr<FixedString>(new FixedString(pattern, options.ignore_case));
+			return unique_ptr<FixedString>(new FixedString(new_pattern, options.ignore_case));
 		} else {
-			return unique_ptr<PosixRegex>(new PosixRegex(pattern, options.ignore_case));
+			return unique_ptr<PosixRegex>(new PosixRegex(new_pattern, options.ignore_case));
 		}
 
 	};

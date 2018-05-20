@@ -97,6 +97,11 @@ struct Options {
 	OnlyFilenames only_filenames = OnlyFilenames::NOPE;
 };
 
+#ifdef HAVE_UNAC
+/* convenience layer over libunac */
+std::string simple_unac(const Options &opts, const std::string str);
+#endif
+
 #endif /* PDFGREP_H */
 
 /* Local Variables: */

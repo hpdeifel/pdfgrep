@@ -44,10 +44,6 @@ static int search_page(const Options &opts, const string &text, size_t pagenum,
                        const string &filename, const Regengine &re,
                        SearchState &state);
 
-#ifdef HAVE_UNAC
-/* convenience layer over libunac */
-static string simple_unac(const Options &opts, string str);
-#endif
 static string maybe_unac(const Options &opts, string std);
 static void handle_match(const Options &opts, const string &filename, size_t page,
                          vector<match> &line, vector<match> &last_line, const match &mt,

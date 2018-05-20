@@ -29,7 +29,7 @@ proc pdfgrep_noerr args {
     }
 }
 
-# The version of poppler, that this pdfgrep is built against.
+# The version of poppler that this pdfgrep is built against.
 # Format [Major Minor Patchlevel]
 #
 # You can disable all poppler version checks (for example, if you have a patched
@@ -40,6 +40,9 @@ set poppler_version {0 0 0}
 # Is pdfgrep compiled with pcre support?
 set have_pcre false
 
+# Is pdfgrep compiled with libunac support?
+set have_unac false
+
 # Parse the output of pdfgrep --version, to get the configuration parameters.
 log_user 0
 pdfgrep --version
@@ -48,6 +51,9 @@ while {1} {
         -re "Using poppler version (\[^\r\]+)\r\n" {
 	    set poppler_version [split $expect_out(1,string) "."]
 	}
+        -re "Using libunac version \[^\r\]*\r\n" {
+            set have_unac true
+        }
         -re "Using libpcre version \[^\r\]*\r\n" {
             set have_pcre true
         }
@@ -63,6 +69,10 @@ set required_poppler_version {0 0 0}
 # This can be set in test scripts to generate UNSUPPORTED test results, if
 # pdfgrep is not build with libpcre support.
 set requires_pcre_support false
+
+# This can be set in test scripts to generate UNSUPPORTED test results, if
+# pdfgrep is not build with libunac support.
+set requires_unac_support false
 
 # Syntax: pdfgrep_expect args pattern
 #
@@ -204,8 +214,10 @@ proc pxfail arg {
 proc when_supported {action arg} {
     global poppler_version required_poppler_version
     global requires_pcre_support have_pcre
+    global requires_unac_support have_unac
     if {[poppler_greater] && \
-	    (!$requires_pcre_support || $have_pcre)} {
+	    (!$requires_pcre_support || $have_pcre) && \
+	    (!$requires_unac_support || $have_unac)} {
 	$action $arg
     } else {
 	unsupported "$arg -- required configuration was not found"
@@ -213,9 +225,10 @@ proc when_supported {action arg} {
 }
 
 proc reset_configuration {} {
-    global required_poppler_version requires_pcre_support
+    global required_poppler_version requires_pcre_support requires_unac_support
     set required_poppler_version {0 0 0}
     set requires_pcre_support false
+    set requires_unac_support false
 }
 
 ########################################
