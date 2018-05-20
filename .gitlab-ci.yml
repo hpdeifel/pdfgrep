@@ -25,7 +25,7 @@ test:libunac:
     - ./autogen.sh
     - ./configure --with-unac
     - if grep -q '^exit' testsuite/pdfgrep.tests/*.exp; then false; else true; fi
-    - make check
+    - LC_ALL=C.UTF-8 make check
   artifacts:
     paths:
       - testsuite/pdfgrep.log
