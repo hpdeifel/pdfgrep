@@ -33,3 +33,4 @@ doc/pdfgrep.html
 /coverage_report
 /src/*.gcda
 /src/*.gcno
+/compile_commands.json
