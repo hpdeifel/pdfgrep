@@ -53,6 +53,7 @@ the following functions and variables should be of interest:
 - `required_poppler_version`: The least poppler version that this test
   does require.
 - `requires_pcre_support`: Whether this test requires libpcre support.
+- `requires_unac_support`: Whether this test requires libunac support.
 
 ### Procedures
 

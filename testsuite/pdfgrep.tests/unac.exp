@@ -1,0 +1,30 @@
+set test "Search for non-ascii (both pdf and pattern) with libunac"
+
+set requires_unac_support true
+
+clear_pdfdir
+set pdf [mkpdf umlaut {æ}]
+
+pdfgrep_expect --unac "æ" $pdf \
+    "ae"
+
+######################################################################
+
+set test "Search for non-ascii (only pdf) with libunac"
+
+set requires_unac_support true
+
+pdfgrep_expect --unac "ae" $pdf \
+    "ae"
+
+######################################################################
+
+set test "Search for non-ascii (only pattern) with libunac"
+
+set requires_unac_support true
+
+clear_pdfdir
+set pdf [mkpdf umlaut {ae}]
+
+pdfgrep_expect --unac "æ" $pdf \
+    "ae"
