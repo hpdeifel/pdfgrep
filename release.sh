@@ -32,32 +32,32 @@ echo "### Updating version in configure.ac"
 sed -i "1s/\[[0-9.]\+\]/[${version}]/" configure.ac
 git diff
 
-echo -en "\nPress enter to continue... "
+echo -en "\nPress enter to continue with make distcheck..."
 read
 
 echo "### Running make distcheck"
 make distcheck
 
-echo -en "\nPress enter to continue... "
+echo -en "\nPress enter to continue with committing..."
 read
 
 echo "### Committing the changes"
 git commit -m "Version $version" NEWS.md configure.ac
 
-echo -en "\nPress enter to continue... "
+echo -en "\nPress enter to continue with tagging..."
 read
 
 echo "### Tagging"
 git tag -s "v$version" -m "Version $version"
 
-echo -en "\nPress enter to continue... "
+echo -en "\nPress enter to continue signing..."
 read
 
 echo "### Signing tarball"
 tarball=pdfgrep-$version.tar.gz
 gpg --armor --detach-sign $tarball
 
-echo -en "\nPress enter to continue...  "
+echo -en "\nPress enter to continue with copying to website..."
 read
 
 echo "### Copying files to website repo"
