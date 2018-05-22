@@ -1,3 +1,8 @@
+NEXT RELEASE
+---------------------------
+
+  - Bugfix: Fix build with libunac support enabled
+
 Version 2.1.0  [2018-04-28]
 ---------------------------
 
