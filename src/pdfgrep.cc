@@ -126,13 +126,14 @@ struct option long_options[] =
 /* convenience layer over libunac. */
 string simple_unac(const Options &opts, const string str)
 {
-	if (!opts.use_unac)
+	if (!opts.use_unac) {
 		return str;
+	}
 
 	char *res = NULL;
 	size_t reslen = 0;
 
-	if (unac_string("UTF-8", str.c_str(), str.size(), &res, &reslen)) {
+	if (unac_string("UTF-8", str.c_str(), str.size(), &res, &reslen) != 0) {
 		perror("pdfgrep: Failed to remove accents: ");
 		return str;
 	}
@@ -302,8 +303,9 @@ static int do_search_in_document(const Options &opts, const string &path, const 
                                  Regengine &re, bool check_excludes = true)
 {
 	if (check_excludes &&
-	    (!is_excluded(opts.includes, filename) || is_excluded(opts.excludes, filename)))
+	    (!is_excluded(opts.includes, filename) || is_excluded(opts.excludes, filename))) {
 		return 0;
+	}
 
 	unique_ptr<Cache> cache;
 
@@ -365,15 +367,17 @@ static int do_search_in_directory(const Options &opts, const string &filename, R
 		return 1;
 	}
 
-	while(1) {
+	while(true) {
 		string path(filename);
 		errno = 0;
 		struct dirent *ptrDirent = readdir(ptrDir);    //not sorted, in order as `ls -f`
-		if (!ptrDirent)
+		if (!ptrDirent) {
 			break;
+		}
 
-		if (!strcmp(ptrDirent->d_name, ".") || !strcmp(ptrDirent->d_name, ".."))
+		if (!strcmp(ptrDirent->d_name, ".") || !strcmp(ptrDirent->d_name, "..")) {
 			continue;
+		}
 
 		path += "/";
 		path += ptrDirent->d_name;
@@ -381,18 +385,20 @@ static int do_search_in_directory(const Options &opts, const string &filename, R
 		struct stat st;
 		int statret;
 
-		if (opts.recursive == Recursion::FOLLOW_SYMLINKS)
+		if (opts.recursive == Recursion::FOLLOW_SYMLINKS) {
 			statret = stat(path.c_str(), &st);
-		else
+		} else {
 			statret = lstat(path.c_str(), &st);
+		}
 
 		if (statret) {
 			err() << filename.c_str() << ": " << strerror(errno) << endl;
 			continue;
 		}
 
-		if (S_ISLNK(st.st_mode))
+		if (S_ISLNK(st.st_mode)) {
 			continue;
+		}
 
 		if (S_ISDIR(st.st_mode)) {
 			do_search_in_directory(opts, path, re);
@@ -483,12 +489,13 @@ int main(int argc, char** argv)
 	vector<string> patterns;
 	bool patterns_specified = false;
 
-	while (1) {
+	while (true) {
 		int c = getopt_long(argc, argv, "icA:B:C:nrRhHVPpqm:FoZe:f:lL",
 				long_options, NULL);
 
-		if (c == -1)
+		if (c == -1) {
 			break;
+		}
 
 		switch (c) {
 			case HELP_OPTION:
@@ -650,8 +657,9 @@ int main(int argc, char** argv)
 
 			case 'f':
 				patterns_specified = true;
-				if (!read_pattern_file(string(optarg), patterns))
+				if (!read_pattern_file(string(optarg), patterns)) {
 					exit(EXIT_ERROR);
+				}
 				break;
 
 			case 'l':
@@ -676,8 +684,12 @@ int main(int argc, char** argv)
 
 	int remaining_args = argc - optind;
 	int required_args = 0;
-	if (!patterns_specified) required_args++;
-	if (options.recursive == Recursion::NONE) required_args++;
+	if (!patterns_specified) {
+		required_args++;
+	}
+	if (options.recursive == Recursion::NONE) {
+		required_args++;
+	}
 
 	if (remaining_args < required_args) {
 		print_usage(argv[0]);
@@ -731,14 +743,16 @@ int main(int argc, char** argv)
 		use_colors == COLOR_ALWAYS
 		|| (use_colors == COLOR_AUTO && color_tty);
 
-	if (options.outconf.color)
+	if (options.outconf.color) {
 		read_colors_from_env(options.outconf.colors, "GREP_COLORS");
+	}
 
 	if (explicit_filename_option == false) {
 		if ((argc - optind) == 1 && !is_dir(argv[optind])) {
 			options.outconf.filename = false;
-		} else
+		} else {
 			options.outconf.filename = true;
+		}
 	}
 
 	if (options.outconf.only_matching && (options.outconf.context_before > 0
@@ -752,8 +766,9 @@ int main(int argc, char** argv)
 	// TODO Warn about --files-{with-matches,without-match} and other output
 	// options
 
-	if (excludes_empty(options.includes))
+	if (excludes_empty(options.includes)) {
 		exclude_add(options.includes, "*.pdf");
+	}
 
 	// If no password has been specified on the command line, insert the
 	// empty string aka "no password" into the passwords array.
