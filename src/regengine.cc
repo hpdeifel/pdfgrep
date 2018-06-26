@@ -181,7 +181,7 @@ bool FixedString::exec(const string &str, size_t offset, struct match &m) const
 	const char *min_result = NULL;
 	const string *min_pattern;
 
-	for (const string pattern : patterns) {
+	for (const string &pattern : patterns) {
 		const char *result;
 		if (this->case_insensitive) {
 			result = strcasestr(str_begin, pattern.c_str());

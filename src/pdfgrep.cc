@@ -332,7 +332,7 @@ static int do_search_in_document(const Options &opts, const string &path, const 
 		abort();
 	}
 
-	for (string password : opts.passwords) {
+	for (string const &password : opts.passwords) {
 		// FIXME This logic doesn't seem to make sens. What if only the
 		// first password is correct?
 		doc = unique_ptr<poppler::document>(
@@ -426,7 +426,7 @@ static bool parse_int(const char *str, int *i)
 	return true;
 }
 
-bool read_pattern_file(string filename, vector<string> &patterns)
+bool read_pattern_file(string const &filename, vector<string> &patterns)
 {
 	ifstream file(filename);
 
@@ -706,7 +706,7 @@ int main(int argc, char** argv)
 #ifdef HAVE_UNAC
 		const string new_pattern = simple_unac(options, pattern);
 #else
-		const string new_pattern = move(pattern);
+		const string new_pattern = pattern;
 #endif
 #ifdef HAVE_LIBPCRE
 		if (re_engine == RE_PCRE) {
@@ -725,7 +725,7 @@ int main(int argc, char** argv)
 		re = make_regengine(argv[optind++]);
 	} else {
 		auto patt_list = std::unique_ptr<PatternList>(new PatternList());
-		for (auto p : patterns) {
+		for (auto const &p : patterns) {
 			patt_list->add_pattern(make_regengine(p));
 		}
 		re = move(patt_list);

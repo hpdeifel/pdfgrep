@@ -51,8 +51,8 @@ bool IntervalContainer::contains(int element) const {
 		!= intervals.end();
 }
 
-static Interval parse_interval(const std::string str) {
-	size_t minus = str.find("-");
+static Interval parse_interval(const std::string &str) {
+	size_t minus = str.find('-');
 
 	int from, to;
 	try {
@@ -85,7 +85,7 @@ static Interval parse_interval(const std::string str) {
 	return Interval(from, to);
 }
 
-IntervalContainer IntervalContainer::fromString(const std::string str) {
+IntervalContainer IntervalContainer::fromString(const std::string &str) {
 	IntervalContainer c;
 	std::stringstream tokens(str);
 

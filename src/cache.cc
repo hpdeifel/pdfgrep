@@ -37,7 +37,7 @@
 
 using namespace std;
 
-Cache::Cache(string cache_file)
+Cache::Cache(string const &cache_file)
 	: cache_file(cache_file), valid(false) {
 	// Open the cache file
 	ifstream fd(cache_file);

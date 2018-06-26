@@ -62,7 +62,7 @@ public:
 	 * INTERVAL  ::= int | int '-' int
 	 *
 	 */
-	static IntervalContainer fromString(const std::string str);
+	static IntervalContainer fromString(const std::string &str);
 
 	void addInterval(Interval i);
 

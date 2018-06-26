@@ -230,7 +230,7 @@ static void flush_line_matches(const Options &opts, const string &filename, size
 	}
 
 	if (opts.outconf.only_matching) {
-		for (auto mt : line) {
+		for (auto const &mt : line) {
 			print_only_match(cntxt, mt);
 		}
 	} else {
