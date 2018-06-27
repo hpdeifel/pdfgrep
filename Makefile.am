@@ -4,23 +4,30 @@ EXTRA_DIST=autogen.sh README.md CONTRIBUTING.md NEWS.md
 
 SUBDIRS = src completion doc testsuite
 
+# This hack is needed to prevent autotools from emitting spurious warnings about
+# redefining .PHONY
+PHONIES =
+
+PHONIES += clang-tidy
+clang-tidy:
+	@clang-tidy --checks="modernize-*,bugprone-*,performance-*,readability-*" src/*.cc
 
 # Coverage stuff
 
 if ENABLE_COV
 
-.PHONY: cov-reset
+PHONIES += cov-reset
 cov-reset:
 	@rm -rf coverage_report
 	@find src/ -name "*.gcda" -exec rm {} \;
 	@find src/ -name "*.gcno" -exec rm {} \;
 	@lcov --directory src/ --zerocounters
 
-.PHONY: cov-report
+PHONIES += cov-report
 cov-report:
 	@gcovr -r src/
 
-.PHONY: cov-report-html
+PHONIES += cov-report-html
 cov-report-html: coverage
 	@mkdir -p coverage_report
 	@lcov --directory src/ --capture --no-external --output-file coverage_report/pdfgrep.info
@@ -29,8 +36,10 @@ cov-report-html: coverage
 clean-local:
 	@make cov-reset
 
-.PHONY: coverage
+PHONIES += coverage
 coverage:
 	@make check
 	@make cov-report
 endif
+
+.PHONY: $(PHONIES)
