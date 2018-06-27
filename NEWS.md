@@ -1,6 +1,10 @@
 NEXT RELEASE
 ------------
 
+## Changes
+
+  - Change default value of `--include` to `*.[Pp][Dd][Ff]` to allow for
+    different case variations of `*.pdf`.
   - Build system: Switch to C++14
   - Build system: Require poppler-cpp >= 0.36.0, to avoid a nasty bug in earlier
     versions that makes pdfgrep produce wrong results. See

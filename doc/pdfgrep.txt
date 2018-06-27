@@ -148,7 +148,8 @@ default, 'PATTERN' is an extended regular expression.
   via *--recursive* and not to the argument list.
 
 *--include=*'GLOB' :: Only search files whose base name matches
-  'GLOB'. See *--exclude* for details. The default is '*.pdf'.
+  'GLOB'. See *--exclude* for details. The default is
+  '*.[Pp][Dd][Ff]'.
 
 === Other Options
 
