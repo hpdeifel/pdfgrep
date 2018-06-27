@@ -6,8 +6,8 @@ AC_CONFIG_HEADER([config.h])
 AC_PROG_CXX
 AC_PROG_CC
 
-dnl check for c++11 std
-AX_CXX_COMPILE_STDCXX_11([noext], [mandatory])
+dnl check for c++14 std
+AX_CXX_COMPILE_STDCXX(14, [noext], [mandatory])
 
 AC_CHECK_HEADERS([stdlib.h string.h unistd.h getopt.h])
 

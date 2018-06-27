@@ -1,3 +1,8 @@
+NEXT RELEASE
+------------
+
+  - Build system: Switch to C++14
+
 Version 2.1.1  [2018-05-22]
 ---------------------------
 
