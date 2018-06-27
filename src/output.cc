@@ -20,9 +20,9 @@
 
 #include "output.h"
 
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
+#include <cstdio>
+#include <cstring>
+#include <cctype>
 #include <iostream>
 
 using namespace std;
@@ -172,7 +172,7 @@ void print_context_before(const context& context, const match& match, int lines)
 	auto pos = line_begin;
 	while (lines --> 0) {
 		if (pos == 0) {
-			lines_to_output.push_back("");
+			lines_to_output.emplace_back("");
 			break;
 		}
 		auto newpos = str.rfind('\n', pos-1);

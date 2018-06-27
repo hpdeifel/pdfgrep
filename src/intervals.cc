@@ -82,7 +82,7 @@ static Interval parse_interval(const std::string &str) {
 		err() << "warning: Page range is empty: " << str << std::endl;
 	}
 
-	return Interval(from, to);
+	return {from, to};
 }
 
 IntervalContainer IntervalContainer::fromString(const std::string &str) {

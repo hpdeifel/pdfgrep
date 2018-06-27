@@ -22,8 +22,8 @@
 #include "output.h"
 
 #include <iostream>
-#include <math.h>
-#include <string.h>
+#include <cmath>
+#include <cstring>
 
 #ifdef HAVE_UNAC
 #include <unac.h>
@@ -65,7 +65,7 @@ int search_document(const Options &opts, unique_ptr<poppler::document> doc,
 	SearchState state;
 
 	// doc->pages() returns an int, although it should be a size_t
-	size_t doc_pages = static_cast<size_t>(doc->pages());
+	auto doc_pages = static_cast<size_t>(doc->pages());
 
 	for (size_t pagenum = 1; pagenum <= doc_pages; pagenum++) {
 		if (opts.page_range.contains(pagenum) == false)

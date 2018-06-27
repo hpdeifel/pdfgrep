@@ -32,8 +32,8 @@
 #include <unistd.h>
 #include <pwd.h>
 #include <sys/stat.h>
-#include <errno.h>
-#include <string.h>
+#include <cerrno>
+#include <cstring>
 
 using namespace std;
 
@@ -104,7 +104,7 @@ static int agefilter(const struct dirent * a) {
 	if (stat(A.c_str(), &bufa) != 0) return false;
 
 	// Filter all files that are younger than one day
-	return (time(NULL) - bufa.st_mtime) > 24 * 60 * 60;
+	return (time(nullptr) - bufa.st_mtime) > 24 * 60 * 60;
 }
 
 void limit_cachesize(const char *cache, int entries) {
@@ -131,14 +131,14 @@ int find_cache_directory(std::string &dir)
 	const char *cache_base = getenv("XDG_CACHE_HOME");
 
 	dir = "";
-	if (cache_base != NULL && cache_base[0] != '\0') {
+	if (cache_base != nullptr && cache_base[0] != '\0') {
 		dir += cache_base;
 	} else {
 		char *home = getenv("HOME");
-		if (home == NULL) {
+		if (home == nullptr) {
 			struct passwd *passwd;
 			passwd = getpwuid(getuid());
-			if (passwd != NULL) {
+			if (passwd != nullptr) {
 				home = passwd->pw_dir;
 			} else {
 				return -1;

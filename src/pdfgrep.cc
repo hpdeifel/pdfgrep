@@ -20,21 +20,21 @@
 
 #include "config.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cctype>
 #include <sys/types.h>
 #include <getopt.h>
-#include <stdarg.h>
+#include <cstdarg>
 #include <unistd.h>
-#include <math.h>
+#include <cmath>
 #include <fnmatch.h>
-#include <errno.h>
+#include <cerrno>
 #include <dirent.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <limits.h>
+#include <climits>
 #include <vector>
 #include <iostream>
 #include <sstream>
@@ -86,40 +86,40 @@ enum {
 struct option long_options[] =
 {
 	// name, has_arg, *flag, val
-	{"ignore-case", 0, 0, 'i'},
-	{"perl-regexp", 0, 0, 'P'},
-	{"page-number", 0, 0, 'n'},
-	{"with-filename", 0, 0, 'H'},
-	{"no-filename", 0, 0, 'h'},
-	{"count", 0, 0, 'c'},
-	{"color", 1, 0, COLOR_OPTION},
-	{"recursive", 0, 0, 'r'},
-	{"dereference-recursive", 0, 0, 'R'},
-	{"exclude", 1, 0, EXCLUDE_OPTION},
-	{"include", 1, 0, INCLUDE_OPTION},
-	{"help", 0, 0, HELP_OPTION},
-	{"version", 0, 0, 'V'},
-	{"page-count", 0, 0, 'p'},
-	{"quiet", 0, 0, 'q'},
-	{"password", 1, 0, PASSWORD},
-	{"max-count", 1, 0, 'm'},
-	{"debug", 0, 0, DEBUG_OPTION},
-	{"only-matching", 0, 0, 'o'},
-	{"null", 0, 0, 'Z'},
-	{"match-prefix-separator", 1, 0, PREFIX_SEP_OPTION},
-	{"warn-empty", 0, 0, WARN_EMPTY_OPTION},
-	{"unac", 0, 0, UNAC_OPTION},
-	{"fixed-strings", 0, 0, 'F'},
-	{"cache", 0, 0, CACHE_OPTION},
-	{"after-context", 1, 0, 'A'},
-	{"before-context", 1, 0, 'B'},
-	{"context", 1, 0, 'C'},
-	{"page-range", 1, 0, PAGE_RANGE_OPTION},
-	{"regexp", 1, 0, 'e'},
-	{"file", 1, 0, 'f'},
-	{"files-with-matches", 0, 0, 'l'},
-	{"files-without-match", 0, 0, 'L'},
-	{0, 0, 0, 0}
+	{"ignore-case", 0, nullptr, 'i'},
+	{"perl-regexp", 0, nullptr, 'P'},
+	{"page-number", 0, nullptr, 'n'},
+	{"with-filename", 0, nullptr, 'H'},
+	{"no-filename", 0, nullptr, 'h'},
+	{"count", 0, nullptr, 'c'},
+	{"color", 1, nullptr, COLOR_OPTION},
+	{"recursive", 0, nullptr, 'r'},
+	{"dereference-recursive", 0, nullptr, 'R'},
+	{"exclude", 1, nullptr, EXCLUDE_OPTION},
+	{"include", 1, nullptr, INCLUDE_OPTION},
+	{"help", 0, nullptr, HELP_OPTION},
+	{"version", 0, nullptr, 'V'},
+	{"page-count", 0, nullptr, 'p'},
+	{"quiet", 0, nullptr, 'q'},
+	{"password", 1, nullptr, PASSWORD},
+	{"max-count", 1, nullptr, 'm'},
+	{"debug", 0, nullptr, DEBUG_OPTION},
+	{"only-matching", 0, nullptr, 'o'},
+	{"null", 0, nullptr, 'Z'},
+	{"match-prefix-separator", 1, nullptr, PREFIX_SEP_OPTION},
+	{"warn-empty", 0, nullptr, WARN_EMPTY_OPTION},
+	{"unac", 0, nullptr, UNAC_OPTION},
+	{"fixed-strings", 0, nullptr, 'F'},
+	{"cache", 0, nullptr, CACHE_OPTION},
+	{"after-context", 1, nullptr, 'A'},
+	{"before-context", 1, nullptr, 'B'},
+	{"context", 1, nullptr, 'C'},
+	{"page-range", 1, nullptr, PAGE_RANGE_OPTION},
+	{"regexp", 1, nullptr, 'e'},
+	{"file", 1, nullptr, 'f'},
+	{"files-with-matches", 0, nullptr, 'l'},
+	{"files-without-match", 0, nullptr, 'L'},
+	{nullptr, 0, nullptr, 0}
 };
 
 #ifdef HAVE_UNAC
@@ -317,12 +317,12 @@ static int do_search_in_document(const Options &opts, const string &path, const 
 			return 1;
 		}
 		char translate[] = "0123456789abcdef";
-		for (unsigned i = 0; i < 20; ++i) {
-			cache_file += translate[sha1sum[i] & 0xf];
-			cache_file += translate[(sha1sum[i] >> 4 ) & 0xf];
+		for (unsigned char c : sha1sum) {
+			cache_file += translate[c & 0xf];
+			cache_file += translate[(c >> 4 ) & 0xf];
 		}
 
-		cache = unique_ptr<Cache>(new Cache(cache_file));
+		cache = make_unique<Cache>(cache_file);
 	}
 
 	unique_ptr<poppler::document> doc;
@@ -359,7 +359,7 @@ static int do_search_in_document(const Options &opts, const string &path, const 
 
 static int do_search_in_directory(const Options &opts, const string &filename, Regengine &re)
 {
-	DIR *ptrDir = NULL;
+	DIR *ptrDir = nullptr;
 
 	ptrDir = opendir(filename.c_str());
 	if (!ptrDir) {
@@ -451,7 +451,7 @@ bool read_pattern_file(string const &filename, vector<string> &patterns)
 #if POPPLER_VERSION_MAJOR > 0 || POPPLER_VERSION_MINOR >= 29
 static void handle_poppler_errors(const string &msg, void *_opts)
 {
-	Options *opts = static_cast<Options*>(_opts);
+	auto *opts = static_cast<Options*>(_opts);
 	if (opts->debug) {
 		err() << msg << endl;
 	}
@@ -491,7 +491,7 @@ int main(int argc, char** argv)
 
 	while (true) {
 		int c = getopt_long(argc, argv, "icA:B:C:nrRhHVPpqm:FoZe:f:lL",
-				long_options, NULL);
+				long_options, nullptr);
 
 		if (c == -1) {
 			break;
@@ -564,7 +564,7 @@ int main(int argc, char** argv)
 				break;
 
 			case PASSWORD:
-				options.passwords.push_back(string(optarg));
+				options.passwords.emplace_back(string(optarg));
 				break;
 
 			case 'm':
@@ -652,7 +652,7 @@ int main(int argc, char** argv)
 
 			case 'e':
 				patterns_specified = true;
-				patterns.push_back(string(optarg));
+				patterns.emplace_back(string(optarg));
 				break;
 
 			case 'f':
@@ -710,13 +710,13 @@ int main(int argc, char** argv)
 #endif
 #ifdef HAVE_LIBPCRE
 		if (re_engine == RE_PCRE) {
-			return unique_ptr<PCRERegex>(new PCRERegex(new_pattern, options.ignore_case));
+			return make_unique<PCRERegex>(new_pattern, options.ignore_case);
 		} else
 #endif // HAVE_LIBPCRE
 		if (re_engine == RE_FIXED) {
-			return unique_ptr<FixedString>(new FixedString(new_pattern, options.ignore_case));
+			return make_unique<FixedString>(new_pattern, options.ignore_case);
 		} else {
-			return unique_ptr<PosixRegex>(new PosixRegex(new_pattern, options.ignore_case));
+			return make_unique<PosixRegex>(new_pattern, options.ignore_case);
 		}
 
 	};
@@ -724,7 +724,7 @@ int main(int argc, char** argv)
 	if (patterns.empty()) {
 		re = make_regengine(argv[optind++]);
 	} else {
-		auto patt_list = std::unique_ptr<PatternList>(new PatternList());
+		auto patt_list = std::make_unique<PatternList>();
 		for (auto const &p : patterns) {
 			patt_list->add_pattern(make_regengine(p));
 		}
@@ -773,7 +773,7 @@ int main(int argc, char** argv)
 	// If no password has been specified on the command line, insert the
 	// empty string aka "no password" into the passwords array.
 	if (options.passwords.empty()) {
-		options.passwords.push_back("");
+		options.passwords.emplace_back("");
 	}
 
 	if (options.use_cache) {
@@ -783,7 +783,7 @@ int main(int argc, char** argv)
 			options.use_cache = false;
 		} else {
 			char *limitstr = getenv("PDFGREP_CACHE_LIMIT");
-			unsigned int limit = limitstr ? strtoul(limitstr, NULL, 10) : 200;
+			unsigned int limit = limitstr ? strtoul(limitstr, nullptr, 10) : 200;
 			limit_cachesize(options.cache_directory.c_str(), limit);
 		}
 	}

@@ -21,9 +21,9 @@
 #include "regengine.h"
 
 #include <regex.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <iostream>
 #include <iomanip>
 #include <string>
@@ -115,9 +115,9 @@ PCRERegex::PCRERegex(const string &pattern, bool case_insensitive)
 	const int pcre_options = PCRE_UTF8 | (case_insensitive ? PCRE_CASELESS : 0);
 
 	this->regex = pcre_compile(pattern.c_str(), pcre_options,
-	                           &pcre_err, &pcre_err_ofs, NULL);
+	                           &pcre_err, &pcre_err_ofs, nullptr);
 
-	if (this->regex == NULL) {
+	if (this->regex == nullptr) {
 		err() << pattern << endl;
 		err() << setw(pcre_err_ofs+1) << "^" << endl;
 		err() << "Error compiling PCRE pattern: " << pcre_err << endl;
@@ -135,7 +135,7 @@ bool PCRERegex::exec(const string &str, size_t offset, struct match &m) const
 	const size_t len = str.size();
 	int ov[3];
 
-	const int ret = pcre_exec(this->regex, NULL, str.c_str(), len, offset, 0, ov, 3);
+	const int ret = pcre_exec(this->regex, nullptr, str.c_str(), len, offset, 0, ov, 3);
 
 	// TODO: Print human readable error
 	if(ret < 0)
@@ -178,7 +178,7 @@ bool FixedString::exec(const string &str, size_t offset, struct match &m) const
 	// search the same thing over and over, until it becomes the next match.
 	// We should introduce some kind of caching here
 
-	const char *min_result = NULL;
+	const char *min_result = nullptr;
 	const string *min_pattern;
 
 	for (const string &pattern : patterns) {
@@ -189,15 +189,15 @@ bool FixedString::exec(const string &str, size_t offset, struct match &m) const
 			result = strstr(str_begin, pattern.c_str());
 		}
 
-		if (result != NULL) {
-			if (min_result == NULL || result < min_result) {
+		if (result != nullptr) {
+			if (min_result == nullptr || result < min_result) {
 				min_result = result;
 				min_pattern = &pattern;
 			}
 		}
 	}
 
-	if (min_result != NULL) {
+	if (min_result != nullptr) {
 		m.start = offset + (min_result - str_begin);
 		m.end = m.start + (*min_pattern).size();
 		return true;
