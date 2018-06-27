@@ -46,7 +46,9 @@ Please install pkg-config and re-run autoconf.])
 ])
 
 dnl Poppler checking
-PKG_CHECK_MODULES(poppler_cpp, poppler-cpp)
+dnl Hard depend on >= 0.36.0, because poppler bug 91644
+dnl See: https://bugs.freedesktop.org/show_bug.cgi?id=91644
+PKG_CHECK_MODULES(poppler_cpp, [poppler-cpp >= 0.36.0])
 AC_SUBST(poppler_cpp_CFLAGS)
 AC_SUBST(poppler_cpp_LIBS)
 
