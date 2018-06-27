@@ -16,10 +16,6 @@ expect_exit_status 2
 
 set test "GREP_COLORS default values"
 
-# See poppler bug 91644
-# https://bugs.freedesktop.org/show_bug.cgi?id=91644
-set required_poppler_version {0 36 0}
-
 clear_pdfdir
 set pdf [mkpdf pdf {one two three}]
 
@@ -37,10 +33,6 @@ pdfgrep_expect --color=always --with-filename --page-number two $pdf \
 ######################################################################
 
 set test "GREP_COLORS with custom values"
-
-# See poppler bug 91644
-# https://bugs.freedesktop.org/show_bug.cgi?id=91644
-set required_poppler_version {0 36 0}
 
 clear_pdfdir
 set pdf [mkpdf pdf {one two three}]

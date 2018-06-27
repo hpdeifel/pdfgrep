@@ -1,9 +1,5 @@
 set test "count with one file"
 
-# See poppler bug 91644
-# https://bugs.freedesktop.org/show_bug.cgi?id=91644
-set required_poppler_version {0 36 0}
-
 clear_pdfdir
 set count1 [mkpdf count1 {
     foofoo\\
@@ -28,10 +24,6 @@ expect_exit_status 1
 ######################################################################
 
 set test "count with multiple files"
-
-# See poppler bug 91644
-# https://bugs.freedesktop.org/show_bug.cgi?id=91644
-set required_poppler_version {0 36 0}
 
 set count2 [mkpdf count2 {
     foofoo\\
@@ -59,10 +51,6 @@ expect_exit_status 1
 ######################################################################
 
 set test "page count"
-
-# See poppler bug 91644
-# https://bugs.freedesktop.org/show_bug.cgi?id=91644
-set required_poppler_version {0 36 0}
 
 pdfgrep_expect --page-count foo $count1 \
 "1:3

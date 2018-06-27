@@ -51,10 +51,6 @@ count_cache_files 2
 
 set test "cached call returns the same as original"
 
-# See poppler bug 91644
-# https://bugs.freedesktop.org/show_bug.cgi?id=91644
-set required_poppler_version {0 36 0}
-
 clear_pdfdir
 set pdf [mkpdf pdf {
     this is a test
@@ -111,10 +107,6 @@ setenv HOME $homedir
 
 set test "warning if XDG_CACHE_HOME cannot be created"
 
-# See poppler bug 91644
-# https://bugs.freedesktop.org/show_bug.cgi?id=91644
-set required_poppler_version {0 36 0}
-
 setenv XDG_CACHE_HOME "$pdfdir/testdir/cache"
 
 clear_pdfdir
@@ -130,10 +122,6 @@ this is a test"
 ######################################################################
 
 set test "warning if XDG_CACHE_HOME/pdfgrep cannot be created"
-
-# See poppler bug 91644
-# https://bugs.freedesktop.org/show_bug.cgi?id=91644
-set required_poppler_version {0 36 0}
 
 setenv XDG_CACHE_HOME "$pdfdir/cache"
 
@@ -153,10 +141,6 @@ this is a test"
 set test "cache works for recursive search in subdirs"
 
 # See https://gitlab.com/pdfgrep/pdfgrep/issues/7
-
-# See poppler bug 91644
-# https://bugs.freedesktop.org/show_bug.cgi?id=91644
-set required_poppler_version {0 36 0}
 
 clear_pdfdir
 

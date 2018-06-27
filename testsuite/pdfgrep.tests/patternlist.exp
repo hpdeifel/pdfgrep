@@ -25,10 +25,6 @@ line2"
 
 set test "-e argument with a dash"
 
-# See poppler bug 91644
-# https://bugs.freedesktop.org/show_bug.cgi?id=91644
-set required_poppler_version {0 36 0}
-
 pdfgrep_expect -e -a $pdf \
 "-a dash"
 
@@ -50,10 +46,6 @@ line2"
 
 set test "--file used twice"
 
-# See poppler bug 91644
-# https://bugs.freedesktop.org/show_bug.cgi?id=91644
-set required_poppler_version {0 36 0}
-
 set filename2 "$pdfdir/patternfile2"
 set fileId [open "$filename2" "w"]
 puts $fileId "dash"
@@ -67,10 +59,6 @@ line2
 ######################################################################
 
 set test "--file and --regexp"
-
-# See poppler bug 91644
-# https://bugs.freedesktop.org/show_bug.cgi?id=91644
-set required_poppler_version {0 36 0}
 
 pdfgrep_expect --file "$filename" --regexp "dash" $pdf \
 "line1

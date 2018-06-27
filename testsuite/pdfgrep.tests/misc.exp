@@ -11,10 +11,6 @@ expect_exit_status 1
 
 set test "hash as match-prefix-separator"
 
-# See poppler bug 91644
-# https://bugs.freedesktop.org/show_bug.cgi?id=91644
-set required_poppler_version {0 36 0}
-
 clear_pdfdir
 set pdf [mkpdf foo {foobar}]
 
@@ -24,10 +20,6 @@ pdfgrep_expect --match-prefix-separator=# -Hn foo $pdf \
 ######################################################################
 
 set test "--null"
-
-# See poppler bug 91644
-# https://bugs.freedesktop.org/show_bug.cgi?id=91644
-set required_poppler_version {0 36 0}
 
 clear_pdfdir
 set pdf1 [mkpdf one {foobar}]
@@ -72,20 +64,12 @@ expect_exit_status 2
 
 set test "without arguments and -r"
 
-# See poppler bug 91644
-# https://bugs.freedesktop.org/show_bug.cgi?id=91644
-set required_poppler_version {0 36 0}
-
 pdfgrep_expect -r long \
     "./pdf.pdf:this is a long line"
 
 ######################################################################
 
 set test "without arguments and -R"
-
-# See poppler bug 91644
-# https://bugs.freedesktop.org/show_bug.cgi?id=91644
-set required_poppler_version {0 36 0}
 
 pdfgrep_expect -R long \
     "./pdf.pdf:this is a long line"
@@ -99,10 +83,6 @@ set test "text in MediaBox and not in CropBox"
 # a pdf can have multiple boundary boxes. By default, poppler-cpp uses the
 # CropBox which can be smaller as the guaranteed largest MediaBox. But pdfgrep
 # should also find text that's in in the MediaBox and not in the CropBox.
-
-# See poppler bug 91644
-# https://bugs.freedesktop.org/show_bug.cgi?id=91644
-set required_poppler_version {0 36 0}
 
 clear_pdfdir
 set pdf [mkpdf pdf {

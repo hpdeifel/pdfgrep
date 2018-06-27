@@ -1,9 +1,5 @@
 set test "page range with range"
 
-# See poppler bug 91644
-# https://bugs.freedesktop.org/show_bug.cgi?id=91644
-set required_poppler_version {0 36 0}
-
 clear_pdfdir
 set pdf [mkpdf foo {
     first page
@@ -17,26 +13,14 @@ pdfgrep_expect --page-range 1-2 page $pdf \
 "first page
 second page"
 
-# See poppler bug 91644
-# https://bugs.freedesktop.org/show_bug.cgi?id=91644
-set required_poppler_version {0 36 0}
-
 expect_exit_status 0
 
 ######################################################################
 
 set test "page range with single page"
 
-# See poppler bug 91644
-# https://bugs.freedesktop.org/show_bug.cgi?id=91644
-set required_poppler_version {0 36 0}
-
 pdfgrep_expect --page-range 2 page $pdf \
 "second page"
-
-# See poppler bug 91644
-# https://bugs.freedesktop.org/show_bug.cgi?id=91644
-set required_poppler_version {0 36 0}
 
 expect_exit_status 0
 
@@ -44,18 +28,10 @@ expect_exit_status 0
 
 set test "page range with both"
 
-# See poppler bug 91644
-# https://bugs.freedesktop.org/show_bug.cgi?id=91644
-set required_poppler_version {0 36 0}
-
 pdfgrep_expect --page-range 1-2,3 page $pdf \
 "first page
 second page
 third page"
-
-# See poppler bug 91644
-# https://bugs.freedesktop.org/show_bug.cgi?id=91644
-set required_poppler_version {0 36 0}
 
 expect_exit_status 0
 
@@ -63,47 +39,23 @@ expect_exit_status 0
 
 set test "invalid page range"
 
-# See poppler bug 91644
-# https://bugs.freedesktop.org/show_bug.cgi?id=91644
-set required_poppler_version {0 36 0}
-
 pdfgrep_expect_error --page-range foo page $pdf
-
-# See poppler bug 91644
-# https://bugs.freedesktop.org/show_bug.cgi?id=91644
-set required_poppler_version {0 36 0}
 
 expect_exit_status 2
 
 ######################################################################
 
 set test "invalid number in page range"
-
-# See poppler bug 91644
-# https://bugs.freedesktop.org/show_bug.cgi?id=91644
-set required_poppler_version {0 36 0}
 
 pdfgrep_expect_error --page-range 0--2 page $pdf
 
-# See poppler bug 91644
-# https://bugs.freedesktop.org/show_bug.cgi?id=91644
-set required_poppler_version {0 36 0}
-
 expect_exit_status 2
 
 ######################################################################
 
 set test "invalid number in page range"
 
-# See poppler bug 91644
-# https://bugs.freedesktop.org/show_bug.cgi?id=91644
-set required_poppler_version {0 36 0}
-
 pdfgrep_expect_error --page-range 1-foo page $pdf
-
-# See poppler bug 91644
-# https://bugs.freedesktop.org/show_bug.cgi?id=91644
-set required_poppler_version {0 36 0}
 
 expect_exit_status 2
 
@@ -111,14 +63,6 @@ expect_exit_status 2
 
 set test "empty page range"
 
-# See poppler bug 91644
-# https://bugs.freedesktop.org/show_bug.cgi?id=91644
-set required_poppler_version {0 36 0}
-
 pdfgrep_expect_error --page-range 2-1 page $pdf
-
-# See poppler bug 91644
-# https://bugs.freedesktop.org/show_bug.cgi?id=91644
-set required_poppler_version {0 36 0}
 
 expect_exit_status 1
