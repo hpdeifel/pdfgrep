@@ -770,7 +770,7 @@ int main(int argc, char** argv)
 	// options
 
 	if (excludes_empty(options.includes)) {
-		exclude_add(options.includes, "*.pdf");
+		exclude_add(options.includes, "*.[Pp][Dd][Ff]");
 	}
 
 	// If no password has been specified on the command line, insert the
