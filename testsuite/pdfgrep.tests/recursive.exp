@@ -62,3 +62,14 @@ set test "dereference-recursive"
 
 pdfgrep_expect -R "foobar" $pdfdir \
     "(($abc_match|$acb_match|$bca_match|$link_match)(\n)?){4}"
+
+######################################################################
+
+set test "recursive includes uppercase PDF"
+
+# Important: The order of the files is not specified
+
+file rename $pdfdir/abc.pdf $pdfdir/abc.PDF
+
+pdfgrep_expect -r "foobar" $pdfdir \
+    "(($pdfdir/abc.PDF:foobar|$acb_match|$bca_match)(\n)?){3}"
