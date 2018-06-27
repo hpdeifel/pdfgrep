@@ -41,11 +41,15 @@ Cache::Cache(string const &cache_file)
 	: cache_file(cache_file), valid(false) {
 	// Open the cache file
 	ifstream fd(cache_file);
-	if (!fd) return;
+	if (!fd) {
+		return;
+	}
 
 	unsigned char indicator;
 	fd >> indicator;
-	if (indicator != 'G') return;
+	if (indicator != 'G') {
+		return;
+	}
 	for (std::string page; std::getline(fd, page, '\0'); ) {
 		pages.push_back(page);
 	}
@@ -58,7 +62,9 @@ void Cache::set_page(unsigned pagenum, const string &text) {
 }
 
 bool Cache::get_page(unsigned pagenum, string &text) {
-	if (!valid) return false;
+	if (!valid) {
+		return false;
+	}
 	if (pagenum-1 < pages.size()) {
 		text = pages[pagenum-1];
 		return true;
@@ -68,7 +74,9 @@ bool Cache::get_page(unsigned pagenum, string &text) {
 
 void Cache::dump() {
 	ofstream fd(cache_file);
-	if (!fd) return;
+	if (!fd) {
+		return;
+	}
 	// The first byte of the cache file is an indicator byte, which
 	// can be written atomically. Initial it is \0, after all pages
 	// have been flushed, the indicator byte is written to 'G' (for
@@ -91,39 +99,54 @@ static int agesort(const struct dirent ** a, const struct dirent **b) {
 	std::string B = string(cache_directory) + "/" + (*b)->d_name;
 
 	struct stat bufa, bufb;
-	if (stat(A.c_str(), &bufa) != 0) return 0;
-	if (stat(B.c_str(), &bufb) != 0) return 0;
+	if (stat(A.c_str(), &bufa) != 0) {
+		return 0;
+	}
+	if (stat(B.c_str(), &bufb) != 0) {
+		return 0;
+	}
 
 	return bufb.st_mtime - bufa.st_mtime;
 }
 
 static int agefilter(const struct dirent * a) {
-	if (a->d_name[0] == '.') return false;
+	if (a->d_name[0] == '.') {
+		return 0;
+	}
 	std::string A = string(cache_directory) + "/" + a->d_name;
 	struct stat bufa;
-	if (stat(A.c_str(), &bufa) != 0) return false;
+	if (stat(A.c_str(), &bufa) != 0) {
+		return 0;
+	}
 
 	// Filter all files that are younger than one day
-	return (time(nullptr) - bufa.st_mtime) > 24 * 60 * 60;
+	if ((time(nullptr) - bufa.st_mtime) > 24 * 60 * 60) {
+		return 1;
+	}
+
+	return 0;
 }
 
 void limit_cachesize(const char *cache, int entries) {
 	struct dirent **namelist;
 	cache_directory = cache;
 	int n = scandir(cache, &namelist, agefilter, agesort);
+
 	if (n < 0) {
 		return;
-	} else {
-		while (entries--, n--) {
-			// Skip the first N cache entries
-			if (entries >= 0) continue;
-
-			string path(cache + string("/") + namelist[n]->d_name);
-			unlink(path.c_str());
-			free(namelist[n]);
-		}
-		free(namelist);
 	}
+
+	while (entries--, n-- > 0) {
+		// Skip the first N cache entries
+		if (entries >= 0) {
+			continue;
+		}
+
+		string path(cache + string("/") + namelist[n]->d_name);
+		unlink(path.c_str());
+		free(namelist[n]);
+	}
+	free(namelist);
 }
 
 int find_cache_directory(std::string &dir)
@@ -148,7 +171,7 @@ int find_cache_directory(std::string &dir)
 		dir += "/.cache";
 	}
 	// according to xdg spec, all directories should be created as 0700.
-	if (mkdir(dir.c_str(), 0700) && errno != EEXIST) {
+	if (mkdir(dir.c_str(), 0700) != 0 && errno != EEXIST) {
 		char *msg = strerror(errno);
 		err() << "mkdir(" << dir << "): " << msg << endl;
 		return -1;
@@ -156,7 +179,7 @@ int find_cache_directory(std::string &dir)
 
 	dir += "/pdfgrep/";
 
-	if (mkdir(dir.c_str(), 0700) && errno != EEXIST) {
+	if (mkdir(dir.c_str(), 0700) != 0 && errno != EEXIST) {
 		char *msg = strerror(errno);
 		err() << "mkdir(" << dir << "): " << msg << endl;
 		return -1;

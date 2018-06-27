@@ -35,9 +35,11 @@ bool is_excluded(const ExcludeList &list, const char *name)
 {
 	auto iter = list.begin();
 
+	// TODO Use range loop
 	for (; iter != list.end(); ++iter) {
-		if (!fnmatch(*iter, name, FNM_PATHNAME | FNM_PERIOD))
+		if (fnmatch(*iter, name, FNM_PATHNAME | FNM_PERIOD) == 0) {
 			return true;
+		}
 
 	}
 

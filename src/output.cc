@@ -28,19 +28,21 @@
 using namespace std;
 
 static bool is_valid_color(const char* colorcode) {
-	return colorcode && strcmp(colorcode, "");
+	return colorcode != nullptr && strcmp(colorcode, "") != 0;
 }
 
 static void start_color(bool use_colors, const char *colorcode)
 {
-	if (use_colors && is_valid_color(colorcode))
+	if (use_colors && is_valid_color(colorcode)) {
 		cout << "\33[" << colorcode << "m\33[K";
+	}
 }
 
 static void end_color(bool use_colors, const char *colorcode)
 {
-	if (use_colors && is_valid_color(colorcode))
+	if (use_colors && is_valid_color(colorcode)) {
 		cout << "\33[m\33[K";
+	}
 }
 
 #define with_color(use_colors, color, code)	\
@@ -54,8 +56,9 @@ static void end_color(bool use_colors, const char *colorcode)
 
 static void putsn(const string &str, int from, int to)
 {
-	for (; from < to; from++)
+	for (; from < to; from++) {
 		cout << (str[from]);
+	}
 }
 
 void print_only_match(const struct context &context, const struct match &match)
@@ -132,8 +135,9 @@ void print_matches(const context& context, const std::vector<match>& matches) {
 	// to a newline, it now points to the character after that.
 	a++;
 
-	if (b == string::npos)
+	if (b == string::npos) {
 		b = str.size();
+	}
 
 	line_prefix(context.out, context.filename, false, context.pagenum);
 
@@ -154,18 +158,21 @@ void print_matches(const context& context, const std::vector<match>& matches) {
 }
 
 void print_context_before(const context& context, const match& match, int lines) {
-	if (!context.out.context_mode)
+	if (!context.out.context_mode) {
 		return;
+	}
 
-	if (lines < 0)
+	if (lines < 0) {
 		lines = context.out.context_before;
+	}
 
 	auto str = match.string;
 	auto line_begin = str.rfind('\n', match.start);
 
 	// we are at the first line
-	if (line_begin == string::npos)
+	if (line_begin == string::npos) {
 		return;
+	}
 
 	vector<string> lines_to_output;
 
@@ -180,10 +187,11 @@ void print_context_before(const context& context, const match& match, int lines)
 		auto start_pos = newpos == string::npos ? 0 : newpos + 1;
 		lines_to_output.push_back(str.substr(start_pos, pos-start_pos));
 
-		if (newpos == string::npos)
+		if (newpos == string::npos) {
 			break;
-		else
-			pos = newpos;
+		}
+
+		pos = newpos;
 	}
 
 	for (auto l = lines_to_output.rbegin(); l != lines_to_output.rend(); ++l) {
@@ -192,18 +200,21 @@ void print_context_before(const context& context, const match& match, int lines)
 }
 
 void print_context_after(const context& context, const match& match, int lines) {
-	if (!context.out.context_mode)
+	if (!context.out.context_mode) {
 		return;
+	}
 
-	if (lines < 0)
+	if (lines < 0) {
 		lines = context.out.context_after;
+	}
 
 	auto str = match.string;
 	auto line_end = str.find('\n', match.end);
 
 	// we are at the first line
-	if (line_end == string::npos)
+	if (line_end == string::npos) {
 		return;
+	}
 
 	auto pos = line_end;
 	while (lines --> 0) {
@@ -216,10 +227,11 @@ void print_context_after(const context& context, const match& match, int lines) 
 		line_prefix(context.out, context.filename, true, context.pagenum)
 			<< str.substr(pos+1, end_pos-pos-1) << endl;
 
-		if (newpos == string::npos)
+		if (newpos == string::npos) {
 			break;
-		else
-			pos = newpos;
+		}
+
+		pos = newpos;
 	}
 
 }
@@ -255,14 +267,16 @@ void print_context_between(const context& context, const match& match1, const ma
 	}
 
 	print_context_after(context, match1, lines_right);
-	if (pos_left > pos_right)
+	if (pos_left > pos_right) {
 		print_context_separator(context.out);
+	}
 	print_context_before(context, match2, lines_left);
 }
 
 void print_context_separator(const Outconf &out) {
 	// TODO Add color here
 
-	if (out.context_mode)
+	if (out.context_mode) {
 		cout << "--" << endl;
+	}
 }

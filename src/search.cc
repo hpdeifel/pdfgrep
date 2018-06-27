@@ -40,11 +40,11 @@ struct SearchState {
 };
 
 // Returns the number of matches found
-static int search_page(const Options &opts, const string &text, size_t pagenum,
+static int search_page(const Options &opts, const string &page_text, size_t pagenum,
                        const string &filename, const Regengine &re,
                        SearchState &state);
 
-static string maybe_unac(const Options &opts, string std);
+static string maybe_unac(const Options &opts, string str);
 static void handle_match(const Options &opts, const string &filename, size_t page,
                          vector<match> &line, vector<match> &last_line, const match &mt,
                          bool previous_matches);
@@ -68,8 +68,9 @@ int search_document(const Options &opts, unique_ptr<poppler::document> doc,
 	auto doc_pages = static_cast<size_t>(doc->pages());
 
 	for (size_t pagenum = 1; pagenum <= doc_pages; pagenum++) {
-		if (opts.page_range.contains(pagenum) == false)
+		if (!opts.page_range.contains(pagenum)) {
 			continue;
+		}
 
 		string text;
 		if (!opts.use_cache || !cache->get_page(pagenum, text)) {
@@ -90,8 +91,9 @@ int search_document(const Options &opts, unique_ptr<poppler::document> doc,
 
 			text = page_text(*page);
 			// Update the rendering cache
-			if (opts.use_cache)
+			if (opts.use_cache) {
 				cache->set_page(pagenum, text);
+			}
 		}
 
 		int page_count = search_page(opts, text, pagenum,
@@ -133,8 +135,9 @@ int search_document(const Options &opts, unique_ptr<poppler::document> doc,
 	}
 
 	// Save the cache for a later use
-	if (opts.use_cache)
+	if (opts.use_cache) {
 		cache->dump();
+	}
 
 	return state.total_count;
 }
@@ -163,7 +166,7 @@ static int search_page(const Options &opts, const string &page_text,
 	// state.
 	vector<match> last_line;
 
-	while (re.exec(text.c_str(), index, mt)) {
+	while (re.exec(text, index, mt)) {
 		state.total_count++;
 		page_count++;
 
@@ -213,8 +216,9 @@ static void flush_line_matches(const Options &opts, const string &filename, size
 
 	// We don't want any output:
 	if (line.empty() || opts.count || opts.pagecount
-	    || opts.only_filenames != OnlyFilenames::NOPE)
+	    || opts.only_filenames != OnlyFilenames::NOPE) {
 		goto out;
+	}
 
 	// context printing
 	if (last_line.empty()) {

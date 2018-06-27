@@ -63,14 +63,14 @@ PosixRegex::PosixRegex(const string &pattern, bool case_insensitive)
 	// patterns. Thus we just replace empty patterns by "()", which does
 	// have the same semantics.
 	const char *c_str_pattern;
-	if (pattern == "") {
+	if (pattern.empty()) {
 		c_str_pattern = "()";
 	} else {
 		c_str_pattern = pattern.c_str();
 	}
 
 	int ret = regcomp(&this->regex, c_str_pattern, regex_flags);
-	if(ret) {
+	if (ret != 0) {
 		char err_msg[256];
 		regerror(ret, &this->regex, err_msg, 256);
 		err() << err_msg << endl;
@@ -88,7 +88,7 @@ bool PosixRegex::exec(const string &str, size_t offset, struct match &m) const
 
 	int ret = regexec(&this->regex, &str[offset], nmatch, match, flags);
 
-	if(ret) {
+	if (ret != 0) {
 		return false;
 	}
 
@@ -138,8 +138,9 @@ bool PCRERegex::exec(const string &str, size_t offset, struct match &m) const
 	const int ret = pcre_exec(this->regex, nullptr, str.c_str(), len, offset, 0, ov, 3);
 
 	// TODO: Print human readable error
-	if(ret < 0)
+	if (ret < 0) {
 		return false;
+	}
 
 	m.start = ov[0];
 	m.end = ov[1];

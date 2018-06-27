@@ -64,7 +64,7 @@
 using namespace std;
 
 /* set this to 1 if any match was found. Used for the exit status */
-int found_something = 0;
+bool found_something = false;
 
 
 // Options
@@ -168,11 +168,11 @@ static void parse_env_color_pair(char* pair, char** name, char** value)
 static void read_colors_from_env(Colorconf &colors, const char* env_var)
 {
 	/* create a copy of var to edit it with strtok */
-	if (!getenv(env_var)) {
+	if (getenv(env_var) == nullptr) {
 		return;
 	}
 	char* colors_list = strdup(getenv(env_var));
-	if (!colors_list) {
+	if (colors_list == nullptr) {
 		/* if var is not set */
 		return;
 	}
@@ -182,7 +182,7 @@ static void read_colors_from_env(Colorconf &colors, const char* env_var)
 	char* cur_color_pair;
 	char *cur_name, *cur_value;
 	/* read all color=value pairs */
-	while (i < colors_list_len && (cur_color_pair = strtok(colors_list+i, ":"))) {
+	while (i < colors_list_len && (cur_color_pair = strtok(colors_list+i, ":")) != nullptr) {
 		/* set index i to next color pair */
 		i += strlen(cur_color_pair); /* skip token content */
 		i += 1; /* skip delemiter */
@@ -298,6 +298,8 @@ static int sha1_file(const std::string &filename, unsigned char *sha1out)
 /** Perform search in `path`
  *
  * - filename is the basename of the file without the directory part
+ *
+ * TODO Return bool
  */
 static int do_search_in_document(const Options &opts, const string &path, const string &filename,
                                  Regengine &re, bool check_excludes = true)
@@ -341,14 +343,14 @@ static int do_search_in_document(const Options &opts, const string &path, const 
 			);
 	}
 
-	if (!doc.get() || doc->is_locked()) {
+	if (doc == nullptr || doc->is_locked()) {
 		err() << "Could not open " << path.c_str() << endl;
 		return 1;
 	}
 
 	int matches = search_document(opts, move(doc), move(cache), path, re);
 	if (matches > 0) {
-		found_something = 1;
+		found_something = true;
 		if (opts.quiet) {
 			exit(EXIT_SUCCESS); // FIXME: Handle this with return value
 		}
@@ -362,7 +364,7 @@ static int do_search_in_directory(const Options &opts, const string &filename, R
 	DIR *ptrDir = nullptr;
 
 	ptrDir = opendir(filename.c_str());
-	if (!ptrDir) {
+	if (ptrDir == nullptr) {
 		err() << filename.c_str() << ": " << strerror(errno) << endl;
 		return 1;
 	}
@@ -371,11 +373,11 @@ static int do_search_in_directory(const Options &opts, const string &filename, R
 		string path(filename);
 		errno = 0;
 		struct dirent *ptrDirent = readdir(ptrDir);    //not sorted, in order as `ls -f`
-		if (!ptrDirent) {
+		if (ptrDirent == nullptr) {
 			break;
 		}
 
-		if (!strcmp(ptrDirent->d_name, ".") || !strcmp(ptrDirent->d_name, "..")) {
+		if (strcmp(ptrDirent->d_name, ".") == 0 || strcmp(ptrDirent->d_name, "..") == 0) {
 			continue;
 		}
 
@@ -391,7 +393,7 @@ static int do_search_in_directory(const Options &opts, const string &filename, R
 			statret = lstat(path.c_str(), &st);
 		}
 
-		if (statret) {
+		if (statret != 0) {
 			err() << filename.c_str() << ": " << strerror(errno) << endl;
 			continue;
 		}
@@ -528,11 +530,11 @@ int main(int argc, char** argv)
 				options.count = true;
 				break;
 			case COLOR_OPTION:
-				if (!strcmp("always", optarg)) {
+				if (strcmp("always", optarg) == 0) {
 					use_colors = COLOR_ALWAYS;
-				} else if (!strcmp("never", optarg)) {
+				} else if (strcmp("never", optarg) == 0) {
 					use_colors = COLOR_NEVER;
-				} else if (!strcmp("auto", optarg)) {
+				} else if (strcmp("auto", optarg) == 0) {
 					use_colors = COLOR_AUTO;
 				} else {
 					err() << "Invalid argument '" << optarg << "' for --color. "
@@ -711,14 +713,14 @@ int main(int argc, char** argv)
 #ifdef HAVE_LIBPCRE
 		if (re_engine == RE_PCRE) {
 			return make_unique<PCRERegex>(new_pattern, options.ignore_case);
-		} else
+		}
 #endif // HAVE_LIBPCRE
 		if (re_engine == RE_FIXED) {
 			return make_unique<FixedString>(new_pattern, options.ignore_case);
-		} else {
-			return make_unique<PosixRegex>(new_pattern, options.ignore_case);
 		}
 
+		// RE_POSIX
+		return make_unique<PosixRegex>(new_pattern, options.ignore_case);
 	};
 
 	if (patterns.empty()) {
@@ -736,8 +738,9 @@ int main(int argc, char** argv)
 	poppler::set_debug_error_function(handle_poppler_errors, &options);
 #endif
 
-	bool color_tty = isatty(STDOUT_FILENO) && getenv("TERM") &&
-		strcmp(getenv("TERM"), "dumb");
+	bool color_tty = isatty(STDOUT_FILENO) != 0
+		&& getenv("TERM") != nullptr
+		&& strcmp(getenv("TERM"), "dumb") != 0;
 
 	options.outconf.color =
 		use_colors == COLOR_ALWAYS
@@ -747,7 +750,7 @@ int main(int argc, char** argv)
 		read_colors_from_env(options.outconf.colors, "GREP_COLORS");
 	}
 
-	if (explicit_filename_option == false) {
+	if (!explicit_filename_option) {
 		if ((argc - optind) == 1 && !is_dir(argv[optind])) {
 			options.outconf.filename = false;
 		} else {
@@ -783,27 +786,27 @@ int main(int argc, char** argv)
 			options.use_cache = false;
 		} else {
 			char *limitstr = getenv("PDFGREP_CACHE_LIMIT");
-			unsigned int limit = limitstr ? strtoul(limitstr, nullptr, 10) : 200;
+			unsigned int limit = (limitstr != nullptr) ? strtoul(limitstr, nullptr, 10) : 200;
 			limit_cachesize(options.cache_directory.c_str(), limit);
 		}
 	}
 
-	int error = 0;
+	bool error = false;
 
 	for (int i = optind; i < argc; i++) {
 		const string filename(argv[i]);
 
 		if (!is_dir(filename)) {
-			if (do_search_in_document(options, filename, filename, *re, false)) {
-				error = 1;
+			if (do_search_in_document(options, filename, filename, *re, false) != 0) {
+				error = true;
 			}
 		} else if (options.recursive != Recursion::NONE) {
-			if (do_search_in_directory(options, filename, *re)) {
-				error = 1;
+			if (do_search_in_directory(options, filename, *re) != 0) {
+				error = true;
 			}
 		} else {
 			err() << filename << " is a directory" << endl;
-			error = 1;
+			error = true;
 		}
 	}
 

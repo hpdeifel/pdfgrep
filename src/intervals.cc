@@ -42,8 +42,9 @@ bool IntervalContainer::contains(int element) const {
 	// We interpret the empty container as one interval containing
 	// everything. This makes sense in the pdfgrep case: If the user doesn't
 	// restrict the intervals she want's all pages to be searched.
-	if (intervals.empty())
+	if (intervals.empty()) {
 		return true;
+	}
 
 	auto predicate = [=](const Interval &a) {return a.contains(element);};
 
