@@ -31,18 +31,3 @@ test:libunac:
       - testsuite/pdfgrep.log
     when: on_failure
     expire_in: 1 week
-
-# Build on debian stable as it has poppler < 0.34, where we need to
-# disable some tests
-test:debian-stable:
-  image: debian:jessie
-  script:
-    - ./autogen.sh && ./configure --enable-coverage && make
-    - if grep -q '^exit' testsuite/pdfgrep.tests/*.exp; then false; else true; fi
-    - make check
-    - gcovr -r .
-  artifacts:
-    paths:
-      - testsuite/pdfgrep.log
-    when: on_failure
-    expire_in: 1 week
