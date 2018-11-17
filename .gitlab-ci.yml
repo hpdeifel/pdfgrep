@@ -6,6 +6,7 @@ before_script:
 test:
   image: ubuntu:17.10
   script:
+    - export CXXFLAGS="-Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -Wp,-D_GLIBCXX_ASSERTIONS -fexceptions -fstack-protector-strong -grecord-gcc-switches"
     - ./autogen.sh
     - ./configure --enable-coverage
     - if grep -q '^exit' testsuite/pdfgrep.tests/*.exp; then false; else true; fi
@@ -22,6 +23,7 @@ test:libunac:
   image: ubuntu:17.10
   script:
     - apt-get install -y libunac1-dev
+    - export CXXFLAGS="-Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -Wp,-D_GLIBCXX_ASSERTIONS -fexceptions -fstack-protector-strong -grecord-gcc-switches"
     - ./autogen.sh
     - ./configure --with-unac
     - if grep -q '^exit' testsuite/pdfgrep.tests/*.exp; then false; else true; fi
