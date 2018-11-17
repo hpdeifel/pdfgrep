@@ -54,8 +54,11 @@ static void flush_line_matches(const Options &opts, const string &filename, size
 
 static string page_text(poppler::page &page) {
 	poppler::byte_array arr = page.text(page.page_rect(poppler::media_box)).to_utf8();
-	char *c_str = &arr[0];
-	return string(c_str, arr.size());
+	if (arr.empty()) {
+		return string();
+	} else {
+		return string(arr.data(), arr.size());
+	}
 }
 
 int search_document(const Options &opts, unique_ptr<poppler::document> doc,
