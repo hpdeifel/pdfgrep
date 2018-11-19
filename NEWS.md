@@ -1,3 +1,9 @@
+NEXT RELEASE
+------------
+
+  - Bugfix: Fix crash when compiled with hardened compiler flags
+    (specifically -D_GLIBCXX_ASSERTIONS)
+
 Version 2.1.1  [2018-05-22]
 ---------------------------
 
