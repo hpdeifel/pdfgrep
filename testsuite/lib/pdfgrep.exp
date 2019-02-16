@@ -13,6 +13,9 @@ remove_nulls -d 0
 
 set pdfgrep_path [file normalize ../src/pdfgrep]
 
+# Set LC_ALL to "C" to avoid locale settings influencing the test results
+set env(LC_ALL) "C"
+
 # Just spawns pdfgrep with the given arguments
 proc pdfgrep args {
     global spawn_id pdfgrep_path

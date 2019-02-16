@@ -60,8 +60,8 @@ the following functions and variables should be of interest:
 - `pdfgrep_expect`: Call pdfgrep an expect some output.
 - `pdfgrep_expect_x`: Call pdfgrep an expect some output, but mark
   this test as known to fail.
-- `pdfgrep_expect_error`: Call pdfgrep and expect it print an error.
-- `pdfgrep_exit_status`: Compare the exit status of the last spawned
+- `pdfgrep_expect_error`: Call pdfgrep and expect it to print an error.
+- `expect_exit_status`: Compare the exit status of the last spawned
   process.
 - `mkpdf`: Generate a pdf using latex.
 - `clear_pdfdir`: Delete the content of the directory of generated
