@@ -95,3 +95,17 @@ set pdf [mkpdf pdf {
 
 pdfgrep_expect ".*" $pdf \
     "test"
+
+######################################################################
+
+set test "Invalid locale setting"
+
+clear_pdfdir
+set pdf [mkpdf pdf foo]
+
+set env(LC_ALL) "invalid"
+
+pdfgrep_expect_error "foo" $pdf
+expect_exit_status 0
+
+set env(LC_ALL) "C"
