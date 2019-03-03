@@ -37,6 +37,8 @@
 
 using namespace std;
 
+const char *CACHE_VERSION = "1";
+
 Cache::Cache(string const &cache_file)
 	: cache_file(cache_file), valid(false) {
 	// Open the cache file
@@ -47,9 +49,15 @@ Cache::Cache(string const &cache_file)
 
 	unsigned char indicator;
 	fd >> indicator;
-	if (indicator != 'G') {
+	if (indicator != 'C') {
 		return;
 	}
+	std::string version;
+	std::getline(fd, version, '\0');
+	if (version != CACHE_VERSION) {
+		return;
+	}
+
 	for (std::string page; std::getline(fd, page, '\0'); ) {
 		pages.push_back(page);
 	}
@@ -77,18 +85,19 @@ void Cache::dump() {
 	if (!fd) {
 		return;
 	}
-	// The first byte of the cache file is an indicator byte, which
-	// can be written atomically. Initial it is \0, after all pages
-	// have been flushed, the indicator byte is written to 'G' (for
-	// good).
+	// The first byte of the cache file is an indicator byte, which can be
+	// written atomically. Initial it is \0, after all pages have been
+	// flushed, the indicator byte is written to 'C' (complete cache).
 	fd << '\0';
+	fd << CACHE_VERSION << '\0';
+
 	for (const string &page : pages) {
 		fd << page;
 		fd << '\0';
 	}
 	fd.flush();
 	fd.seekp(0, ios_base::beg);
-	fd << 'G';
+	fd << 'C';
 	fd.close();
 }
 
