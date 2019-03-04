@@ -788,6 +788,13 @@ int main(int argc, char** argv)
 		options.outconf.context_mode = false;
 	}
 
+	if (options.count && options.outconf.pagenum) {
+		err() << "warning: --count and --page-number can't be used together."
+		      << " Ignoring --page-number." << endl;
+
+		options.outconf.pagenum = false;
+	}
+
 	// TODO Warn about --files-{with-matches,without-match} and other output
 	// options
 
