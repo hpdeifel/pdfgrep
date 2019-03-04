@@ -116,7 +116,8 @@ int search_document(const Options &opts, unique_ptr<poppler::document> doc,
 		}
 		if (page_count > 0 && opts.pagecount &&
 		    opts.only_filenames == OnlyFilenames::NOPE && !opts.quiet) {
-			line_prefix(opts.outconf, filename, false, pagenum) << page_count << endl;
+			line_prefix(context { filename, pagenum, opts.outconf }, false)
+				<< page_count << endl;
 		}
 
 		if (opts.max_count > 0 && state.total_count >= opts.max_count) {
@@ -131,7 +132,7 @@ int search_document(const Options &opts, unique_ptr<poppler::document> doc,
 	}
 
 	if (opts.count && opts.only_filenames == OnlyFilenames::NOPE && !opts.quiet) {
-		line_prefix(opts.outconf, filename, false) << state.total_count << endl;
+		line_prefix(context {filename, 0, opts.outconf}, false) << state.total_count << endl;
 	}
 
 	if (opts.warn_empty && state.document_empty) {

@@ -65,10 +65,7 @@ void print_context_separator(const Outconf &out);
 // Print to stderr, with "pdfgrep: " as prefix;
 std::ostream& err();
 
-std::ostream& line_prefix(const Outconf& outconf, const std::string& filename,
-                          bool in_context, size_t page);
-std::ostream& line_prefix(const Outconf& outconf, const std::string& filename,
-                          bool in_context);
+std::ostream& line_prefix(const context& context, bool in_context);
 
 #endif
 
