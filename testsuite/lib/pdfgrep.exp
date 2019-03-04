@@ -262,6 +262,7 @@ proc clear_pdfdir {} {
 set latex_pre {\documentclass{article}
 \usepackage[utf8]{inputenc}
 \usepackage[parfill]{parskip}
+\usepackage{hyperref}
 \pagestyle{empty}
 \begin{document}}
 set latex_post {\end{document}}
