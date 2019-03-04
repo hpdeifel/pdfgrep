@@ -122,8 +122,13 @@ std::ostream& line_prefix(const context& ctx, bool in_context) {
 		}
 	}
 	if (outconf.pagenum) {
-		cout << color(outconf.color, outconf.colors.pagenum)
-		     << ctx.pagenum << nocolor;
+		cout << color(outconf.color, outconf.colors.pagenum);
+		if (outconf.pagenum_type == PagenumType::COUNT) {
+			cout << ctx.pagenum;
+		} else {
+			cout << ctx.page_label;
+		}
+		cout << nocolor;
 
 		cout << color(outconf.color, outconf.colors.separator)
 		     << (in_context ? "-" : outconf.prefix_sep)

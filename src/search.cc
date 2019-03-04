@@ -40,20 +40,35 @@ struct SearchState {
 };
 
 // Returns the number of matches found
-static int search_page(const Options &opts, const string &page_text, size_t pagenum,
-                       const string &filename, const Regengine &re,
-                       SearchState &state);
+static int search_page(const Options& opts,
+                       const string& page_text,
+                       size_t pagenum,
+                       const string& page_label,
+                       const string& filename,
+                       const Regengine& re,
+                       SearchState& state);
 
 static string maybe_unac(const Options &opts, string str);
-static void handle_match(const Options &opts, const string &filename, size_t page,
-                         vector<match> &line, vector<match> &last_line, const match &mt,
+
+static void handle_match(const Options& opts,
+                         const string& filename,
+                         size_t page,
+                         const string& page_label,
+                         vector<match>& line,
+                         vector<match>& last_line,
+                         const match& mt,
                          bool previous_matches);
-static void flush_line_matches(const Options &opts, const string &filename, size_t page,
-                               vector<match> &line, vector<match> &last_line,
+
+static void flush_line_matches(const Options& opts,
+                               const string& filename,
+                               size_t page,
+                               const string& page_label,
+                               vector<match>& line,
+                               vector<match>& last_line,
                                bool previous_matches);
 
-static string page_text(poppler::page &page) {
-	poppler::byte_array arr = page.text(page.page_rect(poppler::media_box)).to_utf8();
+static string ustring_to_string(const poppler::ustring& str) {
+	poppler::byte_array arr = str.to_utf8();
 	if (arr.empty()) {
 		return string();
 	} else {
@@ -76,6 +91,8 @@ int search_document(const Options &opts, unique_ptr<poppler::document> doc,
 		}
 
 		string text;
+		string label;
+		
 		if (!opts.use_cache || !cache->get_page(pagenum, text)) {
 			unique_ptr<poppler::page> page(doc->create_page(pagenum-1));
 
@@ -87,7 +104,18 @@ int search_document(const Options &opts, unique_ptr<poppler::document> doc,
 				continue;
 			}
 
-			text = page_text(*page);
+			poppler::ustring pagetext = page->text(page->page_rect(poppler::media_box));
+
+			if (!pagetext.empty()) {
+				// there is text on this page, document can't be empty
+				state.document_empty = false;
+
+				text = ustring_to_string(pagetext);
+			}
+
+			// TODO Don't read label if we don't need it
+			label = ustring_to_string(page->label());
+
 			// Update the rendering cache
 			if (opts.use_cache) {
 				cache->set_page(pagenum, text);
@@ -100,8 +128,7 @@ int search_document(const Options &opts, unique_ptr<poppler::document> doc,
 		}
 
 
-		int page_count = search_page(opts, text, pagenum,
-		                             filename, re, state);
+		int page_count = search_page(opts, text, pagenum, label, filename, re, state);
 
 		if (page_count > 0 && opts.quiet) {
 			break;
@@ -116,7 +143,7 @@ int search_document(const Options &opts, unique_ptr<poppler::document> doc,
 		}
 		if (page_count > 0 && opts.pagecount &&
 		    opts.only_filenames == OnlyFilenames::NOPE && !opts.quiet) {
-			line_prefix(context { filename, pagenum, opts.outconf }, false)
+			line_prefix(context { filename, pagenum, label, opts.outconf }, false)
 				<< page_count << endl;
 		}
 
@@ -132,7 +159,7 @@ int search_document(const Options &opts, unique_ptr<poppler::document> doc,
 	}
 
 	if (opts.count && opts.only_filenames == OnlyFilenames::NOPE && !opts.quiet) {
-		line_prefix(context {filename, 0, opts.outconf}, false) << state.total_count << endl;
+		line_prefix(context {filename, 0, "", opts.outconf}, false) << state.total_count << endl;
 	}
 
 	if (opts.warn_empty && state.document_empty) {
@@ -147,10 +174,13 @@ int search_document(const Options &opts, unique_ptr<poppler::document> doc,
 	return state.total_count;
 }
 
-static int search_page(const Options &opts, const string &page_text,
-                       size_t pagenum, const string &filename,
-                       const Regengine &re, SearchState &state)
-{
+static int search_page(const Options& opts,
+                       const string& page_text,
+                       size_t pagenum,
+                       const string& page_label,
+                       const string& filename,
+                       const Regengine& re,
+                       SearchState& state) {
 	// Count of matches just on this page
 	int page_count = 0;
 
@@ -179,13 +209,13 @@ static int search_page(const Options &opts, const string &page_text,
 			return page_count;
 		}
 
-		handle_match(opts, filename, pagenum, current, last_line, mt, previous_matches);
+		handle_match(opts, filename, pagenum, page_label, current, last_line, mt, previous_matches);
 
 		if (opts.max_count > 0 && state.total_count >= opts.max_count) {
-			flush_line_matches(opts, filename, pagenum, current, last_line, previous_matches);
+			flush_line_matches(opts, filename, pagenum, page_label, current, last_line, previous_matches);
 			if (!last_line.empty() && !opts.count && !opts.pagecount) {
 				// Print final context after last match
-				struct context cntxt = {filename, pagenum, opts.outconf};
+				struct context cntxt = {filename, pagenum, page_label, opts.outconf};
 				print_context_after(cntxt, *last_line.rbegin());
 			}
 			return page_count;
@@ -203,21 +233,26 @@ static int search_page(const Options &opts, const string &page_text,
 		}
 	}
 
-	flush_line_matches(opts, filename, pagenum, current, last_line, previous_matches);
+	flush_line_matches(opts, filename, pagenum, page_label, current, last_line, previous_matches);
 
 	if (!last_line.empty() && !opts.count && !opts.pagecount) {
 		// Print final context after last match
-		struct context cntxt = {filename, pagenum, opts.outconf};
+		struct context cntxt = {filename, pagenum, page_label, opts.outconf};
 		print_context_after(cntxt, *last_line.rbegin());
 	}
 
 	return page_count;
 }
 
-static void flush_line_matches(const Options &opts, const string &filename, size_t page,
-                               vector<match> &line, vector<match> &last_line, bool previous_matches){
+static void flush_line_matches(const Options& opts,
+                               const string& filename,
+                               size_t page,
+                               const string& page_label,
+                               vector<match>& line,
+                               vector<match>& last_line,
+                               bool previous_matches) {
 
-	struct context cntxt = {filename, page, opts.outconf};
+	struct context cntxt = {filename, page, page_label, opts.outconf};
 
 	// We don't want any output:
 	if (line.empty() || opts.count || opts.pagecount
@@ -251,8 +286,13 @@ out:
 	line.clear();
 }
 
-static void handle_match(const Options &opts, const string &filename, size_t page,
-                         vector<match> &line, vector<match> &last_line, const match &mt,
+static void handle_match(const Options& opts,
+                         const string& filename,
+                         size_t page,
+                         const string& page_label,
+                         vector<match>& line,
+                         vector<match>& last_line,
+                         const match& mt,
                          bool previous_matches) {
 	if (line.empty()) {
 		line.push_back(mt);
@@ -264,7 +304,7 @@ static void handle_match(const Options &opts, const string &filename, size_t pag
 	if (next_newline == string::npos || next_newline > mt.start) {
 		line.push_back(mt);
 	} else {
-		flush_line_matches(opts, filename, page, line, last_line, previous_matches);
+		flush_line_matches(opts, filename, page, page_label, line, last_line, previous_matches);
 		line.push_back(mt);
 	}
 }
