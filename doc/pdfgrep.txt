@@ -102,8 +102,18 @@ default, 'PATTERN' is an extended regular expression.
   output. This is the default setting when there is only one file to
   search.
 
-*-n*, *--page-number* :: Prefix each match with the number of the page
+*-n*, *--page-number*[='TYPE'] :: Prefix each match with the number of the page
   where it was found.
++
+The optional argument 'TYPE' controls how page numbers are
+determined. If present, it can be one of the following:
++
+[horizontal]
+*count* ;; Simply count the pages, starting at 1 for the first page.
+  This is the default.
+*label* ;; The PDF page label. This can be an arbitrary string per
+  page, set by the PDF creator (e.g. roman numerals for the first few
+  pages).
 
 *-Z*, *--null* :: Output a null byte (called 'NUL' in ASCII and \'\0'
   in C) instead of the colon that usually separates a filename from
