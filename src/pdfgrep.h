@@ -51,16 +51,13 @@ struct Colorconf {
 	char *separator;
 };
 
-enum class PagenumType {
-	COUNT,
-	LABEL
-};
+enum class PagenumType { INDEX, LABEL };
 
 // Controls, what to print
 struct Outconf {
 	bool filename = false;
 	bool pagenum = false;
-	PagenumType pagenum_type = PagenumType::COUNT;
+	PagenumType pagenum_type = PagenumType::INDEX;
 	bool color = false;
 	bool only_matching = false;
 	bool null_byte_sep = false;

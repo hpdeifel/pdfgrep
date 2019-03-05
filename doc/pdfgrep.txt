@@ -109,8 +109,8 @@ The optional argument 'TYPE' controls how page numbers are
 determined. If present, it can be one of the following:
 +
 [horizontal]
-*count* ;; Simply count the pages, starting at 1 for the first page.
-  This is the default.
+*index* ;; The index of the page in the PDF, starting at 1 for the
+  first page. This is the default.
 *label* ;; The PDF page label. This can be an arbitrary string per
   page, set by the PDF creator (e.g. roman numerals for the first few
   pages).

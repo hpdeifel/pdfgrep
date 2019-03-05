@@ -123,7 +123,7 @@ std::ostream& line_prefix(const context& ctx, bool in_context) {
 	}
 	if (outconf.pagenum) {
 		cout << color(outconf.color, outconf.colors.pagenum);
-		if (outconf.pagenum_type == PagenumType::COUNT) {
+		if (outconf.pagenum_type == PagenumType::INDEX) {
 			cout << ctx.pagenum;
 		} else {
 			cout << ctx.page_label;

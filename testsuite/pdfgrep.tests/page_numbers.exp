@@ -31,7 +31,7 @@ expect_exit_status 0
 
 set test "Argument 'count' for --page-number"
 
-pdfgrep_expect --page-number=count page $pdf \
+pdfgrep_expect --page-number=index page $pdf \
 "1:first page
 2:second page
 3:third page"

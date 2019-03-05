@@ -519,14 +519,14 @@ int main(int argc, char** argv)
 				break;
 			case PAGENUM_OPTION:
 				options.outconf.pagenum = true;
-				if (optarg == nullptr || !strcmp(optarg, "count")) {
-					options.outconf.pagenum_type = PagenumType::COUNT;
+				if (optarg == nullptr || !strcmp(optarg, "index")) {
+					options.outconf.pagenum_type = PagenumType::INDEX;
 				} else if (!strcmp(optarg, "label")) {
 					options.outconf.pagenum_type = PagenumType::LABEL;
 				} else {
 					err() << "Invalid argument '" << optarg
 					      << "' for --page-number"
-					      << "Candidates are: count, label"
+					      << "Candidates are: index, label"
 					      << endl;
 					exit(EXIT_ERROR);
 				}
