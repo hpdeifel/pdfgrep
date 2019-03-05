@@ -90,10 +90,9 @@ int search_document(const Options &opts, unique_ptr<poppler::document> doc,
 			continue;
 		}
 
-		string text;
-		string label;
+		CachePage cachepage;
 		
-		if (!opts.use_cache || !cache->get_page(pagenum, text)) {
+		if (!opts.use_cache || !cache->get_page(pagenum, cachepage)) {
 			unique_ptr<poppler::page> page(doc->create_page(pagenum-1));
 
 			if (!page) {
@@ -110,17 +109,20 @@ int search_document(const Options &opts, unique_ptr<poppler::document> doc,
 				// there is text on this page, document can't be empty
 				state.document_empty = false;
 
-				text = ustring_to_string(pagetext);
+				cachepage.text = ustring_to_string(pagetext);
 			}
 
 			// TODO Don't read label if we don't need it
-			label = ustring_to_string(page->label());
+			cachepage.label = ustring_to_string(page->label());
 
 			// Update the rendering cache
 			if (opts.use_cache) {
-				cache->set_page(pagenum, text);
+				cache->set_page(pagenum, cachepage);
 			}
 		}
+
+		string& text = cachepage.text;
+		string& label = cachepage.label;
 
 		if (!text.empty()) {
 			// there is text on this page, document can't be empty

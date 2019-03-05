@@ -39,6 +39,18 @@ using namespace std;
 
 const char *CACHE_VERSION = "1";
 
+static std::ostream& operator<<(std::ostream& out, const CachePage& page) {
+	out << page.label << '\0';
+	out << page.text << '\0';
+	return out;
+}
+
+static std::istream& operator>>(std::istream& in, CachePage& page) {
+	std::getline(in, page.label, '\0');
+	std::getline(in, page.text, '\0');
+	return in;
+}
+
 Cache::Cache(string const &cache_file)
 	: cache_file(cache_file), valid(false) {
 	// Open the cache file
@@ -58,23 +70,23 @@ Cache::Cache(string const &cache_file)
 		return;
 	}
 
-	for (std::string page; std::getline(fd, page, '\0'); ) {
+	for (CachePage page; fd >> page; ) {
 		pages.push_back(page);
 	}
 	valid = true;
 }
 
-void Cache::set_page(unsigned pagenum, const string &text) {
+void Cache::set_page(unsigned pagenum, const CachePage& page) {
 	pages.resize(max(pagenum, (unsigned)pages.size()));
-	pages[pagenum-1] = text;
+	pages[pagenum-1] = page;
 }
 
-bool Cache::get_page(unsigned pagenum, string &text) {
+bool Cache::get_page(unsigned pagenum, CachePage& page) {
 	if (!valid) {
 		return false;
 	}
 	if (pagenum-1 < pages.size()) {
-		text = pages[pagenum-1];
+		page = pages[pagenum-1];
 		return true;
 	}
 	return false;
@@ -91,10 +103,10 @@ void Cache::dump() {
 	fd << '\0';
 	fd << CACHE_VERSION << '\0';
 
-	for (const string &page : pages) {
+	for (const CachePage& page : pages) {
 		fd << page;
-		fd << '\0';
 	}
+
 	fd.flush();
 	fd.seekp(0, ios_base::beg);
 	fd << 'C';

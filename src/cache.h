@@ -25,15 +25,20 @@
 #include <vector>
 #include <string>
 
+struct CachePage {
+	std::string text;
+	std::string label;
+};
+
 class Cache {
-	std::vector<std::string> pages;
+	std::vector<CachePage> pages;
 	std::string cache_file;
 	bool valid;
 public:
-	explicit Cache(std::string const &cache_file);
+	explicit Cache(std::string const& cache_file);
 
-	bool get_page(unsigned pagenum, std::string &text);
-	void set_page(unsigned pagenum, const std::string &text);
+	bool get_page(unsigned pagenum, CachePage& text);
+	void set_page(unsigned pagenum, const CachePage& page);
 
 	void dump();
 };
