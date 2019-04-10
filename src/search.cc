@@ -87,17 +87,18 @@ int search_document(const Options &opts, unique_ptr<poppler::document> doc,
 				continue;
 			}
 
-			if (!page->text(page->page_rect(poppler::media_box)).empty()) {
-				// there is text on this page, document can't be empty
-				state.document_empty = false;
-			}
-
 			text = page_text(*page);
 			// Update the rendering cache
 			if (opts.use_cache) {
 				cache->set_page(pagenum, text);
 			}
 		}
+
+		if (!text.empty()) {
+			// there is text on this page, document can't be empty
+			state.document_empty = false;
+		}
+
 
 		int page_count = search_page(opts, text, pagenum,
 		                             filename, re, state);

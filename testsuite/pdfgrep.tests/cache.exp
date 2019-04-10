@@ -92,6 +92,7 @@ set homedir $env(HOME)
 setenv HOME "$pdfdir"
 set cachedir "$pdfdir/.cache/pdfgrep"
 
+
 clear_pdfdir
 set pdf [mkpdf pdf {
     this is a test.
@@ -150,3 +151,19 @@ file rename $pdfdir/pdf.pdf $pdfdir/subdir/pdf.pdf
 
 pdfgrep_expect --cache -r "foobar" $pdfdir \
     "$pdfdir/subdir/pdf.pdf:foobar"
+
+######################################################################
+
+set test "cache works with --warn-empty"
+
+# See https://gitlab.com/pdfgrep/pdfgrep/issues/35
+
+clear_pdfdir
+set pdf [mkpdf pdf {
+    this is a test
+}]
+
+pdfgrep --cache --warn-empty test $pdf
+expect eof
+
+pdfgrep_expect --cache --warn-empty test $pdf "this is a test"
