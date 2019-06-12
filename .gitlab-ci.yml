@@ -1,12 +1,12 @@
 before_script:
   - apt-get update -qq
-  - apt-get install -y -qq gcc g++ pkg-config make automake autoconf gcovr
+  - apt-get install -y -qq build-essential gcovr autoconf pkg-config
   - apt-get install -y -qq libpoppler-cpp-dev libgcrypt20-dev libpcre3-dev asciidoc dejagnu texlive-latex-base
 
 test:
-  image: ubuntu:17.10
+  image: debian:stretch
   script:
-    - export CXXFLAGS="-Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -Wp,-D_GLIBCXX_ASSERTIONS -fexceptions -fstack-protector-strong -grecord-gcc-switches"
+    - export CXXFLAGS="-Wformat -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -Wp,-D_GLIBCXX_ASSERTIONS -fexceptions -fstack-protector-strong -grecord-gcc-switches"
     - ./autogen.sh
     - ./configure --enable-coverage
     - if grep -q '^exit' testsuite/pdfgrep.tests/*.exp; then false; else true; fi
@@ -20,10 +20,10 @@ test:
     expire_in: 1 week
 
 test:libunac:
-  image: ubuntu:17.10
+  image: debian:stretch
   script:
     - apt-get install -y libunac1-dev
-    - export CXXFLAGS="-Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -Wp,-D_GLIBCXX_ASSERTIONS -fexceptions -fstack-protector-strong -grecord-gcc-switches"
+    - export CXXFLAGS="-Wformat -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -Wp,-D_GLIBCXX_ASSERTIONS -fexceptions -fstack-protector-strong -grecord-gcc-switches"
     - ./autogen.sh
     - ./configure --with-unac
     - if grep -q '^exit' testsuite/pdfgrep.tests/*.exp; then false; else true; fi
