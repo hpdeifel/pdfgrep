@@ -81,6 +81,7 @@ enum {
 	UNAC_OPTION,
 	CACHE_OPTION,
 	PAGE_RANGE_OPTION,
+	PAGENUM_OPTION,
 };
 
 struct option long_options[] =
@@ -88,7 +89,7 @@ struct option long_options[] =
 	// name, has_arg, *flag, val
 	{"ignore-case", no_argument, nullptr, 'i'},
 	{"perl-regexp", no_argument, nullptr, 'P'},
-	{"page-number", no_argument, nullptr, 'n'},
+	{"page-number", optional_argument, nullptr, PAGENUM_OPTION},
 	{"with-filename", no_argument, nullptr, 'H'},
 	{"no-filename", no_argument, nullptr, 'h'},
 	{"count", no_argument, nullptr, 'c'},
@@ -516,6 +517,20 @@ int main(int argc, char** argv)
 			case 'n':
 				options.outconf.pagenum = true;
 				break;
+			case PAGENUM_OPTION:
+				options.outconf.pagenum = true;
+				if (optarg == nullptr || !strcmp(optarg, "index")) {
+					options.outconf.pagenum_type = PagenumType::INDEX;
+				} else if (!strcmp(optarg, "label")) {
+					options.outconf.pagenum_type = PagenumType::LABEL;
+				} else {
+					err() << "Invalid argument '" << optarg
+					      << "' for --page-number"
+					      << "Candidates are: index, label"
+					      << endl;
+					exit(EXIT_ERROR);
+				}
+				break;
 			case 'r':
 				options.recursive = Recursion::DONT_FOLLOW_SYMLINKS;
 				break;
@@ -771,6 +786,13 @@ int main(int argc, char** argv)
 		      << " Ignoring context option." << endl;
 
 		options.outconf.context_mode = false;
+	}
+
+	if (options.count && options.outconf.pagenum) {
+		err() << "warning: --count and --page-number can't be used together."
+		      << " Ignoring --page-number." << endl;
+
+		options.outconf.pagenum = false;
 	}
 
 	// TODO Warn about --files-{with-matches,without-match} and other output

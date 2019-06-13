@@ -31,68 +31,71 @@ static bool is_valid_color(const char* colorcode) {
 	return colorcode != nullptr && strcmp(colorcode, "") != 0;
 }
 
-static void start_color(bool use_colors, const char *colorcode)
-{
-	if (use_colors && is_valid_color(colorcode)) {
-		cout << "\33[" << colorcode << "m\33[K";
+const int color_xindex = std::ios_base::xalloc();
+
+struct color {
+	color(bool use_colors, const char *colorcode) {
+		if (use_colors && is_valid_color(colorcode)) {
+			this->colorcode = colorcode;
+		} else {
+			this->colorcode = nullptr;
+		}
+	}
+	const char *colorcode;
+};
+
+std::ostream& operator<<(ostream &out, const color &c) {
+	if (c.colorcode != nullptr) {
+		out.iword(color_xindex) = 1;
+		return out << "\33[" << c.colorcode << "m\33[K";
+	} else {
+		return out;
 	}
 }
 
-static void end_color(bool use_colors, const char *colorcode)
-{
-	if (use_colors && is_valid_color(colorcode)) {
-		cout << "\33[m\33[K";
+
+std::ostream& nocolor(std::ostream &out) {
+	if (out.iword(color_xindex) == 1) {
+		out << "\33[m\33[K";
+		out.iword(color_xindex) = 0;
 	}
+	return out;
 }
 
-#define with_color(use_colors, color, code)	\
-	do {					\
-		start_color(use_colors, color);	\
-		{				\
-			code;			\
-		}				\
-		end_color(use_colors, color);	\
-	} while (0);
+struct substr {
+	const std::string &str;
+	const size_t begin;
+	const size_t end;
+	substr(const std::string &str, size_t begin, size_t end)
+		:str(str), begin(begin), end(end)
+	{}
+};
 
-static void putsn(const string &str, int from, int to)
-{
-	for (; from < to; from++) {
-		cout << (str[from]);
+std::ostream& operator<<(ostream &out, const substr &s) {
+	auto iend = s.str.begin() + s.end;
+
+	for (auto i = s.str.begin() + s.begin; i != iend; i++) {
+		out << *i;
 	}
+	return out;
 }
 
 void print_only_match(const struct context &context, const struct match &match)
 {
-	line_prefix(context.out, context.filename, false, context.pagenum);
+	line_prefix(context, false);
 
-	with_color(context.out.color, context.out.colors.highlight,
-		putsn(match.string, match.start, match.end);
-	);
-
-	cout << endl;
+	cout << color(context.out.color, context.out.colors.highlight)
+	     << substr(match.string, match.start, match.end)
+	     << nocolor
+	     << endl;
 }
 
 ostream& err() {
 	return cerr << "pdfgrep: ";
 }
 
-std::ostream& line_prefix(const Outconf& outconf, const std::string& filename,
-                          bool in_context, size_t page) {
-	line_prefix(outconf, filename, in_context);
-
-	if (outconf.pagenum) {
-		with_color(outconf.color, outconf.colors.pagenum,
-			cout << page;);
-		with_color(outconf.color, outconf.colors.separator,
-			cout << (in_context ? "-" : outconf.prefix_sep););
-	}
-
-	return cout;
-}
-
 void print_only_filename(const Outconf& outconf, const std::string& filename) {
-	with_color(outconf.color, outconf.colors.filename,
-		   cout << filename;);
+	cout << color(outconf.color, outconf.colors.filename) << filename << nocolor;
 
 	if (outconf.null_byte_sep) {
 		cout << '\0';
@@ -101,21 +104,37 @@ void print_only_filename(const Outconf& outconf, const std::string& filename) {
 	}
 }
 
-std::ostream& line_prefix(const Outconf& outconf, const std::string& filename,
-                          bool in_context) {
+std::ostream& line_prefix(const context& ctx, bool in_context) {
+	const Outconf outconf = ctx.out;
+
 	if (outconf.filename) {
-		with_color(outconf.color, outconf.colors.filename,
-			cout << filename;);
+		cout << color(outconf.color, outconf.colors.filename)
+		     << ctx.filename << nocolor;
+
 		// Here, --null takes precedence over --match-prefix-separator
 		// in the sense, that if --null is given, the null byte is
 		// always printed after the filename instead of the separator.
 		if (outconf.null_byte_sep) {
 			cout << '\0';
 		} else {
-			with_color(outconf.color, outconf.colors.separator,
-				cout << (in_context ? "-" : outconf.prefix_sep ););
+			cout << color(outconf.color, outconf.colors.separator)
+			     << (in_context ? "-" : outconf.prefix_sep ) << nocolor;
 		}
 	}
+	if (outconf.pagenum) {
+		cout << color(outconf.color, outconf.colors.pagenum);
+		if (outconf.pagenum_type == PagenumType::INDEX) {
+			cout << ctx.pagenum;
+		} else {
+			cout << ctx.page_label;
+		}
+		cout << nocolor;
+
+		cout << color(outconf.color, outconf.colors.separator)
+		     << (in_context ? "-" : outconf.prefix_sep)
+		     << nocolor;
+	}
+
 
 	return cout;
 }
@@ -139,22 +158,20 @@ void print_matches(const context& context, const std::vector<match>& matches) {
 		b = str.size();
 	}
 
-	line_prefix(context.out, context.filename, false, context.pagenum);
+	line_prefix(context, false);
 
 	int previous_end = a;
 	for (auto match : matches) {
-		putsn(str, previous_end, match.start);
+		cout << substr(str, previous_end, match.start);
 
-		with_color(context.out.color, context.out.colors.highlight,
-			putsn(str, match.start, match.end);
-		);
+		cout << color(context.out.color, context.out.colors.highlight)
+		     << substr(str, match.start, match.end)
+		     << nocolor;
 
 		previous_end = match.end;
 	}
 
-	putsn(str, previous_end, b);
-
-	cout << endl;
+	cout << substr(str, previous_end, b) << endl;
 }
 
 void print_context_before(const context& context, const match& match, int lines) {
@@ -195,7 +212,7 @@ void print_context_before(const context& context, const match& match, int lines)
 	}
 
 	for (auto l = lines_to_output.rbegin(); l != lines_to_output.rend(); ++l) {
-		line_prefix(context.out, context.filename, true, context.pagenum) << *l << endl;
+		line_prefix(context, true) << *l << endl;
 	}
 }
 
@@ -224,8 +241,7 @@ void print_context_after(const context& context, const match& match, int lines) 
 		auto newpos = str.find('\n', pos+1);
 
 		auto end_pos = newpos == string::npos ? str.size() : newpos;
-		line_prefix(context.out, context.filename, true, context.pagenum)
-			<< str.substr(pos+1, end_pos-pos-1) << endl;
+		line_prefix(context, true) << str.substr(pos+1, end_pos-pos-1) << endl;
 
 		if (newpos == string::npos) {
 			break;

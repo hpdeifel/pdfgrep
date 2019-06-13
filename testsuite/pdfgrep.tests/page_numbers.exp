@@ -15,3 +15,53 @@ pdfgrep_expect -n page $pdf \
 3:third page"
 
 expect_exit_status 0
+
+######################################################################
+
+set test "--page-number without optional argument"
+
+pdfgrep_expect --page-number page $pdf \
+"1:first page
+2:second page
+3:third page"
+
+expect_exit_status 0
+
+######################################################################
+
+set test "Argument 'count' for --page-number"
+
+pdfgrep_expect --page-number=index page $pdf \
+"1:first page
+2:second page
+3:third page"
+
+expect_exit_status 0
+
+######################################################################
+
+set test "Invalid argument to --page-number"
+
+pdfgrep_expect_error --page-number=invalid page $pdf
+expect_exit_status 2
+
+######################################################################
+
+set test "Argument 'label' for --page-number"
+
+clear_pdfdir
+set pdf [mkpdf foo {
+    \pagenumbering{roman}
+    first page
+    \newpage
+    second page
+    \newpage
+    third page
+}]
+
+pdfgrep_expect --page-number=label page $pdf \
+"i:first page
+ii:second page
+iii:third page"
+
+expect_exit_status 0

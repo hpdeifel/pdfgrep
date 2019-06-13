@@ -1,6 +1,11 @@
 NEXT RELEASE
 ------------
 
+## Features
+
+  - `--page-number` can now take an optional argument `label` that shows the
+    PDF's page label instead of the page index.
+
 ## Changes
 
   - Change default value of `--include` to `*.[Pp][Dd][Ff]` to allow for

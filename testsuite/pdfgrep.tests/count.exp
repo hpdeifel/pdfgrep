@@ -14,6 +14,23 @@ expect_exit_status 0
 
 ######################################################################
 
+set test "warning for count and --page-number"
+
+clear_pdfdir
+set count1 [mkpdf count1 {
+    foofoo\\
+    foo
+    \newpage
+    foo
+}]
+pdfgrep_expect_with_err --count --page-number foo $count1 \
+".*pdfgrep: warning: .*
+4"
+
+expect_exit_status 0
+
+######################################################################
+
 set test "count 0 with one file"
 
 pdfgrep_expect --count not-there $count1 \
