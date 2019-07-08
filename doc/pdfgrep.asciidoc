@@ -247,6 +247,16 @@ solved with pdfgrep alone, but the Unix tools *find(1)* and *xargs(1)*
 had to be used. That's because pdfgrep itself doesn't include options
 to exclude files by their size. But as you see, it doesn't have to!
 
+*Search all .pdf files in the current directory in parallel on a multcore CPU* ::
++
+--------------------------------------------------
+find . -name "*.pdf" -print0 | parallel -q0 pdfgrep -H foobar
+--------------------------------------------------
++
+This uses GNU *parallel(1)* in addition fo *find(1)* to search multiple files in
+parallel on multicore processors. Doing this can lead to a good speedup if you
+have multiple files to search and an underused CPU.
+
 == BUGS
 === Reporting Bugs
 Bugs can either be reportet to the mailing list
