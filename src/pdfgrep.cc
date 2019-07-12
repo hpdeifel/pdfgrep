@@ -834,7 +834,7 @@ int main(int argc, char** argv)
 				error = true;
 			}
 		} else {
-			err() << filename << " is a directory" << endl;
+			err() << filename << " is a directory. Did you mean to use '--recursive'?" << endl;
 			error = true;
 		}
 	}
