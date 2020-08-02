@@ -270,7 +270,7 @@ set latex_post {\end{document}}
 
 # Create a pdf called $name.pdf in $pdfdir containing $content.
 #
-# THis is done by first creating a .tex file with $content between
+# This is done by first creating a .tex file with $content between
 # \begin{document} and \end{document} and then calling pdflatex on it.
 #
 # Returns the name of the newly created PDF file

@@ -57,8 +57,8 @@ the following functions and variables should be of interest:
 
 ### Procedures
 
-- `pdfgrep_expect`: Call pdfgrep an expect some output.
-- `pdfgrep_expect_x`: Call pdfgrep an expect some output, but mark
+- `pdfgrep_expect`: Call pdfgrep and expect some output.
+- `pdfgrep_expect_x`: Call pdfgrep and expect some output, but mark
   this test as known to fail.
 - `pdfgrep_expect_error`: Call pdfgrep and expect it to print an error.
 - `expect_exit_status`: Compare the exit status of the last spawned
