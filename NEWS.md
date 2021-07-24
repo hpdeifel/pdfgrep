@@ -15,6 +15,11 @@ NEXT RELEASE
     versions that makes pdfgrep produce wrong results. See
     https://bugs.freedesktop.org/show_bug.cgi?id=91644
 
+---------------------------
+Version 2.1.3 [2021-07-24]
+
+  - Syntax documentation corrected
+
 Version 2.1.2  [2018-11-19]
 ---------------------------
 
