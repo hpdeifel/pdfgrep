@@ -10,9 +10,9 @@ pdfgrep - search PDF files for a regular expression
 == SYNOPSIS
 [verse]
 *pdfgrep* ['OPTION'...] 'PATTERN' 'FILE'...
-*pdfgrep* ['OPTION'...] {*-e* 'PATTERN'|*-f* 'FILE'} [*-e* 'PATTERN']... [*-f* 'FILE']... 'FILE'...
-*pdfgrep* ['OPTION'...] *-r*|*-R* 'PATTERN' ['FILE'...]
-*pdfgrep* ['OPTION'...] *-r*|*-R* {*-e* 'PATTERN'|*-f* 'FILE'} [*-e* 'PATTERN']... [*-f* 'FILE']... ['FILE'...]
+*pdfgrep* ['OPTION'...] {*-e* 'PATTERN'|*-f* 'FILE'}... 'FILE'...
+*pdfgrep* ['OPTION'...] *-r*|*-R* 'PATTERN' ['FILE'|'DIR'...]
+*pdfgrep* ['OPTION'...] *-r*|*-R* {*-e* 'PATTERN'|*-f* 'FILE'}... ['FILE'|'DIR'...]
 
 == DESCRIPTION
 
