@@ -14,6 +14,7 @@ NEXT RELEASE
   - Build system: Require poppler-cpp >= 0.36.0, to avoid a nasty bug in earlier
     versions that makes pdfgrep produce wrong results. See
     https://bugs.freedesktop.org/show_bug.cgi?id=91644
+  - Manpage: Specify SYNOPSIS more precisely.
 
 Version 2.1.2  [2018-11-19]
 ---------------------------
