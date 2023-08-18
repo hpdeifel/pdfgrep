@@ -1,10 +1,12 @@
 AC_INIT([pdfgrep], [2.1.2], [pdfgrep-users@pdfgrep.org])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([foreign])
-AC_CONFIG_HEADER([config.h])
+AC_CONFIG_HEADERS([config.h])
 
 AC_PROG_CXX
 AC_PROG_CC
+AC_PROG_INSTALL
+AC_PROG_MAKE_SET
 
 dnl check for c++14 std
 AX_CXX_COMPILE_STDCXX(14, [noext], [mandatory])
@@ -16,6 +18,7 @@ AC_FUNC_REALLOC
 AC_CHECK_FUNCS([regcomp])
 AC_CHECK_FUNCS([getopt_long])
 AC_CHECK_FUNCS([strcasestr])
+AC_CHECK_FUNCS([mkdir strdup strerror strstr strtoul])
 
 AC_MSG_CHECKING([for git head])
 dnl git revision, code stolen from paludis
