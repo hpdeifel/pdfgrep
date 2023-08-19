@@ -27,7 +27,8 @@
 #include <sys/types.h>
 #include <regex.h>
 #ifdef HAVE_LIBPCRE
-#include <pcre.h>
+#define PCRE2_CODE_UNIT_WIDTH 8
+#include <pcre2.h>
 #endif
 #include <vector>
 #include <string>
@@ -78,7 +79,7 @@ public:
 	~PCRERegex();
 	bool exec(const std::string &str, size_t offset, struct match &m) const override;
 private:
-	pcre *regex;
+	pcre2_code *regex;
 };
 #endif
 

@@ -66,7 +66,7 @@ AC_ARG_WITH([libpcre],
 )
 
 AS_IF([test "x$with_libpcre" != "xno"], [
-	PKG_CHECK_MODULES([libpcre], [libpcre])
+	PKG_CHECK_MODULES([libpcre], [libpcre2-8])
 	AC_SUBST(libpcre_CFLAGS)
 	AC_SUBST(libpcre_LIBS)
 	AC_DEFINE([HAVE_LIBPCRE], [1], [Define to 1 if you have libpcre _and_ want to use it])

@@ -21,6 +21,7 @@
 #include "regengine.h"
 
 #include <regex.h>
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -104,47 +105,55 @@ PosixRegex::~PosixRegex()
 }
 
 
-// pcre(3)
+// pcre2(3)
 
 #ifdef HAVE_LIBPCRE
 
 PCRERegex::PCRERegex(const string &pattern, bool case_insensitive)
 {
-	const char *pcre_err;
-	int pcre_err_ofs;
-	const int pcre_options = PCRE_UTF8 | (case_insensitive ? PCRE_CASELESS : 0);
+	int pcre_err;
+	PCRE2_SIZE pcre_err_ofs;
+	const uint32_t pcre_options = PCRE2_UTF | (case_insensitive ? PCRE2_CASELESS : 0);
 
-	this->regex = pcre_compile(pattern.c_str(), pcre_options,
-	                           &pcre_err, &pcre_err_ofs, nullptr);
+	this->regex = pcre2_compile(reinterpret_cast<PCRE2_SPTR>(pattern.data()), pattern.size(),
+				    pcre_options, &pcre_err, &pcre_err_ofs, nullptr);
 
 	if (this->regex == nullptr) {
+		PCRE2_UCHAR message[128]; // Actual size unknowable, longer messages get truncated
+		pcre2_get_error_message(pcre_err, message, sizeof message / sizeof *message);
 		err() << pattern << endl;
 		err() << setw(pcre_err_ofs+1) << "^" << endl;
-		err() << "Error compiling PCRE pattern: " << pcre_err << endl;
+		err() << "Error compiling PCRE pattern: " << message << endl;
 		exit(EXIT_ERROR);
 	}
 }
 
 PCRERegex::~PCRERegex()
 {
-	pcre_free(this->regex);
+	pcre2_code_free(this->regex);
 }
 
 bool PCRERegex::exec(const string &str, size_t offset, struct match &m) const
 {
-	const size_t len = str.size();
-	int ov[3];
+	pcre2_match_data *data;
+	PCRE2_SIZE *ov;
 
-	const int ret = pcre_exec(this->regex, nullptr, str.c_str(), len, offset, 0, ov, 3);
+	data = pcre2_match_data_create(1, nullptr);
+	const int ret = pcre2_match(this->regex,
+				    reinterpret_cast<PCRE2_SPTR>(str.data()), str.size(),
+				    offset, 0, data, nullptr);
 
 	// TODO: Print human readable error
-	if (ret < 0) {
+	if (ret < 0 || pcre2_get_ovector_count(data) != 1) {
+		pcre2_match_data_free(data);
 		return false;
 	}
 
+	ov = pcre2_get_ovector_pointer(data);
 	m.start = ov[0];
 	m.end = ov[1];
 
+	pcre2_match_data_free(data);
 	return true;
 }
 

@@ -36,7 +36,7 @@ default, 'PATTERN' is an extended regular expression.
   strings separated by newlines, any of which is to be matched.
 
 *-P*, *--perl-regexp* :: Interpret 'PATTERN' as a Perl compatible
-  regular expression (PCRE). See 'pcresyntax'(3) for a quick overview.
+  regular expression (PCRE2). See 'pcre2syntax'(3) for a quick overview.
 
 === Matching Control
 
@@ -272,7 +272,7 @@ See the 'AUTHORS' file in the source for a full list of contributors.
 
 
 == SEE ALSO
-grep(1), pcre(3), regex(7)
+grep(1), pcre2(3), regex(7)
 
 See pdfgrep's website https://pdfgrep.org for more information,
 downloads, git repository and more.
