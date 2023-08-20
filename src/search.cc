@@ -104,8 +104,9 @@ int search_document(const Options &opts, unique_ptr<poppler::document> doc,
 			}
 
 			poppler::ustring pagetext = page->text(page->page_rect(poppler::media_box));
+			static constexpr poppler::ustring::value_type formfeed[] = { '\f', '\0' };
 
-			if (!pagetext.empty()) {
+			if (!pagetext.empty() && pagetext != formfeed) {
 				// there is text on this page, document can't be empty
 				state.document_empty = false;
 
