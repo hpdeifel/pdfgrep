@@ -242,7 +242,7 @@ static void print_help(char *self)
 	     << endl
 	     << "Commonly used options:" << endl
 	     << " -i, --ignore-case              Ignore case distinctions" << endl
-	     << " -P, --pcre                     Use Perl compatible regular expressions (PCRE)" << endl
+	     << " -P, --perl-regexp              Use Perl compatible regular expressions (PCRE)" << endl
 	     << " -H, --with-filename            Print the file name for each match" << endl
 	     << " -h, --no-filename              Suppress the prefixing of file name on output" << endl
 	     << " -n, --page-number              Print page number with output lines" << endl
