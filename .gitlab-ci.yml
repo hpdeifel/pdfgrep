@@ -4,7 +4,7 @@ before_script:
   - apt-get install -y -qq libpoppler-cpp-dev libgcrypt20-dev libpcre3-dev asciidoc dejagnu texlive-latex-base
 
 test:
-  image: debian:stretch
+  image: debian:bookworm
   script:
     - export CXXFLAGS="-Wformat -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -Wp,-D_GLIBCXX_ASSERTIONS -fexceptions -fstack-protector-strong -grecord-gcc-switches"
     - ./autogen.sh
@@ -20,7 +20,7 @@ test:
     expire_in: 1 week
 
 test:libunac:
-  image: debian:stretch
+  image: debian:bookworm
   script:
     - apt-get install -y libunac1-dev
     - export CXXFLAGS="-Wformat -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -Wp,-D_GLIBCXX_ASSERTIONS -fexceptions -fstack-protector-strong -grecord-gcc-switches"
