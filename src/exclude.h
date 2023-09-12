@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2011-2019 by Hans-Peter Deifel                          *
+ *   Copyright (C) 2011-2023 by Hans-Peter Deifel                          *
  *   hpd@hpdeifel.de                                                       *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
