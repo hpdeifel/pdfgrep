@@ -24,6 +24,7 @@
 #include <cstring>
 #include <cctype>
 #include <iostream>
+#include <algorithm>
 
 using namespace std;
 
@@ -162,7 +163,11 @@ void print_matches(const context& context, const std::vector<match>& matches) {
 
 	int previous_end = a;
 	for (auto match : matches) {
-		cout << substr(str, previous_end, match.start);
+		// This can happen if the first match is empty (empty pattern)
+		// and first_match.start is on a newline character.
+		if (previous_end <= match.start) {
+			cout << substr(str, previous_end, match.start);
+		}
 
 		cout << color(context.out.color, context.out.colors.highlight)
 		     << substr(str, match.start, match.end)
