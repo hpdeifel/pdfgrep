@@ -35,15 +35,18 @@ set empty [mkpdf empty {
     abc
 }]
 
+# Note: For some reason, newer versions of poppler generate spurious whitespace
+# after the "abc" here, so we need to account for that in the tests.
+
 set timeout 2
 pdfgrep_expect "" $empty \
-"abc"
+"abc\\s*"
 
 set test "Empty pattern -- fixed string"
 
 set timeout 2
 pdfgrep_expect -F "" $empty \
-"abc"
+"abc\\s*"
 
 set test "Empty pattern -- PCRE"
 
@@ -51,7 +54,7 @@ set requires_pcre_support true
 
 set timeout 2
 pdfgrep_expect -P "" $empty \
-"abc"
+"abc\\s*"
 
 ######################################################################
 
