@@ -91,7 +91,7 @@ int search_document(const Options &opts, unique_ptr<poppler::document> doc,
 		}
 
 		CachePage cachepage;
-		
+
 		if (!opts.use_cache || !cache->get_page(pagenum, cachepage)) {
 			unique_ptr<poppler::page> page(doc->create_page(pagenum-1));
 
@@ -103,14 +103,19 @@ int search_document(const Options &opts, unique_ptr<poppler::document> doc,
 				continue;
 			}
 
-			poppler::ustring pagetext = page->text(page->page_rect(poppler::media_box));
-			static constexpr poppler::ustring::value_type formfeed[] = { '\f', '\0' };
+			cachepage.text = ustring_to_string(page->text(page->page_rect(poppler::media_box)));
+			string& pagetext = cachepage.text;
 
-			if (!pagetext.empty() && pagetext != formfeed) {
+			// newer versions of poppler end pages with a formfeed
+			// character. We don't need this, since we know where
+			// the page boundary is. => Remove it.
+			if (!pagetext.empty() && pagetext.back() == '\f') {
+				pagetext.resize(pagetext.size() - 1);
+			}
+
+			if (!pagetext.empty()) {
 				// there is text on this page, document can't be empty
 				state.document_empty = false;
-
-				cachepage.text = ustring_to_string(pagetext);
 			}
 
 			// TODO Don't read label if we don't need it
