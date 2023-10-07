@@ -35,6 +35,9 @@ To build `pdfgrep`, use the standard procedure:
     make
     sudo make install
 
+If you're using the git version, you will also have to run
+`./autogen.sh` in advance.
+
 Depending on your OS, you need to have `-dev` or `-devel` packages
 installed for all dependencies.
 
@@ -51,11 +54,10 @@ build process, the most important of which are:
    expressions.
  - `--disable-doc`: Disable manpage generation.
 
+To uninstall, run `sudo make uninstall`.
+
 See `configure --help` for more info or read the (very extensive)
 `INSTALL` file in the source.
-
-If you're using the git version, you will also have to run
-`./autogen.sh` in advance.
 
 ## Download
 
