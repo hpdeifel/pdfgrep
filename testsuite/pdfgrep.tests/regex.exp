@@ -214,13 +214,7 @@ pdfgrep_expect -P "^line" $pdf "line1"
 
 set test "\$ only matches the end of a page"
 
-# FIXME This currently fails, but shouldn't. The problem is that the last line
-# ends with a newline chraracter and so "line.\n$" would match, but "line.$"
-# doesn't.
-#
-# See bug #14 for details.
-
-pdfgrep_expect_x "line.\$" $pdf "line2"
+pdfgrep_expect "line.\$" $pdf "line2"
 
 ######################################################################
 
