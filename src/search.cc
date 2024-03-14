@@ -21,6 +21,7 @@
 #include "search.h"
 #include "output.h"
 
+#include <algorithm>
 #include <iostream>
 #include <cmath>
 #include <cstring>
@@ -106,12 +107,17 @@ int search_document(const Options &opts, unique_ptr<poppler::document> doc,
 			cachepage.text = ustring_to_string(page->text(page->page_rect(poppler::media_box)));
 			string& pagetext = cachepage.text;
 
-			// newer versions of poppler end pages with a formfeed
-			// character. We don't need this, since we know where
-			// the page boundary is. => Remove it.
-			if (!pagetext.empty() && pagetext.back() == '\f') {
-				pagetext.resize(pagetext.size() - 1);
-			}
+			// newer versions of poppler generate spurious
+			// whitespace at the end of pages. Since in a pdf
+			// trailing whitespace text is visually identical to no
+			// text, we can just remove it.
+			auto whitespace_start =
+				std::find_if(pagetext.rbegin(),
+					     pagetext.rend(), [](unsigned char ch) {
+						     return !std::isspace(ch);
+					     });
+			pagetext.erase(whitespace_start.base(), pagetext.end());
+
 
 			if (!pagetext.empty()) {
 				// there is text on this page, document can't be empty
