@@ -271,7 +271,7 @@ static void print_version()
 #ifdef HAVE_LIBPCRE
 	auto pcre_version = make_unique<char[]>(pcre2_config(PCRE2_CONFIG_VERSION, nullptr));
 	pcre2_config(PCRE2_CONFIG_VERSION, pcre_version.get());
-	cout << "Using libpcre version " << pcre_version.get() << endl;
+	cout << "Using libpcre2 version " << pcre_version.get() << endl;
 #endif
 #ifdef PDFGREP_GIT_HEAD
 	cout << "Built from git-commit " << PDFGREP_GIT_HEAD << endl;
