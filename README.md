@@ -25,7 +25,7 @@ For a complete documentation, please consult the [manpage].
 
  - poppler-cpp (poppler >= 0.14) (http://poppler.freedesktop.org/)
  - libgcrypt (https://www.gnu.org/software/libgcrypt/)
- - optionally libpcre (http://www.pcre.org/)
+ - optionally libpcre2 (http://www.pcre.org/)
  
 ## Building
 
