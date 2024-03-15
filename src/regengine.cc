@@ -119,7 +119,7 @@ PCRERegex::PCRERegex(const string &pattern, bool case_insensitive)
 				    pcre_options, &pcre_err, &pcre_err_ofs, nullptr);
 
 	if (this->regex == nullptr) {
-		PCRE2_UCHAR message[128]; // Actual size unknowable, longer messages get truncated
+		PCRE2_UCHAR message[512]; // Actual size unknowable, longer messages get truncated
 		pcre2_get_error_message(pcre_err, message, sizeof message / sizeof *message);
 		err() << pattern << endl;
 		err() << setw(pcre_err_ofs+1) << "^" << endl;
