@@ -57,7 +57,7 @@ while {1} {
         -re "Using libunac version \[^\r\]*\r\n" {
             set have_unac true
         }
-        -re "Using libpcre version \[^\r\]*\r\n" {
+        -re "Using libpcre2 version \[^\r\]*\r\n" {
             set have_pcre true
         }
         eof break
