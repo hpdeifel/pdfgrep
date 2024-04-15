@@ -63,7 +63,7 @@ read
 echo "### Copying files to website repo"
 cp $tarball $website/site/download/
 cp ${tarball}.asc $website/site/download/
-cp doc/pdfgrep.txt $website/site/manpages/manpage-${version}.txt
+cp doc/pdfgrep.asciidoc $website/site/manpages/manpage-${version}.txt
 
 echo "### Done. Steps to do:"
 echo " - git push"
