@@ -6,6 +6,7 @@ The tests depend on the following packages:
 
   - dejagnu
   - pdflatex
+  - parskip.sty
 
 ## Running
 
