@@ -51,7 +51,7 @@ bool PatternList::exec(const string &str, size_t offset, struct match &m) const
 
 
 void PatternList::add_pattern(unique_ptr<Regengine> pattern) {
-	patterns.push_back(move(pattern));
+	patterns.push_back(std::move(pattern));
 }
 
 // regex(3)

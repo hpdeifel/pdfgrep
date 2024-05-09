@@ -351,7 +351,7 @@ static int do_search_in_document(const Options &opts, const string &path, const 
 		return 1;
 	}
 
-	int matches = search_document(opts, move(doc), move(cache), path, re);
+	int matches = search_document(opts, std::move(doc), std::move(cache), path, re);
 	if (matches > 0) {
 		found_something = true;
 		if (opts.quiet) {
@@ -754,7 +754,7 @@ int main(int argc, char** argv)
 		for (auto const &p : patterns) {
 			patt_list->add_pattern(make_regengine(p));
 		}
-		re = move(patt_list);
+		re = std::move(patt_list);
 	}
 
 #if POPPLER_VERSION_MAJOR > 0 || POPPLER_VERSION_MINOR >= 29
