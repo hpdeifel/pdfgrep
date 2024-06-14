@@ -223,11 +223,6 @@ static void set_default_colors(Colorconf &colors)
 	colors.separator = strdup("36");
 }
 
-static void init_colors(Colorconf &colors)
-{
-	set_default_colors(colors);
-}
-
 static void print_usage(char *self)
 {
 	cout << "Usage: " << self << " [OPTION]... PATTERN FILE..." << endl;
@@ -466,7 +461,7 @@ static void handle_poppler_errors(const string &msg, void *_opts)
 int main(int argc, char** argv)
 {
 	Options options;
-	init_colors(options.outconf.colors);
+	set_default_colors(options.outconf.colors);
 
 	try {
 		// Set locale to user-preference. If this locale is an UTF-8 locale, the
